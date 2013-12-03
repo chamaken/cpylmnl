@@ -38,7 +38,8 @@ class Header(netlink.Nlmsghdr):
     def put_u64(self, t, d):		attr_put_u64(self, t, d)
     def put_str(self, t, d):		attr_put_str(self, t, d)
     def put_strz(self, t, d):		attr_put_strz(self, t, d)
-    def nest_start(self, t):		return attr_nest_start(self, t)
+    def nest_start(self, t):
+        return cast(addressof(attr_nest_start(self, t)), POINTER(Attribute)).contents
     def put_check(self, l, t, d):	return attr_put_check(self, l, t, d)
     def put_u8_check(self, l, t, d):	return attr_put_u8_check(self, l, t, d)
     def put_u16_check(self, l, t, d):	return attr_put_u16_check(self, l, t, d)
@@ -46,7 +47,8 @@ class Header(netlink.Nlmsghdr):
     def put_u64_check(self, l, t, d):	return attr_put_u64_check(self, l, t, d)
     def put_str_check(self, l, t, d):	return attr_put_str_check(self, l, t, d)
     def put_strz_check(self, l, t, d): return attr_put_strz_check(self, l, t, d)
-    def nest_start_check(self, l, t):	return attr_nest_start_check(self, l, t)
+    def nest_start_check(self, l, t):
+	return cast(addressof(attr_nest_start_check(self, l, t)), POINTER(Attribute)).contents
     def nest_end(self, a):		return attr_nest_end(self, a)
     def nest_cancel(self, a):		return attr_nest_cancel(self, a)
 
