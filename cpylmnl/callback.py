@@ -14,7 +14,7 @@ def cb_run2(buf, seq, portid, cb_data, data, cb_ctls=None):
     if cb_data is None: cb_data = MNL_CB_T()
     set_errno(0)
     ret = c_cb_run2(c_buf, len(c_buf), seq, portid, cb_data, data, cb_ctls, cb_ctls_len)
-    c_raise_if_errno()
+    if ret < 0: c_raise_if_errno()
     return ret
 
 def cb_run(buf, seq, portid, cb_data, data):
@@ -22,7 +22,7 @@ def cb_run(buf, seq, portid, cb_data, data):
     if cb_data is None: cb_data = MNL_CB_T()
     set_errno(0)
     ret = c_cb_run(c_buf, len(c_buf), seq, portid, cb_data, data)
-    c_raise_if_errno()
+    if ret < 0: c_raise_if_errno()
     return ret
 
 

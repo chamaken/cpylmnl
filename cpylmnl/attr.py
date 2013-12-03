@@ -49,7 +49,7 @@ def attr_next(attr):
 def attr_type_valid(attr, maxtype):
     set_errno(0)
     ret = c_attr_type_valid(attr, maxtype)
-    c_raise_if_errno()
+    if ret < 0: c_raise_if_errno()
     return ret
 
 ### validate netlink attribute (simplified version)
@@ -57,7 +57,7 @@ def attr_type_valid(attr, maxtype):
 def attr_validate(attr, data_type):
     set_errno(0)
     ret = c_attr_validate(attr, data_type)
-    c_raise_if_errno()
+    if ret < 0: c_raise_if_errno()
     return ret
 
 ### validate netlink attribute (extended version)
@@ -67,7 +67,7 @@ def attr_validate(attr, data_type):
 def attr_validate2(attr, data_type, exp_len):
     set_errno(0)
     ret = c_attr_validate2(attr, data_type, exp_len)
-    c_raise_if_errno()
+    if ret < 0: c_raise_if_errno()
     return ret
 
 ### parse attributes
@@ -77,7 +77,7 @@ def attr_validate2(attr, data_type, exp_len):
 def attr_parse(nlh, offset, cb, data):
     set_errno(0)
     ret = c_attr_parse(nlh, offset, cb, data)
-    c_raise_if_errno()
+    if ret < 0: c_raise_if_errno()
     return ret
 
 ### parse attributes inside a nest
@@ -87,7 +87,7 @@ def attr_parse(nlh, offset, cb, data):
 def attr_parse_nested(attr, cb, data):
     set_errno(0)
     ret = c_attr_parse_nested(attr, cb, data)
-    c_raise_if_errno()
+    if ret < 0: c_raise_if_errno()
     return ret
 
 ### parse attributes in payload of Netlink message
@@ -97,7 +97,7 @@ def attr_parse_payload(payload, cb, data):
     b = (c_ubyte * len(payload)).from_buffer(payload)
     set_errno(0)
     ret = c_attr_parse_payload(b, len(payload), cb, data)
-    c_raise_if_errno()
+    if ret < 0: c_raise_if_errno()
     return ret
 
 ### returns 8-bit unsigned integer attribute payload
