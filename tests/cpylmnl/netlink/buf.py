@@ -9,7 +9,7 @@ def buf_property(fmt, start):
     l = [fmt, start, start + fmt_len]
 
     def _getter(obj):
-        return struct.unpack(l[0], obj[l[1]:l[2]])[0]
+        return struct.unpack(l[0], bytes(obj[l[1]:l[2]]))[0]
 
     def _setter(obj, val):
         obj[l[1]:l[2]] = struct.pack(l[0], val)
