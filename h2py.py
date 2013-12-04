@@ -32,7 +32,7 @@ p_macro = re.compile(
 
 p_enum_start = re.compile('^[\t ]*enum([\t ]+[a-zA-Z0-9_]+)?[\n\t ]+{')
 # could not match ``enum\n{'' in rtnetlink.h, PREFIX_...
-p_enum_entry = re.compile('^[\t ]*([A-Za-z0-9_]+)[\t ]*(=[\t ]*[A-Za-z0-9_]+)?')
+p_enum_entry = re.compile('^[\t ]*([A-Za-z0-9_]+)[\t ]*(=[^,]*)?')
 p_enum_end = re.compile('^[\t ]*}')
 
 p_comment = re.compile(r'/\*([^*]+|\*+[^/])*(\*+/)?')
@@ -148,11 +148,12 @@ def process(fp, outfp, env = {}):
                 if assign is None:
                     val = str(enum)
                 else:
-                    val = assign.split("=")[-1]
-                    try:
-                        enum = eval(val)
-                    except Exception as e:
-                        pass
+                    val = assign.split("=")[-1].strip()
+                    if val.find(" ") < 0:
+                        try:
+                            enum = eval(val)
+                        except Exception as e:
+                            sys.stderr.write('# H2PY_WARN: %s - enum: %s' % (fp.name, line))
                 stmt = '%s = %s\n' % (name, val)
                 try:
                     exec(whole_stmt + stmt, env)
@@ -200,4 +201,5 @@ def mymain(indir, outdir):
 
 
 if __name__ == '__main__':
+    # main()
     mymain(sys.argv[1], sys.argv[2])
