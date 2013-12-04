@@ -2,7 +2,9 @@
 
 from __future__ import absolute_import
 
+from ctypes import *
 from cpylmnl import netlink
+
 
 class Nfgenmsg(netlink.UStructure):
     """struct nfgenmsg

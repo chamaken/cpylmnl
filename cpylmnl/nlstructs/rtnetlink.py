@@ -5,6 +5,7 @@ from __future__ import absolute_import
 from ctypes import *
 from cpylmnl import netlink
 
+
 class Rtattr(netlink.UStructure):
     """struct rtattr
 

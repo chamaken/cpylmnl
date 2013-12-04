@@ -2,7 +2,9 @@
 
 from __future__ import absolute_import
 
+from ctypes import *
 from cpylmnl import netlink
+
 
 class NfulnlMsgPacketHdr(netlink.UStructure):
     """struct nfulnl_msg_packet_hdr
