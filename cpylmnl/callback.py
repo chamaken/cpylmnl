@@ -9,11 +9,23 @@ from .cproto import *
 from ctypes import *
 
 def cb_run2(buf, seq, portid, cb_data, data, cb_ctls=None):
-    cb_ctls_len = cb_ctls is not None and len(cb_ctls) or 0
+    if cb_ctls is not None:
+        cb_ctls_len = len(cb_ctls)
+        c_cb_ctls = (MNL_CB_T * cb_ctls_len)()
+        for i in range(cb_ctls_len):
+            if cb_ctls[i] is None:
+                c_cb_ctls[i] = MNL_CB_T()
+            else:
+                c_cb_ctls[i] = cb_ctls[i]
+    else:
+        cb_ctls_len = 0
+        c_cb_ctls = None
+
     c_buf = (c_ubyte * len(buf)).from_buffer(buf)
     if cb_data is None: cb_data = MNL_CB_T()
+
     set_errno(0)
-    ret = c_cb_run2(c_buf, len(c_buf), seq, portid, cb_data, data, cb_ctls, cb_ctls_len)
+    ret = c_cb_run2(c_buf, len(c_buf), seq, portid, cb_data, data, c_cb_ctls, cb_ctls_len)
     if ret < 0: c_raise_if_errno()
     return ret
 

@@ -436,7 +436,7 @@ c_cb_run.restype = c_int
 #		       unsigned int portid, mnl_cb_t cb_data, void *data,
 #		       mnl_cb_t *cb_ctl_array, unsigned int cb_ctl_array_len);
 c_cb_run2 = LIBMNL.mnl_cb_run2
-c_cb_run2.argtypes = [c_void_p, c_size_t, c_uint, c_uint, MNL_CB_T, py_object, c_void_p, c_uint]
+c_cb_run2.argtypes = [c_void_p, c_size_t, c_uint, c_uint, MNL_CB_T, py_object, POINTER(MNL_CB_T), c_uint]
 c_cb_run2.restype = c_int
 
 
