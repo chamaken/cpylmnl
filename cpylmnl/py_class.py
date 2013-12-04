@@ -89,9 +89,9 @@ def put_new_header(size):
 # to implement nlmsg_batch_current
 class NlmsgBatch(object):
     def __init__(self, bufsize, limit): # start
-        if bufsize > limit: raise ValueError("bufsize is larger than limit")
-        self._buf = bytearray(bufsize) # just holding
-        self._batch = nlmsg_batch_start(buf, limit)
+        if bufsize < limit: raise ValueError("bufsize is smaller than limit")
+        self._buf = bytearray(bufsize)
+        self._batch = nlmsg_batch_start(self._buf, limit)
 
     def stop(self):	nlmsg_batch_stop(self._batch)
     def next(self):	return nlmsg_batch_next(self._batch)
@@ -102,7 +102,7 @@ class NlmsgBatch(object):
     def current(self):
         current = nlmsg_batch_current(self._batch)
         size =  nlmsg_batch_head(self._batch) + len(self._buf) - current
-        return cast((c_ubyte * size), current)
+        return cast(current, POINTER(c_ubyte * size)).contents
 
     def __enter__(self): return self
     def __exit__(self, t, v, tb):
