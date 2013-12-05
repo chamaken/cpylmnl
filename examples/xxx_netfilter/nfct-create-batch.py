@@ -6,76 +6,74 @@ from __future__ import print_function, absolute_import
 import sys, os, logging, socket, time, select
 import ipaddr
 
-from pylmnl import netlink
-import pylmnl.netlink.nfnetlink as nfnl
-import pylmnl.netlink.nfnetlink.conntrack as nfnlct
-import pylmnl as mnl
-from pylmnl.linux.netfilter.conntrack import tcp as nfcttcp
-from pylmnl.linux.netfilter.conntrack import common as nfctcommon
+from cpylmnl import netlink, h
+import cpylmnl.nlstructs.nfnetlink as nfnl
+import cpylmnl as mnl
+
 
 log = logging.getLogger(__name__)
 
 
 def put_msg(buf, i, seq):
-    nlh = mnl.Message(buf)
-    nlh = nlh.put_header()
-    nlh.type = (nfnl.NFNL_SUBSYS.CTNETLINK << 8) | nfnlct.IPCTNL_MSG.CT_NEW
-    nlh.flags = netlink.NLM_F.REQUEST | netlink.NLM_F.CREATE | netlink.NLM_F.EXCL | netlink.NLM_F.ACK
+    nlh = mnl.Header(buf)
+    nlh.put_header()
+    nlh.type = (h.NFNL_SUBSYS_CTNETLINK << 8) | h.IPCTNL_MSG_CT_NEW
+    nlh.flags = netlink.NLM_F_REQUEST | netlink.NLM_F_CREATE | netlink.NLM_F_EXCL | netlink.NLM_F_ACK
     nlh.seq = seq
 
-    nfh = nfnl.NFGenMsg(nlh.put_extra_header(nfnl.NFGenMsg.SIZEOF))
+    nfh = nlh.put_extra_header_as(nfnl.Nfgenmsg.sizeof(), nfnl.Nfgenmsg)
     nfh.family = socket.AF_INET
-    nfh.version = nfnl.NFNETLINK_V0
+    nfh.version = h.NFNETLINK_V0
     nfh.res_id = 0
 
-    # 2.2.2.2:i -> 1.1.1.1:1025
-    nest1 = nlh.attr_nest_start(nfnlct.CTA.TUPLE_ORIG)
-    nest2 = nlh.attr_nest_start(nfnlct.CTA_TUPLE.IP)
-    nlh.attr_put_u32(nfnlct.CTA_IP.V4_SRC, int(ipaddr.IPv4Address("2.2.2.2")))
-    nlh.attr_put_u32(nfnlct.CTA_IP.V4_DST, int(ipaddr.IPv4Address("1.1.1.1")))
-    nlh.attr_nest_end(nest2)
-
-    nest2 = nlh.attr_nest_start(nfnlct.CTA_TUPLE.PROTO)
-    nlh.attr_put_u8(nfnlct.CTA_PROTO.NUM, socket.IPPROTO_TCP)
-    nlh.attr_put_u16(nfnlct.CTA_PROTO.SRC_PORT, socket.htons(i))
-    nlh.attr_put_u16(nfnlct.CTA_PROTO.DST_PORT, socket.htons(1025))
-    nlh.attr_nest_end(nest2)
-    nlh.attr_nest_end(nest1)
+    # 1.1.1.1:i -> 2.2.2.2:1025
+    nest1 = nlh.nest_start(h.CTA_TUPLE_ORIG)
+    nest2 = nlh.nest_start(h.CTA_TUPLE_IP)
+    nlh.put_u32(h.CTA_IP_V4_SRC, int(ipaddr.IPv4Address("1.1.1.1")))
+    nlh.put_u32(h.CTA_IP_V4_DST, int(ipaddr.IPv4Address("2.2.2.2")))
+    nlh.nest_end(nest2)
+    nest2 = nlh.nest_start(h.CTA_TUPLE_PROTO)
+    nlh.put_u8(h.CTA_PROTO_NUM, socket.IPPROTO_TCP)
+    nlh.put_u16(h.CTA_PROTO_SRC_PORT, socket.htons(i))
+    nlh.put_u16(h.CTA_PROTO_DST_PORT, socket.htons(1025))
+    nlh.nest_end(nest2)
+    nlh.nest_end(nest1)
 
     # 2.2.2.2:1025 -> 1.1.1.1:i
-    nest1 = nlh.attr_nest_start(nfnlct.CTA.TUPLE_REPLY)
-    nest2 = nlh.attr_nest_start(nfnlct.CTA_TUPLE.IP)
-    nlh.attr_put_u32(nfnlct.CTA_IP.V4_SRC, int(ipaddr.IPv4Address("2.2.2.2")))
-    nlh.attr_put_u32(nfnlct.CTA_IP.V4_DST, int(ipaddr.IPv4Address("1.1.1.1")))
-    nlh.attr_nest_end(nest2)
+    nest1 = nlh.nest_start(h.CTA_TUPLE_REPLY)
+    nest2 = nlh.nest_start(h.CTA_TUPLE_IP)
+    nlh.put_u32(h.CTA_IP_V4_SRC, int(ipaddr.IPv4Address("2.2.2.2")))
+    nlh.put_u32(h.CTA_IP_V4_DST, int(ipaddr.IPv4Address("1.1.1.1")))
+    nlh.nest_end(nest2)
+    nest2 = nlh.nest_start(h.CTA_TUPLE_PROTO)
+    nlh.put_u8(h.CTA_PROTO_NUM, socket.IPPROTO_TCP)
+    nlh.put_u16(h.CTA_PROTO_SRC_PORT, socket.htons(1025))
+    nlh.put_u16(h.CTA_PROTO_DST_PORT, socket.htons(i))
+    nlh.nest_end(nest2)
+    nlh.nest_end(nest1)
 
-    nest2 = nlh.attr_nest_start(nfnlct.CTA_TUPLE.PROTO)
-    nlh.attr_put_u8(nfnlct.CTA_PROTO.NUM, socket.IPPROTO_TCP)
-    nlh.attr_put_u16(nfnlct.CTA_PROTO.SRC_PORT, socket.htons(1025))
-    nlh.attr_put_u16(nfnlct.CTA_PROTO.DST_PORT, socket.htons(i))
-    nlh.attr_nest_end(nest2)
-    nlh.attr_nest_end(nest1)
+    # TCP SYN
+    nest1 = nlh.nest_start(h.CTA_PROTOINFO)
+    nest2 = nlh.nest_start(h.CTA_PROTOINFO_TCP)
+    nlh.put_u8(h.CTA_PROTOINFO_TCP_STATE, h.TCP_CONNTRACK_SYN_SENT)
+    nlh.nest_end(nest2)
+    nlh.nest_end(nest1)
 
-    # 
-    nest1 = nlh.attr_nest_start(nfnlct.CTA.PROTOINFO)
-    nest2 = nlh.attr_nest_start(nfnlct.CTA_PROTOINFO.TCP)
-    nlh.attr_put_u8(nfnlct.CTA_PROTOINFO_TCP.STATE, nfcttcp.TCP_CONNTRACK.SYN_SENT)
-    nlh.attr_nest_end(nest2)
-    nlh.attr_nest_end(nest1)
-
-    #
-    nlh.attr_put_u32(nfnlct.CTA.STATUS, socket.htonl(nfctcommon.IPS.CONFIRMED))
-    nlh.attr_put_u32(nfnlct.CTA.TIMEOUT, socket.htonl(1000))
+    # status and timeout
+    nlh.put_u32(h.CTA_STATUS, socket.htonl(h.IPS_CONFIRMED))
+    nlh.put_u32(h.CTA_TIMEOUT, socket.htonl(1000))
 
 
+@mnl.header_cb
 def cb_err(nlh, data):
-    err = netlink.NLMsgErr(nlh.get_payload())
+    err = nlh.get_payload_as(netlink.Nlmsgerr)
     if err.error != 0:
-        print("message with seq %u has failed: %s" % (nlh.seq, os.strerror(-err.error)))
+        print("message with seq %u has failed: %s" % (nlh.seq, os.strerror(-err.error)), file=sys.stderr)
 
-    return mnl.CB.OK, None
+    return mnl.MNL_CB_OK
 
-CB_CTL_ARRAY = { netlink.NLMSG.ERROR: cb_err }
+# CB_CTL_ARRAY = [None] * (netlink.NLMSG_MIN_TYPE - 1)
+CB_CTL_ARRAY = {netlink.NLMSG_ERROR: cb_err}
 
 
 def send_batch(nl, b, portid):
@@ -83,54 +81,39 @@ def send_batch(nl, b, portid):
     size = b.size()
 
     ## try... except
-    nl.sendto(b.head().marshal_binary())
+    nl.sendto(b.head())
 
     while True:
         rlist, _wlist, _xlist = select.select([fd], [], [], 0.0)
+        # rlist, _wlist, _xlist = select.select([fd], [], [], 1.0)
         if not fd in rlist:
             break
 
-        rcv_buf = nl.recvfrom(mnl.SOCKET_BUFFER_SIZE)
-        ret, err = mnl.cb_run2(rcv_buf, 0, portid, None, None, CB_CTL_ARRAY)
+        rcv_buf = nl.recvfrom(mnl.MNL_SOCKET_BUFFER_SIZE)
+        ret = mnl.cb_run2(rcv_buf, 0, portid, None, None, CB_CTL_ARRAY)
         if not ret:
             print("mnl_cb_run: %s" % err, file=sys.stderr)
             sys.exit(-1)
 
 
 def main():
-    nl = mnl.Socket()
-    nl.open(netlink.NETLINK_PROTO.NETFILTER)
-    nl.bind(0, mnl.SOCKET_AUTOPID)
-    portid = nl.get_portid()
+    with mnl.Socket(netlink.NETLINK_NETFILTER) as nl:
+        nl.bind(0, mnl.MNL_SOCKET_AUTOPID)
+        portid = nl.get_portid()
 
-    # The buffer that we use to batch messages is MNL_SOCKET_BUFFER_SIZE
-    # multiplied by 2 bytes long, but we limit the batch to half of it
-    # since the last message that does not fit the batch goes over the
-    # upper boundary, if you break this rule, expect memory corruptions.
-    b = mnl.MessageBatch(mnl.SOCKET_BUFFER_SIZE * 2)
+        with mnl.NlmsgBatch(mnl.MNL_SOCKET_BUFFER_SIZE * 2, mnl.MNL_SOCKET_BUFFER_SIZE) as b:
+            seq = int(time.time())
+            for j, i in enumerate(list(range(1024, 65535))):
+                put_msg(b.current(), i, seq + j)
+                if b.next():
+                    continue
 
-    seq = int(time.time())
-    for j, i in enumerate(list(range(1024, 65535))):
-        put_msg(b.current(), i, seq + j)
-        # is there room for more messages in this batch?
-        # if so, continue.
-        if b.next_batch():
-            continue
+                send_batch(nl, b, portid)
+                b.reset()
 
-        send_batch(nl, b, portid)
+            if not b.is_empty():
+                send_batch(nl, b, portid)
 
-        # this moves the last message that did not fit into the
-        # batch to the head of it.
-        b.reset()
-
-    # check if there is any message in the batch not sent yet.
-    if not b.is_empty():
-        send_batch(nl, b, portid)
-
-    b.stop()
-    nl.close()
-
-    return 0
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.WARN,
