@@ -10,13 +10,10 @@ from ctypes import *
 
 def cb_run2(buf, seq, portid, cb_data, data, cb_ctls=None):
     if cb_ctls is not None:
-        cb_ctls_len = len(cb_ctls)
+        cb_ctls_len = netlink.NLMSG_MIN_TYPE
         c_cb_ctls = (MNL_CB_T * cb_ctls_len)()
         for i in range(cb_ctls_len):
-            if cb_ctls[i] is None:
-                c_cb_ctls[i] = MNL_CB_T()
-            else:
-                c_cb_ctls[i] = cb_ctls[i]
+            c_cb_ctls[i] = cb_ctls.get(i, MNL_CB_T())
     else:
         cb_ctls_len = 0
         c_cb_ctls = None
@@ -28,6 +25,7 @@ def cb_run2(buf, seq, portid, cb_data, data, cb_ctls=None):
     ret = c_cb_run2(c_buf, len(c_buf), seq, portid, cb_data, data, c_cb_ctls, cb_ctls_len)
     if ret < 0: c_raise_if_errno()
     return ret
+
 
 def cb_run(buf, seq, portid, cb_data, data):
     c_buf = (c_ubyte * len(buf)).from_buffer(buf)
