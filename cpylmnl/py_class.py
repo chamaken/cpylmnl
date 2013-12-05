@@ -46,9 +46,9 @@ class Header(netlink.Nlmsghdr):
     def put_u32_check(self, l, t, d):	return attr_put_u32_check(self, l, t, d)
     def put_u64_check(self, l, t, d):	return attr_put_u64_check(self, l, t, d)
     def put_str_check(self, l, t, d):	return attr_put_str_check(self, l, t, d)
-    def put_strz_check(self, l, t, d): return attr_put_strz_check(self, l, t, d)
+    def put_strz_check(self, l, t, d):	return attr_put_strz_check(self, l, t, d)
     def nest_start_check(self, l, t):
-	return cast(addressof(attr_nest_start_check(self, l, t)), POINTER(Attribute)).contents
+        return cast(addressof(attr_nest_start_check(self, l, t)), POINTER(Attribute)).contents
     def nest_end(self, a):		return attr_nest_end(self, a)
     def nest_cancel(self, a):		return attr_nest_cancel(self, a)
 
@@ -123,5 +123,5 @@ class Socket(object):
     def getsockopt(self, t, size):	return socket_getsockopt(self._nls, t, size)
     def __enter__(self):		return self
     def __exit__(self, t, v, tb):
-	socket_close(self._nls)
+        socket_close(self._nls)
         return False
