@@ -3,7 +3,7 @@
 
 from __future__ import print_function, absolute_import
 
-import sys, logging, socket, time
+import sys, logging, socket, time, struct
 
 from cpylmnl import netlink, h
 import cpylmnl.nlstructs.rtnetlink as rtnl
@@ -14,9 +14,8 @@ import cpylmnl as mnl
 log = logging.getLogger(__name__)
 
 
-@mnl.attribute_cb
 def data_attr_cb2(attr, tb):
-    # skip unsupported attribute in user-space
+    # skip unsupported attribute
     try:
         attr.type_valid(h.RTAX_MAX)
     except OSError as e:
@@ -31,7 +30,7 @@ def data_attr_cb2(attr, tb):
     tb[attr.get_type()] = attr
     return mnl.MNL_CB_OK
 
-
+# same as in rtnl-route-dump
 def attributes_show_ipv4(tb):
     def _print_u32(fmt, attr):
         print(fmt % attr.get_u32(), end='')
@@ -160,6 +159,11 @@ def data_cb(nlh, tb):
     tb = dict()
     rm = nlh.get_payload_as(rtnl.Rtmsg)
 
+    if nlh.type == h.RTM_NEWROUTE:
+        print("[NEW] ", end='')
+    elif nlh.type == h.RTM_DELROUTE:
+        print("[DEL] ", end='')
+
     # protocol family = AF_INET | AF_INET6
     print("family=%u " % rm.family,	end='')
 
@@ -179,13 +183,13 @@ def data_cb(nlh, tb):
     print("type=%u " % rm.type,		end='')
 
     # scope
-    print("scope=%u " % rm.scope,		end='')
+    print("scope=%u " % rm.scope,	end='')
 
     # proto
-    print("proto=%u " % rm.protocol,		end='')
+    print("proto=%u " % rm.protocol,	end='')
 
     # flags
-    print("flags=%x " % rm.flags,		end='')
+    print("flags=%x " % rm.flags,	end='')
 
     if rm.family == socket.AF_INET:
         nlh.parse(rtnl.Rtmsg.sizeof(), data_ipv4_attr_cb, tb)
@@ -199,32 +203,13 @@ def data_cb(nlh, tb):
 
 
 def main():
-    if len(sys.argv) != 2:
-        print("Usage: %s <inet|inet6>" % sys.argv[0])
-        sys.exit(-1)
-
-    nlh = mnl.put_new_header(mnl.MNL_SOCKET_BUFFER_SIZE)
-    nlh.type = h.RTM_GETROUTE
-    nlh.flags = netlink.NLM_F_REQUEST | netlink.NLM_F_DUMP
-    seq = int(time.time())
-    nlh.seq = seq
-    rtm = nlh.put_extra_header_as(rtnl.Rtmsg.sizeof(), rtnl.Rtmsg)
-
-    if sys.argv[1] == "inet":
-        rtm.family = socket.AF_INET
-    elif sys.argv[1] == "inet6":
-        rtm.family = socket.AF_INET6
-
     with mnl.Socket(netlink.NETLINK_ROUTE) as nl:
-        nl.bind(0, mnl.MNL_SOCKET_AUTOPID)
-        portid = nl.get_portid()
-        nl.send_nlmsg(nlh)
+        nl.bind(h.RTMGRP_IPV4_ROUTE | h.RTMGRP_IPV6_ROUTE, mnl.MNL_SOCKET_AUTOPID)
 
         ret = mnl.MNL_CB_OK
         while ret > mnl.MNL_CB_STOP:
             buf = nl.recvfrom(mnl.MNL_SOCKET_BUFFER_SIZE)
-            if len(buf) == 0: break
-            ret = mnl.cb_run(buf, seq, portid, data_cb, None)
+            ret = mnl.cb_run(buf, 0, 0, data_cb, None)
 
     if ret < 0:
         print(err, file=sys.stderr)

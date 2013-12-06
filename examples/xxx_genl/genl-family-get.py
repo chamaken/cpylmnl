@@ -119,7 +119,7 @@ def data_cb(nlh, tb):
     genlh = genl.GENLMsgHdr(nlh.get_payload())
 
     tb = dict()
-    nlh.attr_parse(genl.GENLMsgHdr.SIZEOF, data_attr_cb, tb)
+    nlh.parse(genl.GENLMsgHdr.SIZEOF, data_attr_cb, tb)
 
     genl.CTRL_ATTR.FAMILY_NAME in tb and print("name=%s\t" % tb[genl.CTRL_ATTR.FAMILY_NAME].get_str(), end='')
     genl.CTRL_ATTR.FAMILY_ID in tb   and print("id=%u\t" % tb[genl.CTRL_ATTR.FAMILY_ID].get_u16(),     end='')
