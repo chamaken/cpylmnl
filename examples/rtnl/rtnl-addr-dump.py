@@ -41,7 +41,7 @@ def data_cb(nlh, data):
     print("index=%d family=%d " % (ifa.index, ifa.family), end='')
 
     tb = dict()
-    nlh.attr_parse(if_addr.Ifaddrmsg.sizeof(), data_attr_cb, tb)
+    nlh.parse(if_addr.Ifaddrmsg.sizeof(), data_attr_cb, tb)
 
     print("addr=", end='')
     if h.IFA_ADDRESS in tb:

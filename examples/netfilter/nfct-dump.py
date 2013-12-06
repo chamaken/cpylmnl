@@ -201,7 +201,7 @@ def data_cb(nlh, data):
     tb = dict()
     nfg = nlh.get_payload_as(nfnl.Nfgenmsg)
 
-    nlh.attr_parse(nfnl.Nfgenmsg.sizeof(), data_attr_cb, tb)
+    nlh.parse(nfnl.Nfgenmsg.sizeof(), data_attr_cb, tb)
     h.CTA_TUPLE_ORIG in tb     and print_tuple(tb[h.CTA_TUPLE_ORIG])
     h.CTA_MARK in tb           and print("mark=%u " % socket.ntohl(tb[h.CTA_MARK].get_u32()), end='')
     h.CTA_SECMARK in tb        and print("secmark=%u " % socket.ntohl(tb[h.CTA_SECMARK].get_u32()), end='')

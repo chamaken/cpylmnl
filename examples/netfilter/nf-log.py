@@ -85,7 +85,7 @@ def log_cb(nlh, data):
     mark = 0
     payload_len = 0
 
-    nlh.attr_parse(nfnl.Nfgenmsg.sizeof(), parse_attr_cb, tb)
+    nlh.parse(nfnl.Nfgenmsg.sizeof(), parse_attr_cb, tb)
     if h.NFULA_PACKET_HDR in tb:
         ph = tb[h.NFULA_PACKET_HDR].get_payload_as(nfulnl.NfulnlMsgPacketHdr)
     if h.NFULA_PREFIX in tb:
