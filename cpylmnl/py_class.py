@@ -30,7 +30,7 @@ class Attribute(netlink.Nlattr):
 
 
 class Header(netlink.Nlmsghdr):
-    def attr_parse(self, o, cb, d):	return attr_parse(self, o, cb, d)
+    def parse(self, o, cb, d):		return attr_parse(self, o, cb, d)
     def put(self, t, d):		attr_put(self, t, d)
     def put_u8(self, t, d):		attr_put_u8(self, t, d)
     def put_u16(self, t, d):		attr_put_u16(self, t, d)
@@ -76,8 +76,8 @@ class Header(netlink.Nlmsghdr):
     def put_header(self):
         c_nlmsg_put_header(ctypes.addressof(self))
 
-    def fprint(self, elen, o=None):
-        nlmsg_fprint(ctypes.cast(ctypes.addressof(self), POINTER(ctypes.c_ubyte * self.len)).contents, elen, o)
+    def fprint(self, elen, out=None):
+        nlmsg_fprint(ctypes.cast(ctypes.addressof(self), POINTER(ctypes.c_ubyte * self.len)).contents, elen, out)
 
 # helper
 def put_new_header(size):
