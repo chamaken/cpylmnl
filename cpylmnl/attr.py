@@ -124,7 +124,10 @@ attr_get_str		= c_attr_get_str
 # void
 # mnl_attr_put(struct nlmsghdr *nlh, uint16_t type, size_t len, const void *data)
 def attr_put(nlh, attr_type, data):
-    c_attr_put(nlh, attr_type, len(data), (c_ubyte * len(data)).from_buffer(data))
+    if hasattr(data, "sizeof"): size = data.sizeof() # netlink.UStructure
+    else: size = len(data)
+    
+    c_attr_put(nlh, attr_type, size, (c_ubyte * size).from_buffer(data))
 
 ### add 8-bit unsigned integer attribute to netlink message
 # void mnl_attr_put_u8(struct nlmsghdr *nlh, uint16_t type, uint8_t data)
