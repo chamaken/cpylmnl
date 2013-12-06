@@ -10,6 +10,9 @@ NF_NETLINK_CONNTRACK_EXP_UPDATE = 0x00000010
 NF_NETLINK_CONNTRACK_EXP_DESTROY = 0x00000020
 NFNL_NFA_NEST = 0x8000
 # H2PY_ERR: ./h/linux/netfilter/nfnetlink_compat.h - macro: def NFA_TYPE(attr): return ((attr)->nfa_type & 0x7fff)
+
+# XXX:
+# defined in nlstructs.nfnetlink_compay too
 NFA_ALIGNTO = 4
 def NFA_ALIGN(len): return (((len) + NFA_ALIGNTO - 1) & ~(NFA_ALIGNTO - 1))
 
