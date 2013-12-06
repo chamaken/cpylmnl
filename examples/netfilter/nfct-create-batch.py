@@ -72,9 +72,9 @@ def cb_err(nlh, data):
 
     return mnl.MNL_CB_OK
 
+
 # CB_CTL_ARRAY = [None] * (netlink.NLMSG_MIN_TYPE - 1)
 CB_CTL_ARRAY = {netlink.NLMSG_ERROR: cb_err}
-
 
 def send_batch(nl, b, portid):
     fd = nl.get_fd()
@@ -91,8 +91,8 @@ def send_batch(nl, b, portid):
 
         rcv_buf = nl.recvfrom(mnl.MNL_SOCKET_BUFFER_SIZE)
         ret = mnl.cb_run2(rcv_buf, 0, portid, None, None, CB_CTL_ARRAY)
-        if not ret:
-            print("mnl_cb_run: %s" % err, file=sys.stderr)
+        if ret == mnl.MNL_CB_ERROR: # may invalid, raises Exception at cb_run2
+            print("mnl_cb_run returns ERROR", file=sys.stderr)
             sys.exit(-1)
 
 
