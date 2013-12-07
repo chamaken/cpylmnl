@@ -168,13 +168,13 @@ def main():
 
     nl.send_nlmsg(nlh)
 
-    buf = nl.recvfrom(mnl.SOCKET_BUFFER_SIZE)
+    buf = nl.recv(mnl.SOCKET_BUFFER_SIZE)
     err = None
     while len(buf) > 0:
         ret, err = mnl.cb_run(buf, seq, portid, data_cb, None)
         if ret <= 0:
             break
-        buf = nl.recvfrom(mnl.SOCKET_BUFFER_SIZE)
+        buf = nl.recv(mnl.SOCKET_BUFFER_SIZE)
 
     if err is not None:
         print("error: %s" % err, file=sys.stderr)

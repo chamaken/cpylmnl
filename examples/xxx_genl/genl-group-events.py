@@ -31,12 +31,12 @@ def main():
     nl.bind(0, mnl.SOCKET_AUTOPID)
     nl.setsockopt(netlink.NETLINK_SOCKOPT.ADD_MEMBERSHIP, group)
 
-    buf = nl.recvfrom(mnl.SOCKET_BUFFER_SIZE)
+    buf = nl.recv(mnl.SOCKET_BUFFER_SIZE)
     while len(buf) > 0:
         ret, err = mnl.cb_run(buf, 0, 0, data_cb, None)
         if ret <= 0:
             break
-        buf = nl.recvfrom(mnl.SOCKET_BUFFER_SIZE)
+        buf = nl.recv(mnl.SOCKET_BUFFER_SIZE)
 
     if err is not None:
         print("error: %s" % err, file=sys.stderr)

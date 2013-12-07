@@ -50,7 +50,7 @@ def main():
         nlh.fprint(rtnl.Ifinfomsg.sizeof(), out=sys.stdout)
 
         nl.send_nlmsg(nlh)
-        buf = nl.recvfrom(mnl.MNL_SOCKET_BUFFER_SIZE)
+        buf = nl.recv(mnl.MNL_SOCKET_BUFFER_SIZE)
 
         # cb_run will raise OSException in case of error
         if mnl.cb_run(buf, seq, portid, None, None) < mnl.MNL_CB_STOP:

@@ -222,7 +222,7 @@ def main():
 
         ret = mnl.MNL_CB_OK
         while ret > mnl.MNL_CB_STOP:
-            buf = nl.recvfrom(mnl.MNL_SOCKET_BUFFER_SIZE)
+            buf = nl.recv(mnl.MNL_SOCKET_BUFFER_SIZE)
             if len(buf) == 0: break
             ret = mnl.cb_run(buf, seq, portid, data_cb, None)
 

@@ -89,7 +89,7 @@ def send_batch(nl, b, portid):
         if not fd in rlist:
             break
 
-        rcv_buf = nl.recvfrom(mnl.MNL_SOCKET_BUFFER_SIZE)
+        rcv_buf = nl.recv(mnl.MNL_SOCKET_BUFFER_SIZE)
         ret = mnl.cb_run2(rcv_buf, 0, portid, None, None, CB_CTL_ARRAY)
         if ret == mnl.MNL_CB_ERROR: # may invalid, raises Exception at cb_run2
             print("mnl_cb_run returns ERROR", file=sys.stderr)

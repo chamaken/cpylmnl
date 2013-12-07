@@ -81,7 +81,7 @@ def main():
         portid = nl.get_portid()
 
         nl.send_nlmsg(nlh)
-        buf = nl.recvfrom(mnl.MNL_SOCKET_BUFFER_SIZE)
+        buf = nl.recv(mnl.MNL_SOCKET_BUFFER_SIZE)
 
         if mnl.cb_run(buf, seq, portid, None, None) < 0:
             print("mnl_cb_run returns ERROR", file=sys.stderr)

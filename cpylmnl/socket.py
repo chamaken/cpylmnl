@@ -60,15 +60,21 @@ def socket_send_nlmsg(nl, nlh):
 ### receive a netlink message
 # ssize_t
 # mnl_socket_recvfrom(const struct mnl_socket *nl, void *buf, size_t bufsiz)
-def socket_recvfrom(nl, size):
+def socket_recv(nl, size):
     # returns mutable buffer
     buf = bytearray(size)
-    c_buf = (c_char * size).from_buffer(buf)
     set_errno(0)
-    ret = c_socket_recvfrom(nl, c_buf, size)
+    ret = socket_recv_into(nl, buf)
     if ret < 0: raise _os_error()
     return buf
 
+def socket_recv_into(nl, buf):
+    c_buf = (c_char * len(buf)).from_buffer(buf)
+    set_errno(0)
+    ret = c_socket_recvfrom(nl, c_buf, len(c_buf))
+    if ret < 0: raise _os_error()
+    return ret
+    
 ### close a given netlink socket
 # int mnl_socket_close(struct mnl_socket *nl)
 def socket_close(nl):

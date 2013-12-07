@@ -178,7 +178,7 @@ def main():
 
         ret = mnl.MNL_CB_OK
         while ret >= mnl.MNL_CB_STOP:
-            buf = nl.recvfrom(mnl.MNL_SOCKET_BUFFER_SIZE)
+            buf = nl.recv(mnl.MNL_SOCKET_BUFFER_SIZE)
             ret = mnl.cb_run(buf, 0, portid, log_cb, None)
 
     if ret < 0: # not valid. cb_run may raise Exception

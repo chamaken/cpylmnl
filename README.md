@@ -247,7 +247,8 @@ comparison
 | mnl_socket_bind			| socket_bind			|				|
 | mnl_socket_sendto			| socket_sendto			| require mutable buffer	|
 | (add)					| socket_send_nlmsg		| pass nlmsghdr instead of buf	|
-| mnl_socket_recvfrom			| socket_recvfrom		| require buflen and returns	|
+| mnl_socket_recvfrom			| socket_recv_into		|				|
+| (add)					| socket_recv			| require buflen and returns	|
 |					|				| mutable buffer not bytes	|
 | mnl_socket_close			| socket_close			|				|
 | mnl_socket_setsockopt			| socket_setsockopt		| require mutable buffer	|

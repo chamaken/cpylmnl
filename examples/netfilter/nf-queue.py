@@ -168,7 +168,7 @@ def main():
 
         ret = mnl.MNL_CB_OK
         while ret > mnl.MNL_CB_STOP:
-            buf = nl.recvfrom(mnl.MNL_SOCKET_BUFFER_SIZE)
+            buf = nl.recv(mnl.MNL_SOCKET_BUFFER_SIZE)
             ret = mnl.cb_run(buf, 0, portid, queue_cb, None)
 
             packet_id = ret - mnl.MNL_CB_OK

@@ -84,7 +84,7 @@ def main():
 
     ret = mnl.MNL_CB_OK
     while ret > mnl.MNL_CB_STOP:
-        buf = mnl.socket_recvfrom(nl, mnl.MNL_SOCKET_BUFFER_SIZE)
+        buf = mnl.socket_recv(nl, mnl.MNL_SOCKET_BUFFER_SIZE)
         if len(buf) == 0: break
         ret = mnl.cb_run(buf, seq, portid, data_cb, None)
 
