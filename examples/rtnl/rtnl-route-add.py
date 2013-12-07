@@ -56,7 +56,7 @@ def main():
     seq = int(time.time())
     nlh.seq = seq
 
-    rtm = nlh.put_extra_header_as(rtnl.Rtmsg.sizeof(), rtnl.Rtmsg)
+    rtm = nlh.put_extra_header_as(rtnl.Rtmsg)
     rtm.family = family
     rtm.dst_len = prefix
     rtm.src_len = 0

@@ -72,7 +72,7 @@ def main():
     nlh.flags = netlink.NLM_F_REQUEST | netlink.NLM_F_DUMP
     seq = int(time.time())
     nlh.seq = seq
-    rt = nlh.put_extra_header_as(rtnl.Rtgenmsg.sizeof(), rtnl.Rtgenmsg)
+    rt = nlh.put_extra_header_as(rtnl.Rtgenmsg)
     if sys.argv[1] == "inet":    rt.family = socket.AF_INET
     elif sys.argv[1] == "inet6": rt.family = socket.AF_INET6
 

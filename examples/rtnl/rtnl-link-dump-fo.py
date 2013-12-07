@@ -74,7 +74,7 @@ def main():
     nlh.flags = netlink.NLM_F_REQUEST | netlink.NLM_F_DUMP
     seq = int(time.time())
     nlh.seq = seq
-    rt = mnl.nlmsg_put_extra_header_as(nlh, rtnl.Rtgenmsg.sizeof(), rtnl.Rtgenmsg)
+    rt = mnl.nlmsg_put_extra_header_as(nlh, rtnl.Rtgenmsg)
     rt.family = socket.AF_PACKET
 
     nl = mnl.socket_open(netlink.NETLINK_ROUTE)

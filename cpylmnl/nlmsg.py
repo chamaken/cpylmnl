@@ -10,7 +10,7 @@ from .cproto import *
 from .mnlh import MNL_ALIGN
 
 """
-libmnl (http://www.netfilter.org/projects/libmnl/) attr.c
+libmnl (http://www.netfilter.org/projects/libmnl/) nlmsg.c
     implementation by python ctypes
 """
 
@@ -43,7 +43,9 @@ nlmsg_put_extra_header	= c_nlmsg_put_extra_header
 def nlmsg_put_extra_header_v(nlh, size):
     return cast(c_nlmsg_put_extra_header(nlh, size),
                 POINTER(c_ubyte * MNL_ALIGN(size))).contents
-def nlmsg_put_extra_header_as(nlh, size, cls):
+def nlmsg_put_extra_header_as(nlh, cls, size=None):
+    if size is None:
+        size = sizeof(cls)
     return cast(c_nlmsg_put_extra_header(nlh, size), POINTER(cls)).contents
 
 ### get a pointer to the payload of the netlink message

@@ -21,7 +21,7 @@ def put_msg(buf, i, seq):
     nlh.flags = netlink.NLM_F_REQUEST | netlink.NLM_F_CREATE | netlink.NLM_F_EXCL | netlink.NLM_F_ACK
     nlh.seq = seq
 
-    nfh = nlh.put_extra_header_as(nfnl.Nfgenmsg.sizeof(), nfnl.Nfgenmsg)
+    nfh = nlh.put_extra_header_as(nfnl.Nfgenmsg)
     nfh.family = socket.AF_INET
     nfh.version = h.NFNETLINK_V0
     nfh.res_id = 0

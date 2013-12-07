@@ -57,7 +57,8 @@ class Header(netlink.Nlmsghdr):
     def get_payload_len(self):		return nlmsg_get_payload_len(self)
     def put_extra_header(self, l):	return nlmsg_put_extra_header(self, l)
     def put_extra_header_v(self, l):	return nlmsg_put_extra_header_v(self, l)
-    def put_extra_header_as(self, l, c): return nlmsg_put_extra_header_as(self, l, c)
+    def put_extra_header_as(self, cls, size=None):
+        return nlmsg_put_extra_header_as(self, cls, size)
     def get_payload(self):		return nlmsg_get_payload(self)
     def get_payload_v(self):		return nlmsg_get_payload_v(self)
     def get_payload_as(self, c):	return nlmsg_get_payload_as(self, c)

@@ -108,7 +108,7 @@ def nflog_build_cfg_pf_request(buflen, command):
     nlh.type = (h.NFNL_SUBSYS_ULOG << 8) | h.NFULNL_MSG_CONFIG
     nlh.flags = netlink.NLM_F_REQUEST
 
-    nfg = nlh.put_extra_header_as(nfnl.Nfgenmsg.sizeof(), nfnl.Nfgenmsg)
+    nfg = nlh.put_extra_header_as(nfnl.Nfgenmsg)
     nfg.family = socket.AF_INET
     nfg.version = h.NFNETLINK_V0
 
@@ -124,7 +124,7 @@ def nflog_build_cfg_request(buflen, command, qnum):
     nlh.type = (h.NFNL_SUBSYS_ULOG << 8) | h.NFULNL_MSG_CONFIG
     nlh.flags = netlink.NLM_F_REQUEST
 
-    nfg = nlh.put_extra_header_as(nfnl.Nfgenmsg.sizeof(), nfnl.Nfgenmsg)
+    nfg = nlh.put_extra_header_as(nfnl.Nfgenmsg)
     nfg.family = socket.AF_INET
     nfg.version = h.NFNETLINK_V0
     nfg.res_id = socket.htons(qnum)
@@ -141,7 +141,7 @@ def nflog_build_cfg_params(buflen, mode, copy_range, qnum):
     nlh.type = (h.NFNL_SUBSYS_ULOG << 8) | h.NFULNL_MSG_CONFIG
     nlh.flags = netlink.NLM_F_REQUEST
 
-    nfg = nlh.put_extra_header_as(nfnl.Nfgenmsg.sizeof(), nfnl.Nfgenmsg)
+    nfg = nlh.put_extra_header_as(nfnl.Nfgenmsg)
     nfg.family = socket.AF_UNSPEC
     nfg.version = h.NFNETLINK_V0
     nfg.res_id = socket.htons(qnum)

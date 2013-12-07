@@ -36,7 +36,7 @@ def main():
     nlh.flags = netlink.NLM_F_REQUEST | netlink.NLM_F_ACK
     seq = int(time.time())
     nlh.seq = seq
-    ifm = nlh.put_extra_header_as(rtnl.Ifinfomsg.sizeof(), rtnl.Ifinfomsg)
+    ifm = nlh.put_extra_header_as(rtnl.Ifinfomsg)
     ifm.family = socket.AF_UNSPEC
     ifm.change = change
     ifm.flags = flags

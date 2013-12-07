@@ -208,7 +208,7 @@ def main():
     nlh.flags = netlink.NLM_F_REQUEST | netlink.NLM_F_DUMP
     seq = int(time.time())
     nlh.seq = seq
-    rtm = nlh.put_extra_header_as(rtnl.Rtmsg.sizeof(), rtnl.Rtmsg)
+    rtm = nlh.put_extra_header_as(rtnl.Rtmsg)
 
     if sys.argv[1] == "inet":
         rtm.family = socket.AF_INET
