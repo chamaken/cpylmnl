@@ -24,11 +24,17 @@ nlmsg_get_payload_len	= c_nlmsg_get_payload_len
 
 ### reserve and prepare room for Netlink header
 # struct nlmsghdr *mnl_nlmsg_put_header(void *buf)
-def nlmsg_put_header(buf):
+def nlmsg_put_header(buf, cls=None):
     # share the buffer
     # returned nlmsghdr will be invalid if param buf is GCed - set to new value, None
     c_buf = (c_ubyte * len(buf)).from_buffer(buf)
-    return c_nlmsg_put_header(c_buf).contents
+    ret = c_nlmsg_put_header(c_buf)
+    if cls is None:
+        return ret.contents
+    if not issubclass(cls, ret.contents.__class__):
+        raise TypeError("not a subclass of %r: %r" % (ret.contents.__class__, cls))
+    return cls(buf)
+
 
 ### reserve and prepare room for an extra header
 # void *
