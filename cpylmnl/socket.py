@@ -66,7 +66,9 @@ def socket_recv(nl, size):
     set_errno(0)
     ret = socket_recv_into(nl, buf)
     if ret < 0: raise _os_error()
-    return buf
+    # We did not read as many bytes as we anticipated, resize the
+    # string if possible and be successful. */
+    return buf[:ret]
 
 def socket_recv_into(nl, buf):
     c_buf = (c_char * len(buf)).from_buffer(buf)
@@ -87,7 +89,7 @@ def socket_close(nl):
 # int mnl_socket_setsockopt(const struct mnl_socket *nl, int type,
 #                           void *buf, socklen_t len)
 def socket_setsockopt(nl, optype, buf):
-    c_buf = (c_ubyte * len(buf)).from_buffer(buf)
+    c_buf = (c_ubyte * len(buf)).from_buffer_copy(buf)
     set_errno(0)
     ret = c_socket_setsockopt(nl, optype, c_buf, len(buf))
     if ret < 0: raise _os_error()
