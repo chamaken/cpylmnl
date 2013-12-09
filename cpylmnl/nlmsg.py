@@ -65,7 +65,7 @@ def nlmsg_get_payload_offset_v(nlh, offset):
     return cast(c_nlmsg_get_payload_offset(nlh, offset),
                 POINTER(c_ubyte * (c_nlmsg_get_payload_len(nlh) - MNL_ALIGN(offset)))).contents
 def nlmsg_get_payload_offset_as(nlh, offset, cls):
-    return cast(c_nlmsg_get_payload_offset(nlh), POINTER(cls)).contents
+    return cast(c_nlmsg_get_payload_offset(nlh, offset), POINTER(cls)).contents
 
 ### check a there is room for netlink message
 # bool mnl_nlmsg_ok(const struct nlmsghdr *nlh, int len)
