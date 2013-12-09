@@ -21,9 +21,6 @@ class TestSuite(unittest.TestCase):
         # nlmsghdr
         self.hbuf = NlmsghdrBuf(buflen)
         self.nlh = mnl.Header(self.hbuf)
-        self.rand_hbuf = NlmsghdrBuf(bytearray([random.randrange(0, 255) for j in range(buflen)]))
-        self.rand_hbuf.len = buflen
-        self.rand_nhl = mnl.Header(self.hbuf)
 
         # nlattr
         self.abuf = NlattrBuf(buflen)
