@@ -24,6 +24,12 @@ socket_get_fd		= c_socket_get_fd
 # unsigned int mnl_socket_get_portid(const struct mnl_socket *nl)
 socket_get_portid	= c_socket_get_portid
 
+
+def _os_error():
+    en = get_errno()
+    return OSError(en, errno.errorcode[en])
+
+
 ### open a netlink socket
 # struct mnl_socket *mnl_socket_open(int bus)
 def socket_open(bus):
