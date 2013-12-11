@@ -2,7 +2,7 @@
 
 from __future__ import absolute_import, print_function
 
-import ctypes # for Header put_header(), print()
+import ctypes # for Header put_header(), print(), mnl_attr_for_each_...
 from . import netlink
 from .attr import *
 from .nlmsg import *
@@ -27,6 +27,14 @@ class Attribute(netlink.Nlattr):
     def get_str(self):			return attr_get_str(self)
     def next_attribute(self):
         return cast(addressof(attr_next(self)), POINTER(self.__class__)).contents
+
+    # defined in libml.h
+    # mnl_attr_for_each_nested
+    def nesteds(self):
+        attr = self.get_payload_as(Attribute)
+        while attr.ok(self.get_payload() + self.get_payload_len() - ctypes.addressof(attr)):
+            yield attr
+            attr = attr.next_attribute()
 
 
 class Header(netlink.Nlmsghdr):

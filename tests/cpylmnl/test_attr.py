@@ -217,13 +217,12 @@ class TestSuite(unittest.TestCase):
 
 
     def test_parse_nested(self):
-        # XXX: using functions defined here
-        nlh = mnl.put_new_header(512)
-        nested = nlh.nest_start(1)
-        nlh.put_u8(2, 10)
-        nlh.put_u8(3, 10)
-        nlh.put_u8(4, 10)
-        nlh.nest_end(nested)
+        self.nlh.put_header()
+        nested = self.nlh.nest_start(1)
+        self.nlh.put_u8(2, 10)
+        self.nlh.put_u8(3, 10)
+        self.nlh.put_u8(4, 10)
+        self.nlh.nest_end(nested)
 
         atype = [2]
         @mnl.mnl_attr_cb_t
@@ -576,6 +575,21 @@ class TestSuite(unittest.TestCase):
         self.assertTrue(self.hbuf.len == mnl.MNL_NLMSG_HDRLEN + 68)
         self.nlh.nest_cancel(_nla)
         self.assertTrue(self.hbuf.len == mnl.MNL_NLMSG_HDRLEN)
+
+
+    def test_nesteds(self):
+        # XXX: using functions defined here
+        self.nlh.put_header()
+        nested = self.nlh.nest_start(1)
+        self.nlh.put_u8(0, 0)
+        self.nlh.put_u8(1, 11)
+        self.nlh.put_u8(2, 22)
+        self.nlh.put_u8(3, 33)
+        self.nlh.nest_end(nested)
+
+        for i, attr in enumerate(nested.nesteds()):
+            self.assertTrue(attr.type == i)
+            self.assertTrue(attr.get_u8() == 11 * i)
 
 
 if __name__ == '__main__':
