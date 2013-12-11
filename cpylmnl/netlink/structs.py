@@ -75,6 +75,11 @@ class UStructure(Structure):
 
 
     @classmethod
+    def pointer(cls, ptr):
+        return cast(ptr, POINTER(cls)).contents
+
+
+    @classmethod
     def unmarshal_binary(cls, data):
         # not share, use copy
         return cls.__new__(cls, bytearray(data))
