@@ -28,8 +28,7 @@ class Attribute(netlink.Nlattr):
     def next_attribute(self):
         return cast(addressof(attr_next(self)), POINTER(self.__class__)).contents
 
-    # defined in libml.h
-    # mnl_attr_for_each_nested
+    # mnl_attr_for_each_nested macron in libmnl.h
     def nesteds(self):
         attr = self.get_payload_as(Attribute)
         while attr.ok(self.get_payload() + self.get_payload_len() - ctypes.addressof(attr)):
@@ -88,6 +87,14 @@ class Header(netlink.Nlmsghdr):
     def fprint(self, elen, out=None):
         nlmsg_fprint(ctypes.cast(ctypes.addressof(self), POINTER(ctypes.c_ubyte * self.len)).contents, elen, out)
 
+    # mnl_attr_for_each macro in libmnl.h
+    def attributes(self, offset):
+        attr = self.get_payload_offset_as(offset, Attribute)
+        while attr.ok(self.get_payload_tail() - addressof(attr)):
+            yield attr
+            attr = attr.next_attribute()
+
+
 # helper
 def put_new_header(size):
     nlh = Header(bytearray(size))
@@ -136,3 +143,11 @@ class Socket(object):
     def __exit__(self, t, v, tb):
         socket_close(self._nls)
         return False
+
+
+def attributes_in_payload(payload): # buffer
+    p = addressof((ctypes.c_ubyte * len(payload)).from_buffer(payload))
+    attr = Attribute(payload)
+    while attr.ok(p + len(payload) - ctypes.addressof(attr)):
+        yield attr
+        attr = attr.next_attribute()

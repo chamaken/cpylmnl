@@ -592,5 +592,32 @@ class TestSuite(unittest.TestCase):
             self.assertTrue(attr.get_u8() == 11 * i)
 
 
+    def test_attributes(self):
+        # XXX: using functions defined here
+        self.nlh.put_header()
+        self.nlh.put_extra_header(16)
+        self.nlh.put_u8(0, 0x10)
+        self.nlh.put_u8(1, 0x11)
+        self.nlh.put_u8(2, 0x12)
+        self.nlh.put_u8(3, 0x13)
+
+        for i, attr in enumerate(self.nlh.attributes(16)):
+            self.assertTrue(attr.type == i)
+            self.assertTrue(attr.get_u8() == 0x10 + i)
+
+
+    def test_each_attribute(self):
+        # XXX: using functions defined here
+        self.nlh.put_header()
+        self.nlh.put_u8(0, 0)
+        self.nlh.put_u8(1, 10)
+        self.nlh.put_u8(2, 20)
+        self.nlh.put_u8(3, 30)
+
+        for i, attr in enumerate(mnl.attributes_in_payload(self.nlh.get_payload_v())):
+            self.assertTrue(attr.type == i)
+            self.assertTrue(attr.get_u8() == i * 10)
+
+
 if __name__ == '__main__':
     unittest.main()
