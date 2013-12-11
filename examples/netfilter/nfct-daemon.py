@@ -33,8 +33,7 @@ def parse_counters_cb(attr, tb):
     except OSError as e:
         return mnl.MNL_CB_OK
 
-    if attr_type == h.CTA_COUNTERS_PACKETS \
-            or attr_type == h.CTA_COUNTERS_BYTES:
+    if attr_type in (h.CTA_COUNTERS_PACKETS, h.CTA_COUNTERS_BYTES):
         try:
             attr.validate(mnl.MNL_TYPE_U64)
         except OSError as e:

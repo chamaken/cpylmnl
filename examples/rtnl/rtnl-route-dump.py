@@ -226,8 +226,8 @@ def main():
             if len(buf) == 0: break
             ret = mnl.cb_run(buf, seq, portid, data_cb, None)
 
-    if ret < 0:
-        print(err, file=sys.stderr)
+    if ret < 0: # not valid. cb_run may raise Exception
+        print("mnl_cb_run returns ERROR", file=sys.stderr)
 
 
 if __name__ == '__main__':

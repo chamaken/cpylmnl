@@ -30,6 +30,7 @@ def data_attr_cb2(attr, tb):
     tb[attr.get_type()] = attr
     return mnl.MNL_CB_OK
 
+
 # same as in rtnl-route-dump
 def attributes_show_ipv4(tb):
     def _print_u32(fmt, attr):
@@ -211,8 +212,8 @@ def main():
             buf = nl.recv(mnl.MNL_SOCKET_BUFFER_SIZE)
             ret = mnl.cb_run(buf, 0, 0, data_cb, None)
 
-    if ret < 0:
-        print(err, file=sys.stderr)
+    if ret < 0: # not valid. cb_run may raise Exception
+        print("mnl_cb_run returns ERROR", file=sys.stderr)
 
 
 if __name__ == '__main__':

@@ -24,11 +24,8 @@ def parse_attr_cb(attr, tb):
     except OSError as e:
         return mnl.MNL_CB_OK
 
-    if attr_type == h.NFQA_MARK \
-            or attr_type == h.NFQA_IFINDEX_INDEV \
-            or attr_type == h.NFQA_IFINDEX_OUTDEV \
-            or attr_type == h.NFQA_IFINDEX_PHYSINDEV \
-            or attr_type == h.NFQA_IFINDEX_PHYSOUTDEV:
+    if attr_type in (h.NFQA_MARK, h.NFQA_IFINDEX_INDEV, h.NFQA_IFINDEX_OUTDEV,
+                     h.NFQA_IFINDEX_PHYSINDEV, h.NFQA_IFINDEX_PHYSOUTDEV):
         try:
             attr.validate(mnl.MNL_TYPE_U32)
         except OSError as e:
@@ -168,8 +165,8 @@ def main():
 
         ret = mnl.MNL_CB_OK
         while ret > mnl.MNL_CB_STOP:
-            buf = nl.recv(mnl.MNL_SOCKET_BUFFER_SIZE)
-            ret = mnl.cb_run(buf, 0, portid, queue_cb, None)
+            nrecv = nl.recv_into(buf)
+            ret = mnl.cb_run(buf[:nrecv], 0, portid, queue_cb, None)
 
             packet_id = ret - mnl.MNL_CB_OK
             nlh = nfq_build_verdict(buf, packet_id, queue_num, h.NF_ACCEPT)

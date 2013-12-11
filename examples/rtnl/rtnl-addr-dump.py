@@ -25,11 +25,11 @@ def data_attr_cb(attr, tb):
         return mnl.MNL_CB_OK
 
     if attr_type == h.IFA_ADDRESS:
-        # try
-        if attr.validate(mnl.MNL_TYPE_BINARY) < 0:
+        try:
+            attr.validate(mnl.MNL_TYPE_BINARY)
+        except OSError as e:
+            print("mnl_attr_validate: %s", file=sys.stderr)
             return mnl.MNL_CB_ERROR
-        # except OSError as e
-        # return mnl.MNL_CB_ERROR
 
     tb[attr_type] = attr
     return mnl.MNL_CB_OK
@@ -87,8 +87,8 @@ def main():
             if len(buf) == 0: break
             ret = mnl.cb_run(buf, nlh.seq, portid, data_cb, None)
 
-    if ret < 0:
-        print(err, file=sys.stderr)
+    if ret < 0: # not valid. cb_run may raise Exception
+        print("mnl_cb_run returns ERROR", file=sys.stderr)
 
 
 if __name__ == '__main__':

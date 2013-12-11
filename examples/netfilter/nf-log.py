@@ -103,8 +103,9 @@ def log_cb(nlh, data):
     return mnl.MNL_CB_OK
 
 
-def nflog_build_cfg_pf_request(buflen, command):
-    nlh = mnl.put_new_header(buflen)
+def nflog_build_cfg_pf_request(buf, command):
+    nlh = mnl.Header(buf)
+    nlh.put_header()
     nlh.type = (h.NFNL_SUBSYS_ULOG << 8) | h.NFULNL_MSG_CONFIG
     nlh.flags = netlink.NLM_F_REQUEST
 
@@ -119,8 +120,9 @@ def nflog_build_cfg_pf_request(buflen, command):
     return nlh
 
 
-def nflog_build_cfg_request(buflen, command, qnum):
-    nlh = mnl.put_new_header(buflen)
+def nflog_build_cfg_request(buf, command, qnum):
+    nlh = mnl.Header(buf)
+    nlh.put_header()
     nlh.type = (h.NFNL_SUBSYS_ULOG << 8) | h.NFULNL_MSG_CONFIG
     nlh.flags = netlink.NLM_F_REQUEST
 
@@ -136,8 +138,9 @@ def nflog_build_cfg_request(buflen, command, qnum):
     return nlh
 
 
-def nflog_build_cfg_params(buflen, mode, copy_range, qnum):
-    nlh = mnl.put_new_header(buflen)
+def nflog_build_cfg_params(buf, mode, copy_range, qnum):
+    nlh = mnl.Header(buf)
+    nlh.put_header()
     nlh.type = (h.NFNL_SUBSYS_ULOG << 8) | h.NFULNL_MSG_CONFIG
     nlh.flags = netlink.NLM_F_REQUEST
 
@@ -159,27 +162,28 @@ def main():
         print("Usage: %s [queue_num]", sys.argv[0])
         sys.exit(-1)
     qnum = int(sys.argv[1])
+    buf = bytearray(mnl.MNL_SOCKET_BUFFER_SIZE)
 
     with mnl.Socket(netlink.NETLINK_NETFILTER) as nl:
         nl.bind(0, mnl.MNL_SOCKET_AUTOPID)
         portid = nl.get_portid()
 
-        nlh = nflog_build_cfg_pf_request(mnl.MNL_SOCKET_BUFFER_SIZE, h.NFULNL_CFG_CMD_PF_UNBIND)
+        nlh = nflog_build_cfg_pf_request(buf, h.NFULNL_CFG_CMD_PF_UNBIND)
         nl.send_nlmsg(nlh)
 
-        nlh = nflog_build_cfg_pf_request(mnl.MNL_SOCKET_BUFFER_SIZE, h.NFULNL_CFG_CMD_PF_BIND)
+        nlh = nflog_build_cfg_pf_request(buf, h.NFULNL_CFG_CMD_PF_BIND)
         nl.send_nlmsg(nlh)
 
-        nlh = nflog_build_cfg_request(mnl.MNL_SOCKET_BUFFER_SIZE, h.NFULNL_CFG_CMD_BIND, qnum)
+        nlh = nflog_build_cfg_request(buf, h.NFULNL_CFG_CMD_BIND, qnum)
         nl.send_nlmsg(nlh)
 
-        nlh = nflog_build_cfg_params(mnl.MNL_SOCKET_BUFFER_SIZE, h.NFULNL_COPY_PACKET, 0xFFFF, qnum)
+        nlh = nflog_build_cfg_params(buf, h.NFULNL_COPY_PACKET, 0xFFFF, qnum)
         nl.send_nlmsg(nlh)
 
         ret = mnl.MNL_CB_OK
         while ret >= mnl.MNL_CB_STOP:
-            buf = nl.recv(mnl.MNL_SOCKET_BUFFER_SIZE)
-            ret = mnl.cb_run(buf, 0, portid, log_cb, None)
+            nrecv = nl.recv_into(buf)
+            ret = mnl.cb_run(buf[:nrecv], 0, portid, log_cb, None)
 
     if ret < 0: # not valid. cb_run may raise Exception
         print("mnl_cb_run", file=sys.stderr)

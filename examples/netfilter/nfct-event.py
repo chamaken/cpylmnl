@@ -22,7 +22,7 @@ def parse_ip_cb(attr, tb):
     except OSError as e:
         return mnl.MNL_CB_OK
 
-    if attr_type == h.CTA_IP_V4_SRC or attr_type == h.CTA_IP_V4_DST:
+    if attr_type in (h.CTA_IP_V4_SRC, h.CTA_IP_V4_DST):
         try:
             attr.validate(mnl.MNL_TYPE_U32)
         except OSError as e:
@@ -53,18 +53,14 @@ def parse_proto_cb(attr, tb):
     except OSError as e:
         return mnl.MNL_CB_OK
 
-    if attr_type == h.CTA_PROTO_NUM \
-            or attr_type == h.CTA_PROTO_ICMP_TYPE \
-            or attr_type == h.CTA_PROTO_ICMP_CODE:
+    if attr_type in (h.CTA_PROTO_NUM, h.CTA_PROTO_ICMP_TYPE, h.CTA_PROTO_ICMP_CODE):
         try:
             attr.validate(mnl.MNL_TYPE_U8)
         except OSError as e:
             print("mnl_attr_validate: %s" % e)
             return mnl.MNL_CB_ERROR
 
-    if attr_type == h.CTA_PROTO_SRC_PORT \
-            or attr_type == h.CTA_PROTO_DST_PORT \
-            or attr_type == h.CTA_PROTO_ICMP_ID:
+    if attr_type in (h.CTA_PROTO_SRC_PORT, h.CTA_PROTO_DST_PORT, h.CTA_PROTO_ICMP_ID):
         try:
             attr.validate(mnl.MNL_TYPE_U16)
         except OSError as e:
@@ -139,9 +135,7 @@ def data_attr_cb(attr, tb):
         except Exception as e:
             print("mnl_attr_validate: %s" % e, file=sys.stderr)
             return mnl.MNL_CB_ERROR
-    elif attr_type == h.CTA_TIMEOUT \
-            or attr_type == h.CTA_MARK \
-            or attr_type == h.CTA_SECMARK:
+    elif attr_type in (h.CTA_TIMEOUT, h.CTA_MARK, h.CTA_SECMARK):
         try:
             attr.validate(mnl.MNL_TYPE_U32)
         except OSError as e:
