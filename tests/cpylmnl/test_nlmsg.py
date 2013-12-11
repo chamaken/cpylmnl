@@ -4,26 +4,55 @@
 from __future__ import print_function
 
 import sys, random, unittest, struct
-from ctypes import sizeof, set_errno
+import ctypes
 
 from cpylmnl import netlink
 import cpylmnl as mnl
 from cpylmnl import h
+import cpylmnl.nlstructs.nfnetlink as nfnl # for _as() casting
 
 from .netlink.buf import *
 
 
 class TestSuite(unittest.TestCase):
     def setUp(self):
-        pass
+        self.buflen = 512
+
+        self.msg_attr_hlen = mnl.MNL_NLMSG_HDRLEN + mnl.MNL_ATTR_HDRLEN
+
+        # nlmsghdr
+        self.hbuf = NlmsghdrBuf(self.buflen)
+        self.nlh = mnl.Header(self.hbuf)
+        self.rand_hbuf = NlmsghdrBuf(bytearray([random.randrange(0, 255) for j in range(self.buflen)]))
+        self.rand_hbuf.len = self.buflen
+        self.rand_nlh = mnl.Header(self.rand_hbuf)
+
+        # nlattr
+        self.abuf = NlattrBuf(self.buflen)
+        self.nla = mnl.Attribute(self.abuf)
+        self.rand_abuf = NlattrBuf(bytearray([random.randrange(0, 255) for j in range(self.buflen)]))
+        self.rand_abuf.len = self.buflen
+        self.rand_nla = mnl.Attribute(self.rand_abuf)
+
 
     def test_Header(self):
-        msg = mnl.Header()
-        self.assertTrue(msg.len == 0)
-        self.assertTrue(msg.type == 0)
-        self.assertTrue(msg.flags == 0)
-        self.assertTrue(msg.seq == 0)
-        self.assertTrue(msg.pid == 0)
+        self.assertTrue(self.nlh.len == 0)
+        self.assertTrue(self.nlh.type == 0)
+        self.assertTrue(self.nlh.flags == 0)
+        self.assertTrue(self.nlh.seq == 0)
+        self.assertTrue(self.nlh.pid == 0)
+
+        self.nlh.len = 0x12345678
+        self.nlh.type = 0x9abc
+        self.nlh.flags = 0xdef0
+        self.nlh.seq = 0x23456789
+        self.nlh.pid = 0xabcdef01
+
+        self.assertTrue(self.hbuf.len == 0x12345678)
+        self.assertTrue(self.hbuf.type == 0x9abc)
+        self.assertTrue(self.hbuf.flags == 0xdef0)
+        self.assertTrue(self.hbuf.seq == 0x23456789)
+        self.assertTrue(self.hbuf.pid == 0xabcdef01)
 
 
     def test_size(self):
@@ -31,176 +60,182 @@ class TestSuite(unittest.TestCase):
 
 
     def test_get_payload_len(self):
-        msg = mnl.Header(bytearray(2048))
-        msg.len = 2000
-        self.assertTrue(msg.get_payload_len() == mnl.MNL_ALIGN(2000 - sizeof(netlink.Nlmsghdr)))
+        self.hbuf.len = mnl.MNL_ALIGN(123)
+        self.assertTrue(self.nlh.get_payload_len() == mnl.MNL_ALIGN(123) - mnl.MNL_NLMSG_HDRLEN)
+
+
+    def test_nlmsg_put_header(self):
+        nlh = mnl.nlmsg_put_header(hbuf)
+        self.assertTrue(nlh.len == mnl.MNL_NLMSG_HDRLEN)
 
 
     def test_put_header(self):
-        b = bytearray(1024)
-        msg = mnl.nlmsg_put_header(b)
-        self.assertTrue(msg.len == sizeof(netlink.Nlmsghdr))
+        nlh.put_header(hbuf)
+        self.assertTrue(nlh.len == mnl.MNL_NLMSG_HDRLEN)
 
 
-    def test_put_extra_header(self):
-        nb = NlmsghdrBuf(bytearray([random.randrange(0, 255) for j in range(1024)]))
-        nb.len = 256
-        msg = mnl.Header(nb)
-        exhdr = msg.put_extra_header_v(123)
-        for i in range(mnl.MNL_ALIGN(123)):
-            nb[256 + i] = 0
-        self.assertEquals(msg.len, 256 + mnl.MNL_ALIGN(123))
-        self.assertEquals(len(exhdr), mnl.MNL_ALIGN(123))
-        self.assertTrue(exhdr == nb[256:mnl.MNL_ALIGN(256 + 123)])
+    def test_put_extra_header_v(self):
+        # rand len was set 512 at setUp()
+        self.rand_hbuf.len = 256
+        exhdr = self.rand_nlh.put_extra_header_v(123)
+        self.assertTrue(len(exhdr) == mnl.MNL_ALIGN(123))
+        self.assertTrue(self.rand_nlh.len == 256 + mnl.MNL_ALIGN(123))
+        [self.assertTrue(i == 0) for i in exhdr]
+        [self.assertTrue(self.rand_hbuf[i] == 0) for i in range(256, 256 + mnl.MNL_ALIGN(123))]
+
+
+    def test_put_extra_header_as(self):
+        self.rand_hbuf.len = mnl.MNL_ALIGN(256)
+        exhdr = self.rand_nlh.put_extra_header_as(nfnl.Nfgenmsg)
+        self.assertTrue(self.rand_nlh.len == mnl.MNL_ALIGN(256) + mnl.MNL_ALIGN(nfnl.Nfgenmsg.ctypes.sizeof()))
+        self.assertTrue(isinstance(exhdr, nfnl.Nfgenmsg))
+        self.assertTrue(exhdr.family == 0)
+        self.assertTrue(exhdr.version == 0)
+        self.assertTrue(exhdr.res_id == 0)
 
 
     def test_get_payload_v(self):
-        for i in range(31):
-            nb = NlmsghdrBuf(bytearray([random.randrange(0, 255) for j in range(1024)]))
-            nb.len = 1024
-            msg = mnl.Header(nb)
-            self.assertTrue(msg.get_payload_v() == nb[mnl.MNL_NLMSG_HDRLEN:])
+        self.rand_nlh.len = mnl.MNL_ALIGN(384)
+        b = self.rand_nlh.get_payload_v()
+        self.assertTrue(len(b) == 384 - mnl.MNL_NLMSG_HDRLEN)
+        self.assertTrue(b == self.rand_hbuf[mnl.MNL_NLMSG_HDRLEN:mnl.MNL_ALIGN(384)])
 
 
     def test_get_payload_offset_v(self):
-        for i in range(31):
-            nb = NlmsghdrBuf(bytearray([random.randrange(0, 255) for j in range(1024)]))
-            nb.len = 1024
-            msg = mnl.Header(nb)
-            print(len(msg.get_payload_offset_v(901)))
-            print(len(nb[netlink.NLMSG_HDRLEN + mnl.MNL_ALIGN(901):]))
-            self.assertTrue(msg.get_payload_offset_v(901) == nb[netlink.NLMSG_HDRLEN + mnl.MNL_ALIGN(901):])
+        b = self.rand_nlh.get_payload_offset_v(191)
+        self.assertTrue(len(b) == self.buflen - mnl.MNL_NLMSG_HDRLEN - mnl.MNL_ALIGN(191))
+        self.assertTrue(b == self.rand_hbuf[mnl.MNL_NLMSG_HDRLEN + mnl.MNL_ALIGN(191):])
+
+
+    def test_get_payload_offset_as(self):
+        exhdr = self.nlh.get_payload_offset_as(191, nfnl.Nfgenmsg)
+        self.assertTrue(isinstance(exhdr, nfnl.Nfgenmsg))
+        self.assertTrue(exhdr.family == 0)
+        self.assertTrue(exhdr.version == 0)
+        self.assertTrue(exhdr.res_id == 0)
 
 
     def test_ok(self):
-        msg = mnl.put_new_header(1024)
-        self.assertFalse(msg.ok(15))
-        self.assertTrue(msg.ok(16))
-        self.assertTrue(msg.ok(17))
+        self.hbuf.len = 16
+        self.assertFalse(self.nlh.ok(15))
+        self.assertTrue(self.nlh.ok(16))
+        self.assertTrue(self.nlh.ok(17))
 
-        msg.len = 8
-        self.assertFalse(msg.ok(7))
-        self.assertFalse(msg.ok(8))
-        self.assertFalse(msg.ok(9))
+        self.hbufp.len = 8
+        self.assertFalse(self.nlh.ok(7))
+        self.assertFalse(self.nlh.ok(8))
+        self.assertFalse(self.nlh.ok(9))
 
-        msg.len = 32
-        self.assertFalse(msg.ok(31))
-        self.assertTrue(msg.ok(32))
-        self.assertTrue(msg.ok(33))
-
-
-
-    def test_next_msg(self):
-        size = 1024
-        b = bytearray(size)
-        i = 0
-        b[i:i + 4] = struct.pack("I", mnl.MNL_ALIGN(123))
-
-        i += mnl.MNL_ALIGN(123)
-        b[i:i + 4] = struct.pack("I", mnl.MNL_ALIGN(234))
-
-        i += mnl.MNL_ALIGN(234)
-        b[i:i + 4] = struct.pack("I", mnl.MNL_ALIGN(345))
-
-        i += mnl.MNL_ALIGN(345)
-        b[i:i + 4] = struct.pack("I", mnl.MNL_NLMSG_HDRLEN)
-
-        msg = mnl.Header(b)
-        nmsg, size = msg.next_header(size)
-        self.assertTrue(nmsg.len == mnl.MNL_ALIGN(234), "msg.len: %d" % msg.len)
-        self.assertTrue(size == 1024 - mnl.MNL_ALIGN(123), "size: %d" % size)
-
-        nnmsg, size = nmsg.next_header(size)
-        self.assertTrue(nnmsg.len == mnl.MNL_ALIGN(345), "msg.len: %d" % msg.len)
-        self.assertTrue(size == 1024 - mnl.MNL_ALIGN(123) - mnl.MNL_ALIGN(234))
-
-        nnnmsg, size = nnmsg.next_header(size)
-        self.assertTrue(nnnmsg.len == mnl.MNL_ALIGN(mnl.MNL_NLMSG_HDRLEN), "msg.len: %d" % msg.len)
-        self.assertTrue(size == 1024 - mnl.MNL_ALIGN(123) - mnl.MNL_ALIGN(234) - mnl.MNL_ALIGN(345))
-
-        # is buffer shared?
-        self.assertTrue(struct.unpack("I", bytes(b[mnl.MNL_ALIGN(123):mnl.MNL_ALIGN(123) + 4]))[0] == mnl.MNL_ALIGN(234))
+        self.hbuf.len = 32
+        self.assertFalse(self.nlh.ok(31))
+        self.assertTrue(self.nlh.ok(32))
+        self.assertTrue(self.nlh.ok(33))
 
 
-    # XXX: not in target
-    def _test_get_payload_tail(self):
-        b = bytearray([random.randrange(0, 255) for j in range(1024)])
-        b[0:4] = struct.pack("I", 323)
-        msg = mnl.Header(b)
-        self.assertTrue(msg.get_payload_tail() == b[mnl.MNL_ALIGN(323):])
+    def test_next_header(self):
+        # 256 bytes + 128 bytes + 64 bytes
+        self.hbuf.len = mnl.MNL_ALIGN(256)
+        self.hbuf[mnl.MNL_ALIGN(256):mnl.MNL_ALIGN(256) + 4] = struct.pack("I", 128)
+        self.hbuf[mnl.MNL_ALIGN(256) + mnl.MNL_ALIGN(128):mnl.MNL_ALIGN(256) + mnl.MNL_ALIGN(128) + 4] = struct.pack("I", 64)
+
+        next_nlh, rest = self.nlh.next_header(self.buflen)
+        self.assertTrue(rest == self.buflen - 256)
+        self.assertTrue(next_nlh.len == mnl.MNL_ALIGN(128))
+        # ok()'s job
+        self.assertTrue(next_nlh.ok(rest))
+
+        next_nlh, rest = next_nlh.next_header(rest)
+        self.assertTrue(rest == self.buflen - 256 - 128)
+        self.assertTrue(next_nlh.len == mnl.MNL_ALIGN(64))
+        self.assertTrue(next_nlh.ok(rest))
+
+        next_nlh, rest = next_nlh.next_header(rest)
+        self.assertTrue(rest == self.buflen - 256 - 128 - 64)
+        self.assertFalse(next_nlh.ok(rest)) # because next_nlh.len == 0
+
+
+    def test_get_payload_tail(self):
+        self.hbuf.len = mnl.MNL_ALIGN(323)
+        self.hbuf[323] = 0x55
+        a = ctypes.addressof(self.nlh)
+        self.assertTrue(self.nlh.get_payload_tail() == a + mnl.MNL_ALIGN(323))
 
 
     def test_seq_ok(self):
-        b = bytearray([random.randrange(0, 255) for j in range(1024)])
-        b[0:4] = struct.pack("I", 1024)
-        b[8:12] = struct.pack("I", 323)
-        msg = mnl.Header(b)
-        self.assertTrue(msg.seq_ok(323), "msg.seq: %d" % msg.seq)
-        self.assertFalse(msg.seq_ok(888), "msg.seq: %d" % msg.seq)
-        self.assertTrue(msg.seq_ok(0))
-        msg.seq = 0
-        self.assertTrue(msg.seq_ok(888))
+        self.rand_hbuf.seq = 0x12345678
+        self.assertTrue(self.rand_nlh.seq_ok(0x12345678))
+        self.assertFalse(self.rand_nlh.seq_ok(0x1234))
+        self.assertTrue(self.rand_nlh.seq_ok(0))
+        self.rand_hbuf.seq = 0
+        self.assertTrue(self.rand_nlh.seq_ok(888))
 
 
     def test_portid_ok(self):
-        b = bytearray(1024)
-        b[0:4] = struct.pack("I", 1024)
-        b[12:16] = struct.pack("I", 323)
-        msg = mnl.Header(b)
-        self.assertTrue(msg.portid_ok(323), "msg.pid: %d" % msg.pid)
-        self.assertTrue(not msg.portid_ok(888), "msg.pid: %d" % msg.pid)
-        self.assertTrue(msg.portid_ok(0))
-        msg.pid = 0
-        self.assertTrue(msg.portid_ok(888))
+        self.rand_hbuf.pid = 0x12345678
+        self.assertTrue(self.rand_nlh.portid_ok(0x12345678))
+        self.assertFalse(self.rand_nlh.portid_ok(0x1234))
+        self.assertTrue(self.rand_nlh.portid_ok(0))
+        self.rand_hbuf.pid = 0
+        self.assertTrue(self.rand_nlh.portid_ok(888))
 
 
     # XXX: no assertion
     def _test_print(self):
-        msg = mnl.put_new_header(1024)
-        msg.type = netlink.NLMSG_MIN_TYPE
-        msg.put_extra_header(8)
-        msg.get_payload()[:8] = [1, 2, 3, 4, 5, 6, 7, 8]
-        nest_start = msg.attr_nest_start(1)
-        msg.put_u8(mnl.MNL_TYPE_U8, 0x10)
-        msg.put_u16(mnl.MNL_TYPE_U16, 0x11)
-        msg.put_u32(mnl.MNL_TYPE_U32, 0x12)
-        msg.put_u64(mnl.MNL_TYPE_U64, 0x13)
-        msg.attr_nest_end(nest_start)
+        self.nlh.type = netlink.NLMSG_MIN_TYPE
+        self.nlh.put_extra_header(8)
+        nest_start = self.nlh.attr_nest_start(1)
+        self.nlh.put_u8(mnl.MNL_TYPE_U8, 0x10)
+        self.nlh.put_u16(mnl.MNL_TYPE_U16, 0x11)
+        self.nlh.put_u32(mnl.MNL_TYPE_U32, 0x12)
+        self.nlh.put_u64(mnl.MNL_TYPE_U64, 0x13)
+        self.nlh.attr_nest_end(nest_start)
 
-        msg2, rest = msg.next_msg(1024)
-        msg2.type = netlink.NLMSG_DONE
-        msg2.len = sizeof(mnl.Header)
+        next_nlh, rest = msg.next_msg(self.buflen)
+        next_nlh.put_header()
+        next_nlh.type = netlink.NLMSG_DONE
 
         msg.print(8)
 
 
-    def test_batch_head(self):
-        b = mnl.NlmsgBatch(301, 129)
-        self.assertTrue(b.size() == 0)
-        print("current len: %d" % len(b.current()), file=sys.stderr)
-        self.assertTrue(len(b.current()) == 301)
-        print("head len: %d" % len(b.head()), file=sys.stderr)
-        self.assertTrue(len(b.head()) == 0)
+    def test_batches(self):
+        b = mnl.NlmsgBatch(301, 163) # bufsize, limit
 
-        for i in range(1, 9):
-            nlh = mnl.Header(b.current())
+        # empty
+        self.assertTrue(b.size() == 0)
+        self.assertTrue(len(b.current_v()) == 301)
+        self.assertTrue(len(b.head()) == 0)
+        self.assertTrue(b.is_empty() == True)
+
+        # make buf full
+        for i in range(1, 11):
+            nlh = mnl.Header.pointer(b.current())
             nlh.put_header()
             self.assertTrue(b.next() == True)
             self.assertTrue(b.size() == mnl.MNL_NLMSG_HDRLEN * i,)
-            self.assertTrue(len(b.current()) == (301 - mnl.MNL_NLMSG_HDRLEN * i))
+            self.assertTrue(len(b.current_v()) == (301 - mnl.MNL_NLMSG_HDRLEN * i))
             self.assertTrue(len(b.head()) == mnl.MNL_NLMSG_HDRLEN * i)
+            self.assertTrue(b.is_empty() == False)
 
-        nlh = mnl.Header(b.current())
+        # after full
+        nlh = mnl.Header.pointer(b.current())
         nlh.put_header()
         self.assertTrue(b.next() == False)
         self.assertTrue(b.size() == mnl.MNL_NLMSG_HDRLEN * i)
-        self.assertTrue(len(b.current()) == (301 - mnl.MNL_NLMSG_HDRLEN * i))
+        self.assertTrue(len(b.current_v()) == (301 - mnl.MNL_NLMSG_HDRLEN * i))
         self.assertTrue(len(b.head()) == mnl.MNL_NLMSG_HDRLEN * i)
+        self.assertTrue(b.is_empty() == False)
 
+        # reset
         b.reset()
         self.assertTrue(b.size() == mnl.MNL_NLMSG_HDRLEN)
-        self.assertTrue(len(b.current()) == (301 - mnl.MNL_NLMSG_HDRLEN))
+        self.assertTrue(len(b.current_v()) == (301 - mnl.MNL_NLMSG_HDRLEN))
         self.assertTrue(len(b.head()) == mnl.MNL_NLMSG_HDRLEN)
+        self.assertTrue(b.is_empty() == False)
+
+        # reset again, buf will empty after next
+        b.next()
+        b.reset()
+        self.assertTrue(b.is_empty() == True)
 
 
 if __name__ == '__main__':
