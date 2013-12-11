@@ -145,7 +145,7 @@ class Socket(object):
         return False
 
 
-def attributes_in_payload(payload): # buffer
+def payload_attributes(payload): # buffer
     p = addressof((ctypes.c_ubyte * len(payload)).from_buffer(payload))
     attr = Attribute(payload)
     while attr.ok(p + len(payload) - ctypes.addressof(attr)):

@@ -606,7 +606,7 @@ class TestSuite(unittest.TestCase):
             self.assertTrue(attr.get_u8() == 0x10 + i)
 
 
-    def test_each_attribute(self):
+    def test_payload_attributes(self):
         # XXX: using functions defined here
         self.nlh.put_header()
         self.nlh.put_u8(0, 0)
@@ -614,7 +614,7 @@ class TestSuite(unittest.TestCase):
         self.nlh.put_u8(2, 20)
         self.nlh.put_u8(3, 30)
 
-        for i, attr in enumerate(mnl.attributes_in_payload(self.nlh.get_payload_v())):
+        for i, attr in enumerate(mnl.payload_attributes(self.nlh.get_payload_v())):
             self.assertTrue(attr.type == i)
             self.assertTrue(attr.get_u8() == i * 10)
 
