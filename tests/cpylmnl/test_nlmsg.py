@@ -65,12 +65,12 @@ class TestSuite(unittest.TestCase):
 
 
     def test_nlmsg_put_header(self):
-        nlh = mnl.nlmsg_put_header(hbuf)
+        nlh = mnl.nlmsg_put_header(self.hbuf)
         self.assertTrue(nlh.len == mnl.MNL_NLMSG_HDRLEN)
 
 
-    def test_put_header(self):
-        nlh.put_header(hbuf)
+    def test_put_new_header(self):
+        nlh = mnl.put_new_header(128)
         self.assertTrue(nlh.len == mnl.MNL_NLMSG_HDRLEN)
 
 
@@ -87,7 +87,7 @@ class TestSuite(unittest.TestCase):
     def test_put_extra_header_as(self):
         self.rand_hbuf.len = mnl.MNL_ALIGN(256)
         exhdr = self.rand_nlh.put_extra_header_as(nfnl.Nfgenmsg)
-        self.assertTrue(self.rand_nlh.len == mnl.MNL_ALIGN(256) + mnl.MNL_ALIGN(nfnl.Nfgenmsg.ctypes.sizeof()))
+        self.assertTrue(self.rand_nlh.len == mnl.MNL_ALIGN(256) + mnl.MNL_ALIGN(nfnl.Nfgenmsg.sizeof()))
         self.assertTrue(isinstance(exhdr, nfnl.Nfgenmsg))
         self.assertTrue(exhdr.family == 0)
         self.assertTrue(exhdr.version == 0)
@@ -121,7 +121,7 @@ class TestSuite(unittest.TestCase):
         self.assertTrue(self.nlh.ok(16))
         self.assertTrue(self.nlh.ok(17))
 
-        self.hbufp.len = 8
+        self.hbuf.len = 8
         self.assertFalse(self.nlh.ok(7))
         self.assertFalse(self.nlh.ok(8))
         self.assertFalse(self.nlh.ok(9))

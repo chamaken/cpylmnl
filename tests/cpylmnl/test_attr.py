@@ -105,6 +105,7 @@ class TestSuite(unittest.TestCase):
 
 
     def test_next_attr(self):
+        # 256 bytes + 128 bytes
         self.abuf.len = 256
         self.abuf[256:258] = struct.pack("H", 128) # XXX: set next len
 
@@ -193,7 +194,7 @@ class TestSuite(unittest.TestCase):
         nlh.put_u8(mnl.MNL_TYPE_U8, 0x11)
         nlh.put_u8(mnl.MNL_TYPE_U8, 0x12)
         nlh.put_u8(mnl.MNL_TYPE_U8, 0x13)
-        self.assertTrue(nlh.attr_parse(0, cb, None) == mnl.MNL_CB_OK)
+        self.assertTrue(nlh.parse(0, cb, None) == mnl.MNL_CB_OK)
 
         # just testing closure
         nlh = mnl.put_new_header(512)
@@ -201,18 +202,18 @@ class TestSuite(unittest.TestCase):
         nlh.put_u8(mnl.MNL_TYPE_U8, 0x15)
         nlh.put_u8(mnl.MNL_TYPE_U8, 0x16)
         nlh.put_u8(mnl.MNL_TYPE_U8, 0x17)
-        self.assertTrue(nlh.attr_parse(0, cb, None) == mnl.MNL_CB_OK)
+        self.assertTrue(nlh.parse(0, cb, None) == mnl.MNL_CB_OK)
 
         nlh = mnl.put_new_header(512)
         nlh.put_u8(mnl.MNL_TYPE_U8, 0x18)
         nlh.put_u8(mnl.MNL_TYPE_U8, 0x19)
         nlh.put_u8(mnl.MNL_TYPE_U8, 0x1a)
         nlh.put_u8(mnl.MNL_TYPE_U8, 0x10)
-        self.assertTrue(nlh.attr_parse(0, cb, None) == mnl.MNL_CB_STOP)
+        self.assertTrue(nlh.parse(0, cb, None) == mnl.MNL_CB_STOP)
 
         nlh = mnl.put_new_header(512)
         nlh.put_u8(mnl.MNL_TYPE_U8, 0x00)
-        self.assertRaises(OSError, nlh.attr_parse, 0, cb, 1)
+        self.assertRaises(OSError, nlh.parse, 0, cb, 1)
 
 
     def test_parse_nested(self):
