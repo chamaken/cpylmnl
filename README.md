@@ -129,11 +129,11 @@ ctypes.pointer().contents as possible.
 return value
 ------------
 
-functions which returns void * are
+note for functions which returns void *:
 
-- add new appending to original name:
+- add new functions appending to original name:
   - _v: return (c_ubyte * <appropriate len>)
-  - _as: cast class specified in last param
+  - _as: cast class specified in the param
 
     void *mnl_nlmsg_put_extra_header(struct nlmsghdr *nlh, size_t size)
     void *mnl_nlmsg_get_payload(const struct nlmsghdr *nlh)
