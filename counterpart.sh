@@ -21,6 +21,7 @@ $UAPI_SRCDIR/linux/netfilter/nfnetlink_conntrack.h	h/linux/netfilter/nfnetlink_c
 $UAPI_SRCDIR/linux/netfilter/nfnetlink_log.h		h/linux/netfilter/nfnetlink_log.h
 $UAPI_SRCDIR/linux/netfilter/nfnetlink_queue.h		h/linux/netfilter/nfnetlink_queue.h
 $UAPI_SRCDIR/linux/if.h					h/linux/if.h
+$UAPI_SRCDIR/linux/netfilter.h				h/linux/netfilter.h
 
 # libmnl source
 $LIBMNL_SRCDIR/include/libmnl/libmnl.h			ORIGINAL_C_SOURCE/mnl/libmnl.h
