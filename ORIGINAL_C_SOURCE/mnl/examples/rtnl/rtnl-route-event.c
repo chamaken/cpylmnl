@@ -13,6 +13,8 @@
 
 static int data_attr_cb2(const struct nlattr *attr, void *data)
 {
+	const struct nlattr **tb = data;
+
 	/* skip unsupported attribute in user-space */
 	if (mnl_attr_type_valid(attr, RTAX_MAX) < 0)
 		return MNL_CB_OK;
@@ -21,6 +23,8 @@ static int data_attr_cb2(const struct nlattr *attr, void *data)
 		perror("mnl_attr_validate");
 		return MNL_CB_ERROR;
 	}
+
+	tb[mnl_attr_get_type(attr)] = attr;
 	return MNL_CB_OK;
 }
 
@@ -50,6 +54,9 @@ static void attributes_show_ipv4(struct nlattr *tb[])
 	if (tb[RTA_GATEWAY]) {
 		struct in_addr *addr = mnl_attr_get_payload(tb[RTA_GATEWAY]);
 		printf("gw=%s ", inet_ntoa(*addr));
+	}
+	if (tb[RTA_PRIORITY]) {
+		printf("prio=%u ", mnl_attr_get_u32(tb[RTA_PRIORITY]));
 	}
 	if (tb[RTA_METRICS]) {
 		int i;
@@ -101,6 +108,9 @@ static void attributes_show_ipv6(struct nlattr *tb[])
 		struct in6_addr *addr = mnl_attr_get_payload(tb[RTA_GATEWAY]);
 		printf("gw=%s ", inet6_ntoa(*addr));
 	}
+	if (tb[RTA_PRIORITY]) {
+		printf("prio=%u ", mnl_attr_get_u32(tb[RTA_PRIORITY]));
+	}
 	if (tb[RTA_METRICS]) {
 		int i;
 		struct nlattr *tbx[RTAX_MAX+1] = {};
@@ -114,7 +124,6 @@ static void attributes_show_ipv6(struct nlattr *tb[])
 			}
 		}
 	}
-	printf("\n");
 }
 
 static int data_ipv4_attr_cb(const struct nlattr *attr, void *data)
@@ -134,6 +143,7 @@ static int data_ipv4_attr_cb(const struct nlattr *attr, void *data)
 	case RTA_FLOW:
 	case RTA_PREFSRC:
 	case RTA_GATEWAY:
+	case RTA_PRIORITY:
 		if (mnl_attr_validate(attr, MNL_TYPE_U32) < 0) {
 			perror("mnl_attr_validate");
 			return MNL_CB_ERROR;
@@ -163,6 +173,7 @@ static int data_ipv6_attr_cb(const struct nlattr *attr, void *data)
 	case RTA_TABLE:
 	case RTA_OIF:
 	case RTA_FLOW:
+	case RTA_PRIORITY:
 		if (mnl_attr_validate(attr, MNL_TYPE_U32) < 0) {
 			perror("mnl_attr_validate");
 			return MNL_CB_ERROR;
@@ -174,7 +185,7 @@ static int data_ipv6_attr_cb(const struct nlattr *attr, void *data)
 	case RTA_GATEWAY:
 		if (mnl_attr_validate2(attr, MNL_TYPE_BINARY,
 					sizeof(struct in6_addr)) < 0) {
-			perror("mnl_attr_validate");
+			perror("mnl_attr_validate2");
 			return MNL_CB_ERROR;
 		}
 		break;
@@ -277,7 +288,7 @@ static int data_cb(const struct nlmsghdr *nlh, void *data)
 	 * 	RTM_F_EQUALIZE	= 0x400: Multipath equalizer: NI
 	 * 	RTM_F_PREFIX	= 0x800: Prefix addresses
 	 */
-	printf("flags=%x", rm->rtm_flags);
+	printf("flags=%x ", rm->rtm_flags);
 
 	switch(rm->rtm_family) {
 	case AF_INET:
@@ -289,8 +300,8 @@ static int data_cb(const struct nlmsghdr *nlh, void *data)
 		attributes_show_ipv6(tb);
 		break;
 	}
-	printf("\n");
 
+	printf("\n");
 	return MNL_CB_OK;
 }
 

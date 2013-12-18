@@ -54,7 +54,7 @@ EOF
 
 
 libmnl_symbols() {
-    nm -D --defined-only $LIBMNL_SO | awk '$2=="T" {print $3}' | sed -e 's/^mnl_/'
+    nm -D --defined-only $LIBMNL_SO | awk '$2=="T" {print $3}' | sed -e 's/^mnl_//'
 }
 
 # in bash, done < $t can be replace with
@@ -73,12 +73,6 @@ done < $t
 # cleanup tempfile 
 rm -f -- "$t"
 trap - EXIT
-
-wcl=`find h -type f | wc -l`
-if [ $wcl -ne $ncsrc ]; then
-    echo "files in h: $wcl, but listed above: $ncsrc" 1>&2
-fi
-
 
 libmnl_symbols | while read s; do
     if ! grep $s cpylmnl/*.py > /dev/null; then
