@@ -439,9 +439,48 @@ c_cb_run2 = LIBMNL.mnl_cb_run2
 c_cb_run2.argtypes = [c_void_p, c_size_t, c_uint, c_uint, MNL_CB_T, py_object, POINTER(MNL_CB_T), c_uint]
 c_cb_run2.restype = c_int
 
+##
+# mmaped API
+#
+if hasattr(LIBMNL, "mnl_ring_map"):
+    HAVE_NL_MMAP = True
+
+    # extern struct mnl_ring_socket *
+    # mnl_ring_map(const struct mnl_socket *nl, struct nl_mmap_req *tx_req, struct nl_mmap_req *rx_req);
+    c_ring_map = LIBMNL.mnl_ring_map
+    c_ring_map.argtypes = [c_void_p, POINTER(netlink.NlMmapReq), POINTER(netlink.NlMmapReq)]
+    c_ring_map.restype = c_void_p
+
+    # extern int mnl_ring_unmap(struct mnl_ring_socket *nlm);
+    c_ring_unmap = LIBMNL.mnl_ring_unmap
+    c_ring_unmap.argtypes = [c_void_p]
+    c_ring_unmap.restype = c_int
+
+    # extern struct nl_mmap_hdr *mnl_ring_get_frame(struct mnl_ring_socket *nlm, enum mnl_ring_types type);
+    c_ring_get_frame = LIBMNL.mnl_ring_get_frame
+    c_ring_get_frame.argtypes = [c_void_p, c_int]
+    c_ring_get_frame.restype = POINTER(netlink.NlMmapHdr)
+
+    # extern int mnl_ring_advance(struct mnl_ring_socket *nlm, enum mnl_ring_types type);
+    c_ring_advance = LIBMNL.mnl_ring_advance
+    c_ring_advance.argtypes = [c_void_p, c_int]
+    c_ring_advance.restype = c_int
+
+    # extern int mnl_ring_poll(const struct mnl_ring_socket *nlm, int timeout);
+    c_ring_poll = LIBMNL.mnl_ring_poll
+    c_ring_poll.argtypes = [c_void_p, c_int]
+    c_ring_poll.restype = c_int
+else:
+    HAVE_NL_MMAP = False
+
 
 # helper
 def c_raise_if_errno():
     en = get_errno()
     if en != 0:
         raise OSError(en, errno.errorcode[en])
+
+
+def os_error():
+    en = get_errno()
+    return OSError(en, errno.errorcode[en])

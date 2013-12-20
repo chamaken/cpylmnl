@@ -5,6 +5,7 @@ import resource
 from ctypes import sizeof
 from . import netlink
 
+
 # H2PY_ERR: h/libmnl/libmnl.h - define: MNL_SOCKET_BUFFER_SIZE = (getpagesize() < 8192L ? getpagesize() : 8192L)
 MNL_SOCKET_BUFFER_SIZE	= resource.getpagesize() < 8192 and resource.getpagesize() or 8192
 
@@ -38,3 +39,8 @@ MNL_CB_STOP = 0
 MNL_CB_OK = 1
 SOL_NETLINK = 270
 def MNL_ARRAY_SIZE(a): return (sizeof(a)/sizeof((a)[0]))
+
+
+# if HAVE_NL_MMAP:
+MNL_RING_RX = 0
+MNL_RING_TX = 1

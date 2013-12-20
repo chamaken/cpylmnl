@@ -27,6 +27,7 @@ NL_MMAP_MSG_ALIGNMENT = NLMSG_ALIGNTO
 def __ALIGN_KERNEL(x, a): return __ALIGN_KERNEL_MASK(x, (a) - 1)
 def __ALIGN_KERNEL_MASK(x, mask): return  ((x) + (mask)) & ~(mask)
 def NL_MMAP_MSG_ALIGN(sz): return __ALIGN_KERNEL(sz, NL_MMAP_MSG_ALIGNMENT)
+NL_MMAP_HDRLEN = NL_MMAP_MSG_ALIGN(sizeof(NlMmapHdr))
 
 NLA_ALIGNTO = 4
 def NLA_ALIGN(len): return (((len) + NLA_ALIGNTO - 1) & ~(NLA_ALIGNTO - 1))

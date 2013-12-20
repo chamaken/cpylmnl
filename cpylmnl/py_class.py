@@ -143,11 +143,34 @@ class Socket(object):
     def __exit__(self, t, v, tb):
         socket_close(self._nls)
         return False
+    @property
+    def descr(self):			return self._nls
 
-
+# C macro: #define mnl_attr_for_each_payload(payload, payload_size)
 def payload_attributes(payload): # buffer
     p = addressof((ctypes.c_ubyte * len(payload)).from_buffer(payload))
     attr = Attribute(payload)
     while attr.ok(p + len(payload) - ctypes.addressof(attr)):
         yield attr
         attr = attr.next_attribute()
+
+
+from .cproto import HAVE_NL_MMAP
+if HAVE_NL_MMAP:
+    from .mmap import *
+
+    class RingSocket(object):
+        def __init__(self, nls, tr, rr):
+            if hasattr(nls, "descr"):
+                self._nlm = ring_map(nls.descr, tr, rr)
+            else:
+                self._nlm = ring_map(nls, tr, rr)
+        def __enter__(self):			return self
+        def unmap(self):			return ring_unmap(self._nlm)
+        def get_frame(self, t):			return ring_get_frame(self._nlm, t)
+        def advance(self, t):			return ring_advance(self._nlm, t)
+        def poll(self, to):			return ring_poll(self._nlm, to)
+        def __enter__(self):			return self
+        def __exit__(self, t, v, tb):
+            ring_unmap(self._nlm)
+            return False
