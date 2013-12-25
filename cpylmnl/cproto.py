@@ -59,6 +59,21 @@ c_socket_bind = LIBMNL.mnl_socket_bind
 c_socket_bind.argtypes = [c_void_p, c_uint, c_pid_t]
 c_socket_bind.restype = c_int
 
+# extern int mnl_socket_set_ring(struct mnl_socket *nl, struct nl_mmap_req *tx_req, struct nl_mmap_req *rx_req);
+c_socket_set_ring = LIBMNL.mnl_socket_set_ring
+c_socket_set_ring.argtypes = [c_void_p, POINTER(netlink.NlMmapReq), POINTER(netlink.NlMmapReq)]
+c_socket_set_ring.restype = c_int
+
+# extern struct nl_mmap_hdr *mnl_socket_get_frame(const struct mnl_socket *nl, enum mnl_ring_types type);
+c_socket_get_frame = LIBMNL.mnl_socket_get_frame
+c_socket_get_frame.argtypes = [c_void_p, c_int]
+c_socket_get_frame.restype = POINTER(netlink.NlMmapHdr)
+
+# extern int mnl_socket_advance_ring(const struct mnl_socket *nl, enum mnl_ring_types type);
+c_socket_advance_ring = LIBMNL.mnl_socket_advance_ring
+c_socket_advance_ring.argtypes = [c_void_p, c_int]
+c_socket_advance_ring.restype = c_int
+
 # extern int mnl_socket_close(struct mnl_socket *nl);
 c_socket_close = LIBMNL.mnl_socket_close
 # c_socket_close.argtypes = [POINTER(MnlSocket)]
@@ -101,6 +116,10 @@ c_socket_getsockopt = LIBMNL.mnl_socket_getsockopt
 c_socket_getsockopt.argtypes = [c_void_p, c_int, c_void_p, c_void_p]
 c_socket_getsockopt.restype = c_int
 
+# extern int mnl_socket_poll_rx(const struct mnl_socket *nl, int timeout);
+c_socket_poll_rx = LIBMNL.mnl_socket_poll_rx
+c_socket_poll_rx.argtypes = [c_void_p, c_int]
+c_socket_poll_rx.restype = c_int
 
 ###
 ## Netlink message API
@@ -438,40 +457,6 @@ c_cb_run.restype = c_int
 c_cb_run2 = LIBMNL.mnl_cb_run2
 c_cb_run2.argtypes = [c_void_p, c_size_t, c_uint, c_uint, MNL_CB_T, py_object, POINTER(MNL_CB_T), c_uint]
 c_cb_run2.restype = c_int
-
-##
-# mmaped API
-#
-if hasattr(LIBMNL, "mnl_ring_map"):
-    HAVE_NL_MMAP = True
-
-    # extern struct mnl_ring_socket *
-    # mnl_ring_map(const struct mnl_socket *nl, struct nl_mmap_req *tx_req, struct nl_mmap_req *rx_req);
-    c_ring_map = LIBMNL.mnl_ring_map
-    c_ring_map.argtypes = [c_void_p, POINTER(netlink.NlMmapReq), POINTER(netlink.NlMmapReq)]
-    c_ring_map.restype = c_void_p
-
-    # extern int mnl_ring_unmap(struct mnl_ring_socket *nlm);
-    c_ring_unmap = LIBMNL.mnl_ring_unmap
-    c_ring_unmap.argtypes = [c_void_p]
-    c_ring_unmap.restype = c_int
-
-    # extern struct nl_mmap_hdr *mnl_ring_get_frame(struct mnl_ring_socket *nlm, enum mnl_ring_types type);
-    c_ring_get_frame = LIBMNL.mnl_ring_get_frame
-    c_ring_get_frame.argtypes = [c_void_p, c_int]
-    c_ring_get_frame.restype = POINTER(netlink.NlMmapHdr)
-
-    # extern int mnl_ring_advance(struct mnl_ring_socket *nlm, enum mnl_ring_types type);
-    c_ring_advance = LIBMNL.mnl_ring_advance
-    c_ring_advance.argtypes = [c_void_p, c_int]
-    c_ring_advance.restype = c_int
-
-    # extern int mnl_ring_poll(const struct mnl_ring_socket *nlm, int timeout);
-    c_ring_poll = LIBMNL.mnl_ring_poll
-    c_ring_poll.argtypes = [c_void_p, c_int]
-    c_ring_poll.restype = c_int
-else:
-    HAVE_NL_MMAP = False
 
 
 # helper

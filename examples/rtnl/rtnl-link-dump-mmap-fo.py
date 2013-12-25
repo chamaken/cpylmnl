@@ -74,9 +74,9 @@ def main():
                              frame_size = frame_size,
                              frame_nr = 64 * mnl.MNL_SOCKET_BUFFER_SIZE * 16 / frame_size)
     nl = mnl.socket_open(netlink.NETLINK_ROUTE)
-    nlm = mnl.ring_map(nl, nlmr, nlmr)
-    hdr = mnl.ring_get_frame(nlm, mnl.MNL_RING_TX)
-    buf = mnl.MMAP_MSGHDR(hdr, frame_size)
+    mnl.socket_set_ring(nl, nlmr, nlmr)
+    hdr = mnl.socket_get_frame(nl, mnl.MNL_RING_TX)
+    buf = mnl.RING_MSGHDR(hdr, frame_size)
 
     nlh = mnl.nlmsg_put_header(buf)
     nlh.type = h.RTM_GETLINK
@@ -92,26 +92,25 @@ def main():
     mnl.socket_bind(nl, 0, mnl.MNL_SOCKET_AUTOPID)
     portid = mnl.socket_get_portid(nl)
     mnl.socket_sendto(nl, None)
-    mnl.ring_advance(nlm, mnl.MNL_RING_TX)
+    mnl.socket_advance_ring(nl, mnl.MNL_RING_TX)
 
     ret = mnl.MNL_CB_OK
     while ret > mnl.MNL_CB_STOP:
         # XXX: no try / except
-        mnl.ring_poll(nlm, -1)
-        hdr = mnl.ring_get_frame(nlm, mnl.MNL_RING_RX);
+        mnl.socket_poll_rx(nl, -1)
+        hdr = mnl.socket_get_frame(nl, mnl.MNL_RING_RX);
         if hdr.status == netlink.NL_MMAP_STATUS_VALID:
-            buf = mnl.MMAP_MSGHDR(hdr, hdr.len)
+            buf = mnl.RING_MSGHDR(hdr, hdr.len)
         else:
             buf = mnl.socket_recv(nl, frame_size)
         
         ret = mnl.cb_run(buf, seq, portid, data_cb, None)
         hdr.status = netlink.NL_MMAP_STATUS_UNUSED
-        mnl.ring_advance(nlm, mnl.MNL_RING_RX)
+        mnl.socket_advance_ring(nl, mnl.MNL_RING_RX)
 
     if ret < 0: # not valid. cb_run may raise Exception
         print("mnl_cb_run returns ERROR", file=sys.stderr)
 
-    mnl.ring_unmap(nlm)
     mnl.socket_close(nl)
 
 

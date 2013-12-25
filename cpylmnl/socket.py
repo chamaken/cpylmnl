@@ -36,6 +36,27 @@ def socket_bind(nl, groups, pid):
     if ret < 0: raise os_error()
     return ret
 
+### setup mmap ring
+# int mnl_socket_set_ring(struct mnl_socket *nl, struct nl_mmap_req *tx_req, struct nl_mmap_req *rx_req)
+def socket_set_ring(nl, tx_req, rx_req):
+    set_errno(0)
+    ret = c_socket_set_ring(nl, tx_req, rx_req)
+    if ret < 0: raise os_error()
+    return ret
+
+### get current frame
+# struct nl_mmap_hdr *mnl_socket_get_frame(const struct mnl_socket *nl, enum mnl_ring_types type)
+def socket_get_frame(nl, rtype):
+    return c_socket_get_frame(nl, rtype).contents
+
+### set forward frame pointer
+# int mnl_socket_advance_ring(const struct mnl_socket *nl, enum mnl_ring_types type)
+def socket_advance_ring(nl, rtype):
+    set_errno(0)
+    ret = c_socket_advance_ring(nl, rtype)
+    if ret < 0: raise os_error()
+    return ret
+
 ### send a netlink message of a certain size
 # mnl_socket_sendto(const struct mnl_socket *nl, const void *buf, size_t len)
 def socket_sendto(nl, buf):
@@ -104,3 +125,11 @@ def soket_getsockopt(nl, optype, size):
     ret = c_socket_getsockopt(nl, optype, c_buf, len(buf))
     if ret < 0: raise os_error()
     return c_buf.raw
+
+### wait for receiving
+# int mnl_socket_poll_rx(const struct mnl_socket *nl, int timeout)
+def socket_poll_rx(nl, timeout):
+    set_errno(0)
+    ret = c_socket_poll_rx(nl, timeout)
+    if ret < 0: raise os_error()
+    return ret

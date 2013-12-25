@@ -132,6 +132,9 @@ class Socket(object):
     def get_fd(self):			return socket_get_fd(self._nls)
     def get_portid(self):		return socket_get_portid(self._nls)
     def bind(self, groups, pid):	return socket_bind(self._nls, groups, pid)
+    def set_ring(self, tr, rr):		return socket_set_ring(self._nls, tr, rr)
+    def get_frame(self, rt):		return socket_get_frame(self._nls, rt)
+    def advance_ring(self, rt):		return socket_advance_ring(self._nls, rt)
     def sendto(self, buf):		return socket_sendto(self._nls, buf)
     def send_nlmsg(self, nlh):		return socket_send_nlmsg(self._nls, nlh)
     def recv(self, size):		return socket_recv(self._nls, size)
@@ -139,12 +142,12 @@ class Socket(object):
     def close(self):			return socket_close(self._nls)
     def setsockopt(self, t, b):		return socket_setsockopt(self._nls, t, b)
     def getsockopt(self, t, size):	return socket_getsockopt(self._nls, t, size)
+    def poll_rx(self, to):		return socket_poll_rx(self._nls, to)
     def __enter__(self):		return self
     def __exit__(self, t, v, tb):
         socket_close(self._nls)
         return False
-    @property
-    def descr(self):			return self._nls
+
 
 # C macro: #define mnl_attr_for_each_payload(payload, payload_size)
 def payload_attributes(payload): # buffer
@@ -153,24 +156,3 @@ def payload_attributes(payload): # buffer
     while attr.ok(p + len(payload) - ctypes.addressof(attr)):
         yield attr
         attr = attr.next_attribute()
-
-
-from .cproto import HAVE_NL_MMAP
-if HAVE_NL_MMAP:
-    from .mmap import *
-
-    class RingSocket(object):
-        def __init__(self, nls, tr, rr):
-            if hasattr(nls, "descr"):
-                self._nlm = ring_map(nls.descr, tr, rr)
-            else:
-                self._nlm = ring_map(nls, tr, rr)
-        def __enter__(self):			return self
-        def unmap(self):			return ring_unmap(self._nlm)
-        def get_frame(self, t):			return ring_get_frame(self._nlm, t)
-        def advance(self, t):			return ring_advance(self._nlm, t)
-        def poll(self, to):			return ring_poll(self._nlm, to)
-        def __enter__(self):			return self
-        def __exit__(self, t, v, tb):
-            ring_unmap(self._nlm)
-            return False

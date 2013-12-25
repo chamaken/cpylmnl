@@ -75,43 +75,43 @@ def main():
                              frame_nr = 64 * mnl.MNL_SOCKET_BUFFER_SIZE * 16 / frame_size)
 
     with mnl.Socket(netlink.NETLINK_ROUTE) as nl:
-        with mnl.RingSocket(nl, nlmr, nlmr) as nlm:
-            hdr = nlm.get_frame(mnl.MNL_RING_TX)
-            buf = mnl.MMAP_MSGHDR(hdr, frame_size)
+        nl.set_ring(nlmr, nlmr)
+        hdr = nl.get_frame(mnl.MNL_RING_TX)
+        buf = mnl.RING_MSGHDR(hdr, frame_size)
 
-            nlh = mnl.nlmsg_put_header(buf, mnl.Header)
-            nlh.type = h.RTM_GETLINK
-            nlh.flags = netlink.NLM_F_REQUEST | netlink.NLM_F_DUMP
-            seq = int(time.time())
-            nlh.seq = seq
-            rt = nlh.put_extra_header_as(rtnl.Rtgenmsg)
-            rt.family = socket.AF_PACKET
+        nlh = mnl.nlmsg_put_header(buf, mnl.Header)
+        nlh.type = h.RTM_GETLINK
+        nlh.flags = netlink.NLM_F_REQUEST | netlink.NLM_F_DUMP
+        seq = int(time.time())
+        nlh.seq = seq
+        rt = nlh.put_extra_header_as(rtnl.Rtgenmsg)
+        rt.family = socket.AF_PACKET
 
-            hdr.len = nlh.len
-            hdr.status = netlink.NL_MMAP_STATUS_VALID
+        hdr.len = nlh.len
+        hdr.status = netlink.NL_MMAP_STATUS_VALID
 
-            nl.bind(0, mnl.MNL_SOCKET_AUTOPID)
-            portid = nl.get_portid()
-            nl.sendto(None)
-            nlm.advance(mnl.MNL_RING_TX)
+        nl.bind(0, mnl.MNL_SOCKET_AUTOPID)
+        portid = nl.get_portid()
+        nl.sendto(None)
+        nl.advance_ring(mnl.MNL_RING_TX)
 
-            ret = mnl.MNL_CB_OK
-            while ret > mnl.MNL_CB_STOP:
-                # XXX: no try / except
-                nlm.poll(-1)
-                hdr = nlm.get_frame(mnl.MNL_RING_RX);
-                if hdr.status == netlink.NL_MMAP_STATUS_VALID:
-                    buf = mnl.MMAP_MSGHDR(hdr, hdr.len)
-                elif hdr.status == netlink.NL_MMAP_STATUS_COPY:
-                    buf = nl.recv(frame_size * 2)
-                else:
+        ret = mnl.MNL_CB_OK
+        while ret > mnl.MNL_CB_STOP:
+            # XXX: no try / except
+            nl.poll_rx(-1)
+            hdr = nl.get_frame(mnl.MNL_RING_RX);
+            if hdr.status == netlink.NL_MMAP_STATUS_VALID:
+                buf = mnl.RING_MSGHDR(hdr, hdr.len)
+            elif hdr.status == netlink.NL_MMAP_STATUS_COPY:
+                buf = nl.recv(frame_size * 2)
+            else:
                     continue
-                ret = mnl.cb_run(buf, seq, portid, data_cb, None)
-                hdr.status = netlink.NL_MMAP_STATUS_UNUSED
-                nlm.advance(mnl.MNL_RING_RX)
+            ret = mnl.cb_run(buf, seq, portid, data_cb, None)
+            hdr.status = netlink.NL_MMAP_STATUS_UNUSED
+            nl.advance_ring(mnl.MNL_RING_RX)
 
-            if ret < 0: # not valid. cb_run may raise Exception
-                print("mnl_cb_run returns ERROR", file=sys.stderr)
+        if ret < 0: # not valid. cb_run may raise Exception
+            print("mnl_cb_run returns ERROR", file=sys.stderr)
 
 
 if __name__ == '__main__':

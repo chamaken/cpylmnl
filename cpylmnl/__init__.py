@@ -8,8 +8,4 @@ from .nlmsg import *
 from .socket import *
 from .callback import *
 
-from .cproto import HAVE_NL_MMAP
-if HAVE_NL_MMAP:
-    from .mmap import *
-
 from .py_class import *
