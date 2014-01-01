@@ -132,7 +132,8 @@ class Socket(object):
     def get_fd(self):			return socket_get_fd(self._nls)
     def get_portid(self):		return socket_get_portid(self._nls)
     def bind(self, groups, pid):	return socket_bind(self._nls, groups, pid)
-    def set_ring(self, tr, rr):		return socket_set_ring(self._nls, tr, rr)
+    def set_ringopt(self, req, rt):	return socket_set_ringopt(self._nls, req, rt)
+    def map_ring(self):			return socket_map_ring(self._nls)
     def get_frame(self, rt):		return socket_get_frame(self._nls, rt)
     def advance_ring(self, rt):		return socket_advance_ring(self._nls, rt)
     def sendto(self, buf):		return socket_sendto(self._nls, buf)
@@ -142,7 +143,6 @@ class Socket(object):
     def close(self):			return socket_close(self._nls)
     def setsockopt(self, t, b):		return socket_setsockopt(self._nls, t, b)
     def getsockopt(self, t, size):	return socket_getsockopt(self._nls, t, size)
-    def poll_rx(self, to):		return socket_poll_rx(self._nls, to)
     def __enter__(self):		return self
     def __exit__(self, t, v, tb):
         socket_close(self._nls)

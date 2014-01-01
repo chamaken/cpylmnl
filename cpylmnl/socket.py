@@ -36,11 +36,19 @@ def socket_bind(nl, groups, pid):
     if ret < 0: raise os_error()
     return ret
 
-### setup mmap ring
-# int mnl_socket_set_ring(struct mnl_socket *nl, struct nl_mmap_req *tx_req, struct nl_mmap_req *rx_req)
-def socket_set_ring(nl, tx_req, rx_req):
+### set ring opt to prepare for mnl_socket_map_ring()
+# extern int mnl_socket_set_ringopt(struct mnl_socket *nl, struct nl_mmap_req *req, enum mnl_ring_types type);
+def socket_set_ringopt(nl, req, rtype):
     set_errno(0)
-    ret = c_socket_set_ring(nl, tx_req, rx_req)
+    ret = c_socket_set_ringopt(nl, req, rtype)
+    if ret < 0: raise os_error()
+    return ret
+
+### setup a ring for mnl_socket
+# extern int mnl_socket_map_ring(struct mnl_socket *nl);
+def socket_map_ring(nl):
+    set_errno(0)
+    ret = c_socket_map_ring(nl)
     if ret < 0: raise os_error()
     return ret
 
@@ -125,11 +133,3 @@ def soket_getsockopt(nl, optype, size):
     ret = c_socket_getsockopt(nl, optype, c_buf, len(buf))
     if ret < 0: raise os_error()
     return c_buf.raw
-
-### wait for receiving
-# int mnl_socket_poll_rx(const struct mnl_socket *nl, int timeout)
-def socket_poll_rx(nl, timeout):
-    set_errno(0)
-    ret = c_socket_poll_rx(nl, timeout)
-    if ret < 0: raise os_error()
-    return ret

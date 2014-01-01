@@ -59,10 +59,15 @@ c_socket_bind = LIBMNL.mnl_socket_bind
 c_socket_bind.argtypes = [c_void_p, c_uint, c_pid_t]
 c_socket_bind.restype = c_int
 
-# extern int mnl_socket_set_ring(struct mnl_socket *nl, struct nl_mmap_req *tx_req, struct nl_mmap_req *rx_req);
-c_socket_set_ring = LIBMNL.mnl_socket_set_ring
-c_socket_set_ring.argtypes = [c_void_p, POINTER(netlink.NlMmapReq), POINTER(netlink.NlMmapReq)]
-c_socket_set_ring.restype = c_int
+# extern int mnl_socket_set_ringopt(struct mnl_socket *nl, struct nl_mmap_req *req, enum mnl_ring_types type);
+c_socket_set_ringopt = LIBMNL.mnl_socket_set_ringopt
+c_socket_set_ringopt.argtypes = [c_void_p, POINTER(netlink.NlMmapReq), c_int]
+c_socket_set_ringopt.restype = c_int
+
+# extern int mnl_socket_map_ring(struct mnl_socket *nl);
+c_socket_map_ring = LIBMNL.mnl_socket_map_ring
+c_socket_map_ring.argtypes = [c_void_p]
+c_socket_map_ring.restype = c_int
 
 # extern struct nl_mmap_hdr *mnl_socket_get_frame(const struct mnl_socket *nl, enum mnl_ring_types type);
 c_socket_get_frame = LIBMNL.mnl_socket_get_frame
@@ -115,11 +120,6 @@ c_socket_getsockopt = LIBMNL.mnl_socket_getsockopt
 # c_socket_getsockopt.argtypes = [POINTER(MnlSocket), c_int, c_void_p, c_void_p]
 c_socket_getsockopt.argtypes = [c_void_p, c_int, c_void_p, c_void_p]
 c_socket_getsockopt.restype = c_int
-
-# extern int mnl_socket_poll_rx(const struct mnl_socket *nl, int timeout);
-c_socket_poll_rx = LIBMNL.mnl_socket_poll_rx
-c_socket_poll_rx.argtypes = [c_void_p, c_int]
-c_socket_poll_rx.restype = c_int
 
 ###
 ## Netlink message API
