@@ -48,7 +48,7 @@ objects are immutable; you can get weird bugs if you modify their buffer. I
 recently answered a question on that topic.
 '''
 
-class UStructure(Structure):
+class NLStructure(Structure):
     def __new__(cls, buf=None, offset=0):
         # share the buf
         # but hold it even if the buf has changed? - set to new value, None
@@ -104,60 +104,3 @@ class UStructure(Structure):
         return cast(addressof(self), POINTER((c_char * size))).contents.raw
         """
         return bytes(self.marshal_binary())
-
-
-# naming conversion
-# * struct / class
-#   starts with upper
-#   convert upper just after in the middle of _ and remove _ self
-
-# * field / attribute
-#   follow ``cgo -godefs'' as possible. but the first is lower
-
-class Nlmsghdr(UStructure):
-    """struct nlmsghdr
-    """
-    _fields_ = [("len",		c_uint32), # __u32 nlmsg_len	/* Length of message including header */
-                ("type",	c_uint16), # __u16 nlmsg_type	/* Message content */
-                ("flags",	c_uint16), # __u16 nlmsg_flags	/* Additional flags */
-                ("seq",		c_uint32), # __u32 nlmsg_seq	/* Sequence number */
-                ("pid",		c_uint32)] # __u32 nlmsg_pid	/* Sending process port ID */
-
-
-class Nlmsgerr(UStructure):
-    """struct nlmsgerr
-    """
-    _fields_ = [("error",	c_int),    # int error
-                ("msg",		Nlmsghdr)] # struct nlmsghdr msg
-
-
-class NlPktinfo(Structure): # not UStructure?
-    """struct nl_pktinfo
-    """
-    _fields_ = [("group",	c_uint32)] # __u32 group
-
-
-class NlMmapReq(Structure):
-    """struct nl_mmap_req
-    """
-    _fields_ = [("block_size", 	c_uint), # unsigned int	nm_block_size
-                ("block_nr",	c_uint), # unsigned int	nm_block_nr
-                ("frame_size",	c_uint), # unsigned int	nm_frame_size
-                ("frame_nr",	c_uint)] # unsigned int	nm_frame_nr
-
-class NlMmapHdr(Structure):
-    """struct nl_mmap_hdr
-    """
-    _fields_ = [("status",	c_uint),  # unsigned int	nm_status
-                ("len",		c_uint),  # unsigned int	nm_len
-                ("group",	c_uint32), # __u32		nm_group;
-                # credentials
-                ("pid",		c_uint32), # __u32		nm_pid;
-                ("uid",		c_uint32), # __u32		nm_uid;
-                ("gid", 	c_uint32)] # __u32		nm_gid;
-
-class Nlattr(UStructure):
-    """struct nlattr
-    """
-    _fields_ = [("len",		c_uint16), # __u16 nla_len
-                ("type",	c_uint16)] # __u16 nla_type

@@ -4,7 +4,7 @@ from __future__ import absolute_import, print_function
 
 import sys, os, errno
 
-from . import netlink
+from .linux import netlinkh as netlink
 from .cproto import *
 from ctypes import *
 

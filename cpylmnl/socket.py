@@ -5,7 +5,7 @@ from __future__ import print_function, absolute_import
 import sys, os, errno, logging
 from ctypes import *
 
-from . import netlink
+from .linux import netlinkh as netlink
 from .cproto import *
 
 log = logging.getLogger(__name__)

@@ -5,9 +5,9 @@ from __future__ import absolute_import, print_function
 import sys, os, errno
 from ctypes import *
 
-from . import netlink
+from .linux import netlinkh as netlink
 from .cproto import *
-from .mnlh import *
+from .header import *
 
 """
 libmnl (http://www.netfilter.org/projects/libmnl/) attr.c
