@@ -6,12 +6,11 @@ from __future__ import print_function
 import sys, random, unittest, struct
 import ctypes
 
-from cpylmnl import netlink
+import cpylmnl.linux.netlinkh as netlink
 import cpylmnl as mnl
-from cpylmnl import h
-import cpylmnl.nlstructs.nfnetlink as nfnl # for _as() casting
+import cpylmnl.linux.netfilter.nfnetlinkh as nfnl # for _as() casting
 
-from .netlink.buf import *
+from .linux.netlink.buf import *
 
 
 class TestSuite(unittest.TestCase):

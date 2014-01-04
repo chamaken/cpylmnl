@@ -5,8 +5,8 @@ from __future__ import print_function
 
 import sys, random, unittest, struct, ctypes, errno
 
+import cpylmnl.linux.netlinkh as netlink
 import cpylmnl as mnl
-from cpylmnl import netlink
 
 class TestSuite(unittest.TestCase):
     def setUp(self):

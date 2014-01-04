@@ -6,10 +6,10 @@ from __future__ import print_function
 import sys, random, unittest, struct, errno
 import ctypes
 
-from cpylmnl import netlink
+import cpylmnl.linux.netlinkh as netlink
 import cpylmnl as mnl
 
-from .netlink.buf import *
+from .linux.netlink.buf import *
 
 
 class TestSuite(unittest.TestCase):
@@ -289,7 +289,7 @@ class TestSuite(unittest.TestCase):
     def test_get_str(self):
         self.abuf.len = 11
         self.abuf.type = mnl.MNL_TYPE_STRING
-        self.abuf[4:10] = struct.pack('6c', *'abcDEF')
+        self.abuf[4:10] = struct.pack('6c', b'a', b'b', b'c', b'D', b'E', b'F')
         self.abuf[11] = 0
         self.assertTrue(self.nla.get_str() == b'abcDEF')
 
@@ -350,13 +350,13 @@ class TestSuite(unittest.TestCase):
         self.assertTrue(struct.unpack("Q", bytes(_tbuf[mnl.MNL_ATTR_HDRLEN:mnl.MNL_ATTR_HDRLEN + 8]))[0] == 0x123456789abcdef0)
 
     def test_put_str(self):
-        s = "abcdEFGH"
+        s = b"abcdEFGH"
         self.nlh.put_header()
         self.nlh.put_str(mnl.MNL_TYPE_STRING, s)
         self.assertTrue(self.hbuf.len == self.msg_attr_hlen + mnl.MNL_ALIGN(len(s)))
 
         # to check not null terminated
-        self.nlh.put_str(mnl.MNL_TYPE_STRING, "a" * 333) # 256 <= size <= 512
+        self.nlh.put_str(mnl.MNL_TYPE_STRING, b"a" * 333) # 256 <= size <= 512
 
         _tbuf = NlattrBuf(self.hbuf[mnl.MNL_NLMSG_HDRLEN:])
         self.assertTrue(_tbuf.type == mnl.MNL_TYPE_STRING)
@@ -366,13 +366,13 @@ class TestSuite(unittest.TestCase):
 
 
     def test_put_strz(self):
-        s = "abcdEFGH"
+        s = b"abcdEFGH"
         self.nlh.put_header()
         self.nlh.put_strz(mnl.MNL_TYPE_NUL_STRING, s)
         self.assertTrue(self.hbuf.len == self.msg_attr_hlen + mnl.MNL_ALIGN(len(s) + 1))
 
         # to check null terminated
-        self.nlh.put_str(mnl.MNL_TYPE_STRING, "a" * 333) # 256 <= size <= 512
+        self.nlh.put_str(mnl.MNL_TYPE_STRING, b"a" * 333) # 256 <= size <= 512
 
         _tbuf = NlattrBuf(self.hbuf[mnl.MNL_NLMSG_HDRLEN:])
         self.assertTrue(_tbuf.type == mnl.MNL_TYPE_NUL_STRING)
@@ -498,7 +498,7 @@ class TestSuite(unittest.TestCase):
 
 
     def test_put_str_check(self):
-        s = "abcdEFGH"
+        s = b"abcdEFGH"
         self.nlh.put_header()
         self.assertTrue(self.nlh.put_str_check(len(self.hbuf), mnl.MNL_TYPE_STRING, s))
 
@@ -506,7 +506,7 @@ class TestSuite(unittest.TestCase):
         self.assertTrue(self.hbuf.len == self.msg_attr_hlen + mnl.MNL_ALIGN(len(s)))
 
         # to check not null terminated
-        self.nlh.put_str(mnl.MNL_TYPE_STRING, "a" * 333) # 256 <= size <= 512
+        self.nlh.put_str(mnl.MNL_TYPE_STRING, b"a" * 333) # 256 <= size <= 512
 
         _tbuf = NlattrBuf(self.hbuf[mnl.MNL_NLMSG_HDRLEN:])
         self.assertTrue(_tbuf.type == mnl.MNL_TYPE_STRING)
@@ -524,7 +524,7 @@ class TestSuite(unittest.TestCase):
 
 
     def test_put_strz_check(self):
-        s = "abcdEFGH"
+        s = b"abcdEFGH"
         self.nlh.put_header()
         self.assertTrue(self.nlh.put_strz_check(len(self.hbuf), mnl.MNL_TYPE_NUL_STRING, s))
 
@@ -532,7 +532,7 @@ class TestSuite(unittest.TestCase):
         self.assertTrue(self.hbuf.len == self.msg_attr_hlen + mnl.MNL_ALIGN(len(s) + 1))
 
         # to check null terminated
-        self.nlh.put_str(mnl.MNL_TYPE_STRING, "a" * 333) # 256 <= size <= 512
+        self.nlh.put_str(mnl.MNL_TYPE_STRING, b"a" * 333) # 256 <= size <= 512
 
         _tbuf = NlattrBuf(self.hbuf[mnl.MNL_NLMSG_HDRLEN:])
         self.assertTrue(_tbuf.type == mnl.MNL_TYPE_NUL_STRING)
@@ -556,8 +556,8 @@ class TestSuite(unittest.TestCase):
         self.nlh.put_u16(mnl.MNL_TYPE_U16, 0x3456)		# 2: 4
         self.nlh.put_u32(mnl.MNL_TYPE_U32, 0x3456789a)		# 4: 4
         self.nlh.put_u64(mnl.MNL_TYPE_U64, 0xbcdef0123456789a)	# 8: 8
-        self.nlh.put_str(mnl.MNL_TYPE_STRING, "bcdef")		# 5: 8
-        self.nlh.put_strz(mnl.MNL_TYPE_NUL_STRING, "01234567")	# 9: 12 = 40 + MNL_ATTR_HDRLEN * 7
+        self.nlh.put_str(mnl.MNL_TYPE_STRING, b"bcdef")		# 5: 8
+        self.nlh.put_strz(mnl.MNL_TYPE_NUL_STRING, b"01234567")	# 9: 12 = 40 + MNL_ATTR_HDRLEN * 7
         self.nlh.nest_end(_nla)
         _abuf = NlattrBuf(self.hbuf[mnl.MNL_NLMSG_HDRLEN:])
         self.assertTrue(_abuf.len == 68)
@@ -570,8 +570,8 @@ class TestSuite(unittest.TestCase):
         self.nlh.put_u16(mnl.MNL_TYPE_U16, 0x3456)
         self.nlh.put_u32(mnl.MNL_TYPE_U32, 0x3456789a)
         self.nlh.put_u64(mnl.MNL_TYPE_U64, 0xbcdef0123456789a)
-        self.nlh.put_str(mnl.MNL_TYPE_STRING, "bcdef")
-        self.nlh.put_strz(mnl.MNL_TYPE_NUL_STRING, "01234567")
+        self.nlh.put_str(mnl.MNL_TYPE_STRING, b"bcdef")
+        self.nlh.put_strz(mnl.MNL_TYPE_NUL_STRING, b"01234567")
         self.assertTrue(self.hbuf.len == mnl.MNL_NLMSG_HDRLEN + 68)
         self.nlh.nest_cancel(_nla)
         self.assertTrue(self.hbuf.len == mnl.MNL_NLMSG_HDRLEN)

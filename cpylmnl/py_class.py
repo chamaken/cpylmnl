@@ -3,7 +3,7 @@
 from __future__ import absolute_import, print_function
 
 import ctypes # for Header put_header(), print(), mnl_attr_for_each_...
-from . import netlink
+from .linux import netlinkh as netlink
 from .attr import *
 from .nlmsg import *
 from .socket import *

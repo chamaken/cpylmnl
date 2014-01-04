@@ -5,7 +5,7 @@ from __future__ import absolute_import
 from ctypes import *
 import errno
 
-from . import netlink
+from .linux import netlinkh as netlink
 
 LIBMNL = CDLL("libmnl.so", use_errno=True)
 
@@ -14,15 +14,6 @@ c_pid_t = c_int
 
 '''
 treat inner struct as opaque, c_void_p
-
-class SockaddrNl(Structure):
-    """struct sockaddr_nl
-    """
-    _fields_ = [("family", 	c_ushort), # __kernel_sa_family_t	nl_family;	/* AF_NETLINK	*/
-                ("pad",		c_short),  # unsigned short		nl_pad;		/* zero		*/
-                ("pid",		c_uint32), # __u32			nl_pid;		/* port ID	*/
-                ("groups", 	c_uint32)] # __u32			nl_groups;	/* multicast groups mask */
-
 
 class MnlSocket(Structure):
     """struct mnl_socket
