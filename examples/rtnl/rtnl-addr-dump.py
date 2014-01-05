@@ -5,9 +5,9 @@ from __future__ import print_function, absolute_import
 
 import sys, logging, socket, time
 
-from cpylmnl import netlink, h
-import cpylmnl.nlstructs.rtnetlink as rtnl
-from cpylmnl.nlstructs import if_addr
+import cpylmnl.linux.netlinkh as netlink
+import cpylmnl.linux.rtnetlinkh as rtnl
+import cpylmnl.linux.if_addrh as if_addr
 import cpylmnl as mnl
 
 
@@ -20,11 +20,11 @@ def data_attr_cb(attr, tb):
 
     # skip unsupported attribute in user-space
     try:
-        attr.type_valid(h.IFA_MAX)
+        attr.type_valid(if_addr.IFA_MAX)
     except OSError as e:
         return mnl.MNL_CB_OK
 
-    if attr_type == h.IFA_ADDRESS:
+    if attr_type == if_addr.IFA_ADDRESS:
         try:
             attr.validate(mnl.MNL_TYPE_BINARY)
         except OSError as e:
@@ -44,8 +44,8 @@ def data_cb(nlh, data):
     nlh.parse(if_addr.Ifaddrmsg.sizeof(), data_attr_cb, tb)
 
     print("addr=", end='')
-    if h.IFA_ADDRESS in tb:
-        attr = tb[h.IFA_ADDRESS]
+    if if_addr.IFA_ADDRESS in tb:
+        attr = tb[if_addr.IFA_ADDRESS]
         addr = attr.get_payload_v()
         out = socket.inet_ntop(ifa.family, addr)
         print("%s " % out, end='')
@@ -68,7 +68,7 @@ def main():
         sys.exit(-1)
 
     nlh = mnl.put_new_header(mnl.MNL_SOCKET_BUFFER_SIZE)
-    nlh.type = h.RTM_GETADDR
+    nlh.type = rtnl.RTM_GETADDR
     nlh.flags = netlink.NLM_F_REQUEST | netlink.NLM_F_DUMP
     seq = int(time.time())
     nlh.seq = seq
@@ -83,12 +83,17 @@ def main():
 
         ret = mnl.MNL_CB_OK
         while ret > mnl.MNL_CB_STOP:
-            buf = nl.recv(mnl.MNL_SOCKET_BUFFER_SIZE)
+            try:
+                buf = nl.recv(mnl.MNL_SOCKET_BUFFER_SIZE)
+            except Exception as e:
+                print("mnl_socket_recvfrom: %s" % e, file=sys.stderr)
+                raise
             if len(buf) == 0: break
-            ret = mnl.cb_run(buf, nlh.seq, portid, data_cb, None)
-
-    if ret < 0: # not valid. cb_run may raise Exception
-        print("mnl_cb_run returns ERROR", file=sys.stderr)
+            try:
+                ret = mnl.cb_run(buf, nlh.seq, portid, data_cb, None)
+            except Exception as e:
+                print("mnl_cb_run: %s" % e, file=sys.stderr)
+                raise
 
 
 if __name__ == '__main__':

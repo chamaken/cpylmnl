@@ -5,9 +5,10 @@ from __future__ import print_function, absolute_import
 
 import sys, logging, socket, time
 
-from cpylmnl import netlink, h
-import cpylmnl.nlstructs.rtnetlink as rtnl
-from cpylmnl.nlstructs import if_link
+import cpylmnl.linux.netlinkh as netlink
+import cpylmnl.linux.rtnetlinkh as rtnl
+import cpylmnl.linux.if_linkh as if_link
+from cpylmnl.linux import ifh
 import cpylmnl as mnl
 
 
@@ -22,17 +23,17 @@ def main():
     change = 0
     flags = 0
     if sys.argv[2].lower() == "up":
-        change |= h.IFF_UP
-        flags |= h.IFF_UP
+        change |= ifh.IFF_UP
+        flags |= ifh.IFF_UP
     elif sys.argv[2].lower() == "down":
-        change |= h.IFF_UP
-        flags &= ~h.IFF_UP
+        change |= ifh.IFF_UP
+        flags &= ~ifh.IFF_UP
     else:
         print("%s is not `up' nor 'down'" % sys.argv[2], file=sys.stderr)
         sys.exit(-1)
 
     nlh = mnl.put_new_header(mnl.MNL_SOCKET_BUFFER_SIZE)
-    nlh.type = h.RTM_NEWLINK
+    nlh.type = rtnl.RTM_NEWLINK
     nlh.flags = netlink.NLM_F_REQUEST | netlink.NLM_F_ACK
     seq = int(time.time())
     nlh.seq = seq
@@ -41,7 +42,7 @@ def main():
     ifm.change = change
     ifm.flags = flags
 
-    nlh.put_str(h.IFLA_IFNAME, sys.argv[1])
+    nlh.put_str(if_link.IFLA_IFNAME, sys.argv[1])
 
     with mnl.Socket(netlink.NETLINK_ROUTE) as nl:
         nl.bind(0, mnl.MNL_SOCKET_AUTOPID)
@@ -49,13 +50,23 @@ def main():
 
         nlh.fprint(rtnl.Ifinfomsg.sizeof(), out=sys.stdout)
 
-        nl.send_nlmsg(nlh)
-        buf = nl.recv(mnl.MNL_SOCKET_BUFFER_SIZE)
+        try:
+            nl.send_nlmsg(nlh)
+        except Exception as e:
+            print("mnl_socket_sendto: %s" % e, file=sys.stderr)
+            raise
+        try:
+            buf = nl.recv(mnl.MNL_SOCKET_BUFFER_SIZE)
+        except Exception as e:
+            print("mnl_socket_recvfrom: %s" % e, file=sys.stderr)
+            raise
 
         # cb_run will raise OSException in case of error
-        if mnl.cb_run(buf, seq, portid, None, None) < mnl.MNL_CB_STOP:
-            print("cb_run returns ERROR", file=sys.stderr)
-            os.exit(-1)
+        try:
+            mnl.cb_run(buf, seq, portid, None, None)
+        except Exception as e:
+            print("mnl_cb_run: %s" % e, file=sys.stderr)
+            raise
 
 
 if __name__ == '__main__':

@@ -5,10 +5,10 @@ from __future__ import print_function, absolute_import
 
 import sys, logging, socket, time
 
-from cpylmnl import netlink, h
-import cpylmnl.nlstructs.rtnetlink as rtnl
-from cpylmnl.nlstructs import if_link
 import cpylmnl as mnl
+import cpylmnl.linux.netlinkh as netlink
+import cpylmnl.linux.rtnetlinkh as rtnl
+from cpylmnl.linux import if_link, ifh
 
 
 log = logging.getLogger(__name__)
@@ -20,13 +20,13 @@ def data_attr_cb(attr, tb):
 
     # skip unsupported attribute in user-space
     try:
-        attr.type_valid(h.IFLA_MAX)
+        attr.type_valid(if_link.IFLA_MAX)
     except OSError as e:
         return mnl.MNL_CB_OK
 
-    ftbl = {h.IFLA_ADDRESS: lambda x: x.validate(mnl.MNL_TYPE_BINARY),
-            h.IFLA_MTU:     lambda x: x.validate(mnl.MNL_TYPE_U32),
-            h.IFLA_IFNAME:  lambda x: x.validate(mnl.MNL_TYPE_STRING)}
+    ftbl = {if_link.IFLA_ADDRESS: lambda x: x.validate(mnl.MNL_TYPE_BINARY),
+            if_link.IFLA_MTU:     lambda x: x.validate(mnl.MNL_TYPE_U32),
+            if_link.IFLA_IFNAME:  lambda x: x.validate(mnl.MNL_TYPE_STRING)}
 
     try:
         ftbl.get(attr_type, lambda x: 0)(attr)
@@ -43,7 +43,7 @@ def data_cb(nlh, tb):
     ifm = nlh.get_payload_as(rtnl.Ifinfomsg)
     print("index=%d type=%d flags=%d family=%d " % (ifm.index, ifm.type, ifm.flags, ifm.family), end='')
 
-    if ifm.flags & h.IFF_RUNNING:
+    if ifm.flags & ifh.IFF_RUNNING:
         print("[RUNNING] ", end='')
     else:
         print("[NOT RUNNING] ", end='')
@@ -51,12 +51,12 @@ def data_cb(nlh, tb):
     tb = dict()
     nlh.parse(rtnl.Ifinfomsg.sizeof(), data_attr_cb, tb)
 
-    if h.IFLA_MTU in tb:
-        print("mtu=%d " % tb[h.IFLA_MTU].get_u32(), end='')
-    if h.IFLA_IFNAME in tb:
-        print("name=%s " % tb[h.IFLA_IFNAME].get_str(), end='')
-    if h.IFLA_ADDRESS in tb:
-        hwaddr = tb[h.IFLA_ADDRESS].get_payload_v()
+    if if_link.IFLA_MTU in tb:
+        print("mtu=%d " % tb[if_link.IFLA_MTU].get_u32(), end='')
+    if if_link.IFLA_IFNAME in tb:
+        print("name=%s " % tb[if_link.IFLA_IFNAME].get_str(), end='')
+    if if_link.IFLA_ADDRESS in tb:
+        hwaddr = tb[if_link.IFLA_ADDRESS].get_payload_v()
         print("hwaddr=%s" % ":".join("%02x" % i for i in hwaddr), end='')
 
     print()
@@ -65,7 +65,7 @@ def data_cb(nlh, tb):
 
 def main():
     nlh = mnl.put_new_header(mnl.MNL_SOCKET_BUFFER_SIZE)
-    nlh.type = h.RTM_GETLINK
+    nlh.type = rtnl.RTM_GETLINK
     nlh.flags = netlink.NLM_F_REQUEST | netlink.NLM_F_DUMP
     seq = int(time.time())
     nlh.seq = seq
@@ -79,12 +79,17 @@ def main():
 
         ret = mnl.MNL_CB_OK
         while ret > mnl.MNL_CB_STOP:
-            buf = nl.recv(mnl.MNL_SOCKET_BUFFER_SIZE)
+            try:
+                buf = nl.recv(mnl.MNL_SOCKET_BUFFER_SIZE)
+            except Exception as e:
+                print("mnl_socket_recvfrom: %s" % e, file=sys.stderr)
+                raise
             if len(buf) == 0: break
-            ret = mnl.cb_run(buf, nlh.seq, portid, data_cb, None)
-
-    if ret < 0: # not valid. cb_run may raise Exception
-        print("mnl_cb_run returns ERROR", file=sys.stderr)
+            try:
+                ret = mnl.cb_run(buf, nlh.seq, portid, data_cb, None)
+            except Exception as e:
+                print("mnl_cb_run: %s" % e, file=sys.stderr)
+                raise
 
 
 if __name__ == '__main__':

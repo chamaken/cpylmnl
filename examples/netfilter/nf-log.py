@@ -5,10 +5,10 @@ from __future__ import print_function, absolute_import
 
 import sys, logging, socket, time
 
-from cpylmnl import netlink, h
-import cpylmnl.nlstructs.nfnetlink as nfnl
-import cpylmnl.nlstructs.nfnetlink_log as nfulnl
-import cpylmnl.nlstructs.nfnetlink_compat as nfnl_compat
+import cpylmnl.linux.netlinkh as netlink
+import cpylmnl.linux.netfilter.nfnetlinkh as nfnl
+import cpylmnl.linux.netfilter.nfnetlink_logh as nfulnl
+import cpylmnl.linux.netfilter.nfnetlink_compath as nfnlcm
 import cpylmnl as mnl
 
 
@@ -21,58 +21,40 @@ def parse_attr_cb(attr, tb):
 
     # skip unsupported attribute in user-space
     try:
-        attr.type_valid(h.NFULA_MAX)
+        attr.type_valid(nfulnl.NFULA_MAX)
     except OSError as e:
         return mnl.MNL_CB_OK, None
 
-    # http://stackoverflow.com/questions/60208/replacements-for-switch-statement-in-python
-    class switch(object):
-        _value = None
-        def __new__(klass, v):
-            klass._value = v
-            return True
-
-    def case(*args):
-        return any((arg == switch._value for arg in args))
-
-    while switch(attr_type):
-        if case(h.NFULA_MARK,
-                h.NFULA_IFINDEX_INDEV,
-                h.NFULA_IFINDEX_OUTDEV,
-                h.NFULA_IFINDEX_PHYSINDEV,
-                h.NFULA_IFINDEX_PHYSOUTDEV):
-            try:
-                attr.validate(mnl.MNL_TYPE_U32)
-            except OSError as e:
-                print("mnl_attr_validate: %s" % e, file=sys.stderr)
-                return mnl.MNL_CB_ERROR
-            break
-        if case(h.NFULA_TIMESTAMP):
-            try:
-                attr.validate2(mnl.MNL_TYPE_UNSPEC, nfulnl.NfulnlMsgPacketTimestamp.sizeof())
-            except OSError as e:
-                print("mnl_attr_validate: %s" % e, file=sys.stderr)
-                return mnl.MNL_CB_ERROR
-            break
-        if case(h.NFULA_HWADDR):
-            try:
-                attr.validate2(mnl.MNL_TYPE_UNSPEC, nfulnl.NfulnlMsgPacketHw.sizeof())
-            except OSError as e:
-                print("mnl_attr_validate: %s" % e, file=sys.stderr)
-                return mnl.MNL_CB_ERROR
-            break
-        if case(h.NFULA_PREFIX):
-            try:
-                attr.validate(mnl.MNL_TYPE_NUL_STRING)
-            except OSError as e:
-                print("mnl_attr_validate: %s" % e, file=sys.stderr)
-                return mnl.MNL_CB_ERROR
-            break
-        if case(h.NFULA_PAYLOAD):
-            break
-
-        # DO NOT FORGET
-        break
+    if attr_type in (nfulnl.NFULA_MARK,
+                     nfulnl.NFULA_IFINDEX_INDEV,
+                     nfulnl.NFULA_IFINDEX_OUTDEV,
+                     nfulnl.NFULA_IFINDEX_PHYSINDEV,
+                     nfulnl.NFULA_IFINDEX_PHYSOUTDEV):
+        try:
+            attr.validate(mnl.MNL_TYPE_U32)
+        except OSError as e:
+            print("mnl_attr_validate: %s" % e, file=sys.stderr)
+            return mnl.MNL_CB_ERROR
+    elif attr_type == nfulnl.NFULA_TIMESTAMP:
+        try:
+            attr.validate2(mnl.MNL_TYPE_UNSPEC, nfulnl.NfulnlMsgPacketTimestamp.sizeof())
+        except OSError as e:
+            print("mnl_attr_validate: %s" % e, file=sys.stderr)
+            return mnl.MNL_CB_ERROR
+    elif attr_type == nfulnl.NFULA_HWADDR:
+        try:
+            attr.validate2(mnl.MNL_TYPE_UNSPEC, nfulnl.NfulnlMsgPacketHw.sizeof())
+        except OSError as e:
+            print("mnl_attr_validate: %s" % e, file=sys.stderr)
+            return mnl.MNL_CB_ERROR
+    elif attr_type == nfulnl.NFULA_PREFIX:
+        try:
+            attr.validate(mnl.MNL_TYPE_NUL_STRING)
+        except OSError as e:
+            print("mnl_attr_validate: %s" % e, file=sys.stderr)
+            return mnl.MNL_CB_ERROR
+    elif attr_type == nfulnl.NFULA_PAYLOAD:
+        pass
 
     tb[attr_type] = attr
     return mnl.MNL_CB_OK
@@ -86,16 +68,16 @@ def log_cb(nlh, data):
     payload_len = 0
 
     nlh.parse(nfnl.Nfgenmsg.sizeof(), parse_attr_cb, tb)
-    if h.NFULA_PACKET_HDR in tb:
-        ph = tb[h.NFULA_PACKET_HDR].get_payload_as(nfulnl.NfulnlMsgPacketHdr)
-    if h.NFULA_PREFIX in tb:
-        prefix = tb[h.NFULA_PREFIX].get_str()
-    if h.NFULA_MARK in tb:
-        mark = socket.ntohl(tb[h.NFULA_MARK].get_u32())
+    if nfulnl.NFULA_PACKET_HDR in tb:
+        ph = tb[nfulnl.NFULA_PACKET_HDR].get_payload_as(nfulnl.NfulnlMsgPacketHdr)
+    if nfulnl.NFULA_PREFIX in tb:
+        prefix = tb[nfulnl.NFULA_PREFIX].get_str()
+    if nfulnl.NFULA_MARK in tb:
+        mark = socket.ntohl(tb[nfulnl.NFULA_MARK].get_u32())
 
     # not exist in original
-    if h.NFULA_PAYLOAD in tb:
-        payload_len = nfnl_compat.NFA_PAYLOAD(tb[h.NFULA_PAYLOAD])
+    if nfulnl.NFULA_PAYLOAD in tb:
+        payload_len = tb[nfulnl.NFULA_PAYLOAD].get_payload_len()
 
     print("log received (prefix=\"%s\" hw=0x%04x hook=%u mark=%u payload_len=%u)" % \
               (prefix, socket.ntohs(ph.hw_protocol), ph.hook, mark, payload_len))
@@ -106,16 +88,16 @@ def log_cb(nlh, data):
 def nflog_build_cfg_pf_request(buf, command):
     nlh = mnl.Header(buf)
     nlh.put_header()
-    nlh.type = (h.NFNL_SUBSYS_ULOG << 8) | h.NFULNL_MSG_CONFIG
+    nlh.type = (nfnl.NFNL_SUBSYS_ULOG << 8) | nfulnl.NFULNL_MSG_CONFIG
     nlh.flags = netlink.NLM_F_REQUEST
 
     nfg = nlh.put_extra_header_as(nfnl.Nfgenmsg)
     nfg.family = socket.AF_INET
-    nfg.version = h.NFNETLINK_V0
+    nfg.version = nfnl.NFNETLINK_V0
 
     cmd = nfulnl.NfulnlMsgConfigCmd()
     cmd.command = command
-    nlh.put(h.NFULA_CFG_CMD, cmd)
+    nlh.put(nfulnl.NFULA_CFG_CMD, cmd)
 
     return nlh
 
@@ -123,17 +105,17 @@ def nflog_build_cfg_pf_request(buf, command):
 def nflog_build_cfg_request(buf, command, qnum):
     nlh = mnl.Header(buf)
     nlh.put_header()
-    nlh.type = (h.NFNL_SUBSYS_ULOG << 8) | h.NFULNL_MSG_CONFIG
+    nlh.type = (nfnl.NFNL_SUBSYS_ULOG << 8) | nfulnl.NFULNL_MSG_CONFIG
     nlh.flags = netlink.NLM_F_REQUEST
 
     nfg = nlh.put_extra_header_as(nfnl.Nfgenmsg)
     nfg.family = socket.AF_INET
-    nfg.version = h.NFNETLINK_V0
+    nfg.version = nfnl.NFNETLINK_V0
     nfg.res_id = socket.htons(qnum)
 
     cmd = nfulnl.NfulnlMsgConfigCmd()
     cmd.command = command
-    nlh.put(h.NFULA_CFG_CMD, cmd)
+    nlh.put(nfulnl.NFULA_CFG_CMD, cmd)
 
     return nlh
 
@@ -141,25 +123,25 @@ def nflog_build_cfg_request(buf, command, qnum):
 def nflog_build_cfg_params(buf, mode, copy_range, qnum):
     nlh = mnl.Header(buf)
     nlh.put_header()
-    nlh.type = (h.NFNL_SUBSYS_ULOG << 8) | h.NFULNL_MSG_CONFIG
+    nlh.type = (nfnl.NFNL_SUBSYS_ULOG << 8) | nfulnl.NFULNL_MSG_CONFIG
     nlh.flags = netlink.NLM_F_REQUEST
 
     nfg = nlh.put_extra_header_as(nfnl.Nfgenmsg)
     nfg.family = socket.AF_UNSPEC
-    nfg.version = h.NFNETLINK_V0
+    nfg.version = nfnl.NFNETLINK_V0
     nfg.res_id = socket.htons(qnum)
 
     params = nfulnl.NfulnlMsgConfigMode()
     params.copy_range = socket.htonl(copy_range)
     params.copy_mode = mode
-    nlh.put(h.NFULA_CFG_MODE, params)
+    nlh.put(nfulnl.NFULA_CFG_MODE, params)
 
     return nlh
 
 
 def main():
     if len(sys.argv) != 2:
-        print("Usage: %s [queue_num]", sys.argv[0])
+        print("Usage: %s [queue_num]" % sys.argv[0])
         sys.exit(-1)
     qnum = int(sys.argv[1])
     buf = bytearray(mnl.MNL_SOCKET_BUFFER_SIZE)
@@ -168,25 +150,26 @@ def main():
         nl.bind(0, mnl.MNL_SOCKET_AUTOPID)
         portid = nl.get_portid()
 
-        nlh = nflog_build_cfg_pf_request(buf, h.NFULNL_CFG_CMD_PF_UNBIND)
+        nlh = nflog_build_cfg_pf_request(buf, nfulnl.NFULNL_CFG_CMD_PF_UNBIND)
         nl.send_nlmsg(nlh)
 
-        nlh = nflog_build_cfg_pf_request(buf, h.NFULNL_CFG_CMD_PF_BIND)
+        nlh = nflog_build_cfg_pf_request(buf, nfulnl.NFULNL_CFG_CMD_PF_BIND)
         nl.send_nlmsg(nlh)
 
-        nlh = nflog_build_cfg_request(buf, h.NFULNL_CFG_CMD_BIND, qnum)
+        nlh = nflog_build_cfg_request(buf, nfulnl.NFULNL_CFG_CMD_BIND, qnum)
         nl.send_nlmsg(nlh)
 
-        nlh = nflog_build_cfg_params(buf, h.NFULNL_COPY_PACKET, 0xFFFF, qnum)
+        nlh = nflog_build_cfg_params(buf, nfulnl.NFULNL_COPY_PACKET, 0xFFFF, qnum)
         nl.send_nlmsg(nlh)
 
         ret = mnl.MNL_CB_OK
         while ret >= mnl.MNL_CB_STOP:
-            nrecv = nl.recv_into(buf)
-            ret = mnl.cb_run(buf[:nrecv], 0, portid, log_cb, None)
-
-    if ret < 0: # not valid. cb_run may raise Exception
-        print("mnl_cb_run", file=sys.stderr)
+            try:
+                nrecv = nl.recv_into(buf)
+                if nrecv == 0: break
+                ret = mnl.cb_run(buf[:nrecv], 0, portid, log_cb, None)
+            except Exception as e:
+                raise
 
 
 if __name__ == '__main__':
