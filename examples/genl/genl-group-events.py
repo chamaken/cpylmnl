@@ -5,7 +5,7 @@ from __future__ import print_function, absolute_import
 
 import sys, logging, socket, time, struct
 
-from cpylmnl import netlink
+import cpylmnl.linux.netlinkh as netlink
 import cpylmnl as mnl
 
 
@@ -33,11 +33,11 @@ def main():
 
         ret = mnl.MNL_CB_OK
         while ret > mnl.MNL_CB_STOP:
-            buf = nl.recv(mnl.MNL_SOCKET_BUFFER_SIZE)
-            ret = mnl.cb_run(buf, 0, 0, data_cb, None)
-
-    if ret < 0: # not valid. cb_run may raise Exception
-        print("mnl_cb_run returns ERROR", file=sys.stderr)
+            try:
+                buf = nl.recv(mnl.MNL_SOCKET_BUFFER_SIZE)
+                ret = mnl.cb_run(buf, 0, 0, data_cb, None)
+            except Exception as e:
+                raise
 
 
 if __name__ == '__main__':

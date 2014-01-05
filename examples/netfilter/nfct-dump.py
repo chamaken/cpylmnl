@@ -5,8 +5,9 @@ from __future__ import print_function, absolute_import
 
 import sys, logging, socket, time
 
-from cpylmnl import netlink, h
-import cpylmnl.nlstructs.nfnetlink as nfnl
+import cpylmnl.linux.netlinkh as netlink
+import cpylmnl.linux.netfilter.nfnetlinkh as nfnl
+import cpylmnl.linux.netfilter.nfnetlink_conntrackh as nfnlct
 import cpylmnl as mnl
 
 
@@ -18,11 +19,11 @@ def parse_counters_cb(attr, tb):
     attr_type = attr.get_type()
 
     try:
-        attr.type_valid(h.CTA_COUNTERS_MAX)
+        attr.type_valid(nfnlct.CTA_COUNTERS_MAX)
     except OSError as e:
         return mnl.MNL_CB_OK
 
-    if attr_type in (h.CTA_COUTERS_PACKETS, h.CTA_COUNTERS.BYTES):
+    if attr_type in (nfnlct.CTA_COUTERS_PACKETS, nfnlct.CTA_COUNTERS.BYTES):
         try:
             attr.validate(mnl.MNL_TYPE_U64)
         except OSError as e:
@@ -37,10 +38,10 @@ def print_counters(nest):
     tb = dict()
 
     nest.parse_nested(parse_counters_cb, tb)
-    if h.CTA_COUNTERS_PACKETS in tb:
-        print("packets=%u " % struct.unpack("Q", struct.pack(">Q", tb[h.CTA_COUNTERS.PACKETS].get_u64())), end='')
-    if h.CTA_COUNTERS_BYTES in tb:
-        print("bytes=%u " % struct.unpack("Q", struct.pack(">Q", tb[h.CTA_COUNTERS.BYTES].get_u64())), end='')
+    if nfnlct.CTA_COUNTERS_PACKETS in tb:
+        print("packets=%u " % struct.unpack("Q", struct.pack(">Q", tb[nfnlct.CTA_COUNTERS.PACKETS].get_u64())), end='')
+    if nfnlct.CTA_COUNTERS_BYTES in tb:
+        print("bytes=%u " % struct.unpack("Q", struct.pack(">Q", tb[nfnlct.CTA_COUNTERS.BYTES].get_u64())), end='')
 
 
 @mnl.attribute_cb
@@ -48,17 +49,19 @@ def parse_ip_cb(attr, tb):
     attr_type = attr.get_type()
 
     try:
-        attr.type_valid(h.CTA_IP_MAX)
+        attr.type_valid(nfnlct.CTA_IP_MAX)
     except OSError as e:
         return mnl.MNL_CB_OK
 
-    if attr_type in (h.CTA_IP_V4_SRC or h == h.CTA_IP_V4_DST):
+    if attr_type in (nfnlct.CTA_IP_V4_SRC,
+                     nfnlct.CTA_IP_V4_DST):
         try:
             attr.validate(mnl.MNL_TYPE_U32)
         except OSError as e:
             print("mnl_attr_validate: %s" % e, file=sys.stderr)
             return mnl.MNL_CB_ERROR
-    elif attr_type in (h.CTA_IP_V6_SRC or attr_type == h.CTA_IP_V6_DST):
+    elif attr_type in (nfnlct.CTA_IP_V6_SRC,
+                       nfnlct.CTA_IP_V6_DST):
         try:
             attr.validate2(mnl.MNL_TYPE_BINARY, 16) # XXX: sizeof(struct in6_addr)
         except OSError as e:
@@ -66,21 +69,21 @@ def parse_ip_cb(attr, tb):
             return mnl.MNL_CB_ERROR
 
     tb[attr_type] = attr
-    return mnl.MNL_CB_OK, None
+    return mnl.MNL_CB_OK
 
 
 def print_ip(nest):
     tb = dict()
 
     nest.parse_nested(parse_ip_cb, tb)
-    if h.CTA_IP_V4_SRC in tb:
-        print("src=%s " % socket.inet_ntoa(tb[h.CTA_IP_V4_SRC].get_value().marshal_binary()), end='')
-    if h.CTA_IP_V4_DST in tb:
-        print("dst=%s " % socket.inet_ntoa(tb[h.CTA_IP_V4_DST].get_value().marshal_binary()), end='')
-    if h.CTA_IP_V6_SRC in tb:
-        print("src=%s " % socket.inet_ntop(socket.AF_INET6, tb[h.CTA_IP_V6_SRC].get_value().marshal_binary()), end='')
-    if h.CTA_IP_V6_DST in tb:
-        print("dst=%s " % socket.inet_ntop(socket.AF_INET6, tb[h.CTA_IP_V6_DST].get_value().marshal_binary()), end='')
+    if nfnlct.CTA_IP_V4_SRC in tb:
+        print("src=%s " % socket.inet_ntoa(tb[nfnlct.CTA_IP_V4_SRC].get_payload_v()), end='')
+    if nfnlct.CTA_IP_V4_DST in tb:
+        print("dst=%s " % socket.inet_ntoa(tb[nfnlct.CTA_IP_V4_DST].get_payload_v()), end='')
+    if nfnlct.CTA_IP_V6_SRC in tb:
+        print("src=%s " % socket.inet_ntop(socket.AF_INET6, tb[nfnlct.CTA_IP_V6_SRC].get_payload_v()), end='')
+    if nfnlct.CTA_IP_V6_DST in tb:
+        print("dst=%s " % socket.inet_ntop(socket.AF_INET6, tb[nfnlct.CTA_IP_V6_DST].get_payload_v()), end='')
 
 
 @mnl.attribute_cb
@@ -88,18 +91,22 @@ def parse_proto_cb(attr, tb):
     attr_type = attr.get_type()
 
     try:
-        attr.type_valid(h.CTA_PROTO_MAX)
+        attr.type_valid(nfnlct.CTA_PROTO_MAX)
     except OSError as e:
         return mnl.CB_OK
 
-    if attr_type in (h.CTA_PROTO_NUM, h.CTA_PROTO_ICMP_TYPE, h.CTA_PROTO_ICMP_CODE):
+    if attr_type in (nfnlct.CTA_PROTO_NUM,
+                     nfnlct.CTA_PROTO_ICMP_TYPE,
+                     nfnlct.CTA_PROTO_ICMP_CODE):
         try:
             attr.validate(mnl.MNL_TYPE_U8)
         except OSError as e:
             print("mnl_attr_validate: %s" % e, file=sys.stderr)
             return mnl.MNL_CB_ERROR
 
-    elif attr_type in (h.CTA_PROTO_SRC_PORT, h.CTA_PROTO_DST_PORT, h.CTA_PROTO_ICMP_ID):
+    elif attr_type in (nfnlct.CTA_PROTO_SRC_PORT,
+                       nfnlct.CTA_PROTO_DST_PORT,
+                       nfnlct.CTA_PROTO_ICMP_ID):
         try:
             attr.validate(mnl.MNL_TYPE_U16)
         except OSError as e:
@@ -114,14 +121,14 @@ def print_proto(nest):
     tb = dict()
 
     nest.parse_nested(parse_proto_cb, tb)
-    h.CTA_PROTO_NUM in tb       and print("proto=%u " % tb[h.CTA_PROTO_NUM].get_u8(), end='')
-    h.CTA_PROTO_SRC_PORT in tb	and \
-        print("sport=%u " % socket.ntohs(tb[h.CTA_PROTO_SRC_PORT].get_u16()), end='')
-    h.CTA_PROTO_DST_PORT in tb	and \
-        print("dport=%u " % socket.ntohs(tb[h.CTA_PROTO_DST_PORT].get_u16()), end='')
-    h.CTA_PROTO_ICMP_ID in tb   and print("id=%u " % tb[h.CTA_PROTO_ICMP_ID].get_u16(), end='')
-    h.CTA_PROTO_ICMP_TYPE in tb and print("type=%u " % tb[h.CTA_PROTO_ICMP_TYPE].get_u8(), end='')
-    h.CTA_PROTO_ICMP_CODE in tb and print("code=%u " % tb[h.CTA_PROTO_ICMP_CODE].get_u8(), end='')
+    nfnlct.CTA_PROTO_NUM in tb       and print("proto=%u " % tb[nfnlct.CTA_PROTO_NUM].get_u8(), end='')
+    nfnlct.CTA_PROTO_SRC_PORT in tb  and \
+        print("sport=%u " % socket.ntohs(tb[nfnlct.CTA_PROTO_SRC_PORT].get_u16()), end='')
+    nfnlct.CTA_PROTO_DST_PORT in tb  and \
+        print("dport=%u " % socket.ntohs(tb[nfnlct.CTA_PROTO_DST_PORT].get_u16()), end='')
+    nfnlct.CTA_PROTO_ICMP_ID in tb   and print("id=%u " % tb[nfnlct.CTA_PROTO_ICMP_ID].get_u16(), end='')
+    nfnlct.CTA_PROTO_ICMP_TYPE in tb and print("type=%u " % tb[nfnlct.CTA_PROTO_ICMP_TYPE].get_u8(), end='')
+    nfnlct.CTA_PROTO_ICMP_CODE in tb and print("code=%u " % tb[nfnlct.CTA_PROTO_ICMP_CODE].get_u8(), end='')
 
 
 @mnl.attribute_cb
@@ -129,18 +136,18 @@ def parse_tuple_cb(attr, tb):
     attr_type = attr.get_type()
 
     try:
-        attr.type_valid(h.CTA_TUPLE_MAX)
+        attr.type_valid(nfnlct.CTA_TUPLE_MAX)
     except OSError as e:
         return mnl.MNL_CB_OK
 
-    if attr_type == h.CTA_TUPLE_IP:
+    if attr_type == nfnlct.CTA_TUPLE_IP:
         try:
             attr.validate(mnl.MNL_TYPE_NESTED)
         except OSError as e:
             print("mnl_attr_validate: %s" % e, file=sys.stderr)
             return mnl.MNL_CB_ERROR
 
-    elif attr_type == h.CTA_TUPLE_PROTO:
+    elif attr_type == nfnlct.CTA_TUPLE_PROTO:
         try:
             attr.validate(mnl.MNL_TYPE_NESTED)
         except OSError as e:
@@ -155,8 +162,8 @@ def print_tuple(nest):
     tb = dict()
 
     nest.parse_nested(parse_tuple_cb, tb)
-    h.CTA_TUPLE_IP in tb    and print_ip(tb[h.CTA_TUPLE_IP])
-    h.CTA_TUPLE_PROTO in tb and print_proto(tb[h.CTA_TUPLE_PROTO])
+    nfnlct.CTA_TUPLE_IP in tb    and print_ip(tb[nfnlct.CTA_TUPLE_IP])
+    nfnlct.CTA_TUPLE_PROTO in tb and print_proto(tb[nfnlct.CTA_TUPLE_PROTO])
 
 
 @mnl.attribute_cb
@@ -164,18 +171,22 @@ def data_attr_cb(attr, tb):
     attr_type = attr.get_type()
 
     try:
-        attr.type_valid(h.CTA_MAX)
+        attr.type_valid(nfnlct.CTA_MAX)
     except OSError as e:
         return mnl.MNL_CB_OK
 
-    if attr_type in (h.CTA_TUPLE_ORIG, h.CTA_COUNTERS_ORIG, h.CTA_COUNTERS_REPLY):
+    if attr_type in (nfnlct.CTA_TUPLE_ORIG,
+                     nfnlct.CTA_COUNTERS_ORIG,
+                     nfnlct.CTA_COUNTERS_REPLY):
         try:
             attr.validate(mnl.MNL_TYPE_NESTED)
         except OSError as e:
             print("mnl_attr_validate: %s" % e)
             return mnl.MNL_CB_ERROR
 
-    elif attr_type in (h.CTA_TIMEOUT, h.CTA_MARK, h.CTA_SECMARK):
+    elif attr_type in (nfnlct.CTA_TIMEOUT,
+                       nfnlct.CTA_MARK,
+                       nfnlct.CTA_SECMARK):
         try:
             attr.validate(mnl.MNL_TYPE_U32)
         except OSError as e:
@@ -192,11 +203,11 @@ def data_cb(nlh, data):
     nfg = nlh.get_payload_as(nfnl.Nfgenmsg)
 
     nlh.parse(nfnl.Nfgenmsg.sizeof(), data_attr_cb, tb)
-    h.CTA_TUPLE_ORIG in tb     and print_tuple(tb[h.CTA_TUPLE_ORIG])
-    h.CTA_MARK in tb           and print("mark=%u " % socket.ntohl(tb[h.CTA_MARK].get_u32()), end='')
-    h.CTA_SECMARK in tb        and print("secmark=%u " % socket.ntohl(tb[h.CTA_SECMARK].get_u32()), end='')
-    h.CTA_COUNTERS_ORIG in tb  and print("original ", end='') and print_counters(tb[h.CTA_COUNTERS_ORIG])
-    h.CTA_COUNTERS_REPLY in tb and print("reply ", end='') and print_counters(tb[h.CTA_COUNTERS_REPLY])
+    nfnlct.CTA_TUPLE_ORIG in tb     and print_tuple(tb[nfnlct.CTA_TUPLE_ORIG])
+    nfnlct.CTA_MARK in tb           and print("mark=%u " % socket.ntohl(tb[nfnlct.CTA_MARK].get_u32()), end='')
+    nfnlct.CTA_SECMARK in tb        and print("secmark=%u " % socket.ntohl(tb[nfnlct.CTA_SECMARK].get_u32()), end='')
+    nfnlct.CTA_COUNTERS_ORIG in tb  and print("original ", end='') and print_counters(tb[nfnlct.CTA_COUNTERS_ORIG])
+    nfnlct.CTA_COUNTERS_REPLY in tb and print("reply ", end='') and print_counters(tb[nfnlct.CTA_COUNTERS_REPLY])
     print()
 
     return mnl.MNL_CB_OK
@@ -204,14 +215,14 @@ def data_cb(nlh, data):
 
 def main():
     nlh = mnl.put_new_header(mnl.MNL_SOCKET_BUFFER_SIZE)
-    nlh.type = (h.NFNL_SUBSYS_CTNETLINK << 8) | h.IPCTNL_MSG_CT_GET
+    nlh.type = (nfnl.NFNL_SUBSYS_CTNETLINK << 8) | nfnlct.IPCTNL_MSG_CT_GET
     nlh.flags = netlink.NLM_F_REQUEST|netlink.NLM_F_DUMP
     seq = int(time.time())
     nlh.seq = seq
 
     nfh = nlh.put_extra_header_as(nfnl.Nfgenmsg)
     nfh.family = socket.AF_INET
-    nfh.version = h.NFNETLINK_V0
+    nfh.version = nfnl.NFNETLINK_V0
     nfh.res_id = 0
 
     with mnl.Socket(netlink.NETLINK_NETFILTER) as nl:
@@ -221,11 +232,17 @@ def main():
 
         ret = mnl.MNL_CB_OK
         while ret > mnl.MNL_CB_STOP:
-            buf = nl.recv(mnl.MNL_SOCKET_BUFFER_SIZE)
-            ret = mnl.cb_run(buf, seq, portid, data_cb, None)
-
-    if ret < 0: # not valid. cb_run may raise Exception
-        print("mnl_cb_run", file=sys.stderr)
+            try:
+                buf = nl.recv(mnl.MNL_SOCKET_BUFFER_SIZE)
+                if len(buf) == 0: break
+            except Exception as e:
+                print("mnl_socket_recvfrom: %s" % e, file=sys.stderr)
+                raise
+            try:
+                ret = mnl.cb_run(buf, seq, portid, data_cb, None)
+            except Exception as e:
+                print("mnl_cb_run: %s" % e, file=sys.stderr)
+                raise
 
 
 if __name__ == '__main__':

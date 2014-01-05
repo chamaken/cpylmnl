@@ -5,7 +5,7 @@ from __future__ import print_function, absolute_import
 
 import sys, logging, socket, time
 
-from cpylmnl import netlink, h
+import cpylmnl.linux.netlinkh as netlink
 import cpylmnl as mnl
 
 

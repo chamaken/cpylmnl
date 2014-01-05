@@ -6,8 +6,10 @@ from __future__ import print_function, absolute_import
 import sys, os, logging, socket, time, struct, select
 import ipaddr
 
-from cpylmnl import netlink, h
-import cpylmnl.nlstructs.nfnetlink as nfnl
+import cpylmnl.linux.netlinkh as netlink
+import cpylmnl.linux.netfilter.nfnetlinkh as nfnl
+import cpylmnl.linux.netfilter.nfnetlink_conntrackh as nfnlct
+import cpylmnl.linux.netfilter.nfnetlink_compath as nfnlcm
 import cpylmnl as mnl
 
 
@@ -29,11 +31,11 @@ def parse_counters_cb(attr, tb):
     attr_type = attr.get_type()
 
     try:
-        attr.type_valid(h.CTA_COUNTERS_MAX)
+        attr.type_valid(nfnlct.CTA_COUNTERS_MAX)
     except OSError as e:
         return mnl.MNL_CB_OK
 
-    if attr_type in (h.CTA_COUNTERS_PACKETS, h.CTA_COUNTERS_BYTES):
+    if attr_type in (nfnlct.CTA_COUNTERS_PACKETS, nfnlct.CTA_COUNTERS_BYTES):
         try:
             attr.validate(mnl.MNL_TYPE_U64)
         except OSError as e:
@@ -52,10 +54,10 @@ def parse_counters(nest, ns):
     tb = dict()
 
     nest.parse_nested(parse_counters_cb, tb)
-    if h.CTA_COUNTERS_PACKETS in tb:
-        ns.pkts += be64toh(tb[h.CTA_COUNTERS_PACKETS].get_u64())
-    if h.CTA_COUNTERS_BYTES in tb:
-        ns.bytes += be64toh(tb[h.CTA_COUNTERS_BYTES].get_u64())
+    if nfnlct.CTA_COUNTERS_PACKETS in tb:
+        ns.pkts += be64toh(tb[nfnlct.CTA_COUNTERS_PACKETS].get_u64())
+    if nfnlct.CTA_COUNTERS_BYTES in tb:
+        ns.bytes += be64toh(tb[nfnlct.CTA_COUNTERS_BYTES].get_u64())
 
 
 @mnl.attribute_cb
@@ -63,19 +65,19 @@ def parse_ip_cb(attr, tb):
     attr_type = attr.get_type()
 
     try:
-        attr.type_valid(h.CTA_IP_MAX)
+        attr.type_valid(nfnlct.CTA_IP_MAX)
     except OSError as e:
         return mnl.MNL_CB_OK
 
-    if attr_type == h.CTA_IP_V4_SRC \
-            or attr_type == h.CTA_IP_V4_DST:
+    if attr_type == nfnlct.CTA_IP_V4_SRC \
+            or attr_type == nfnlct.CTA_IP_V4_DST:
         try:
             attr.validate(mnl.MNL_TYPE_U32)
         except OSError as e:
             print("mnl_attr_validate: %s" % e, file=sys.stderr)
             return mnl.MNL_CB_ERROR
-    if attr_type == h.CTA_IP_V6_SRC \
-            or attr_type == h.CTA_IP_V6_DST:
+    if attr_type == nfnlct.CTA_IP_V6_SRC \
+            or attr_type == nfnlct.CTA_IP_V6_DST:
         try:
             attr.validate2(mnl.MNL_TYPE_BINARY, 16) # XXX: sizeof(struct in6_addr)
         except OSError as e:
@@ -89,11 +91,11 @@ def parse_ip(nest, ns):
     tb = dict()
 
     nest.parse_nested(parse_ip_cb, tb)
-    if h.CTA_IP_V4_SRC in tb:
-        # ns.addr = ipaddr.IPv4Address(struct.unpack(">I", bytes(bytearray(tb[h.CTA_IP_V4_SRC].get_payload_v()))))
-        ns.addr = ipaddr.IPv4Address(".".join("%d" % i for i in tb[h.CTA_IP_V4_SRC].get_payload_v()))
-    if h.CTA_IP_V6_SRC in tb:
-        ns.addr = ipaddr.IPv6Address(":".join("%x" % i for i in tb[h.CTA_IP_V6_SRC].get_payload_v()))
+    if nfnlct.CTA_IP_V4_SRC in tb:
+        # ns.addr = ipaddr.IPv4Address(struct.unpack(">I", bytes(bytearray(tb[nfnlct.CTA_IP_V4_SRC].get_payload_v()))))
+        ns.addr = ipaddr.IPv4Address(".".join("%d" % i for i in tb[nfnlct.CTA_IP_V4_SRC].get_payload_v()))
+    if nfnlct.CTA_IP_V6_SRC in tb:
+        ns.addr = ipaddr.IPv6Address(":".join("%x" % i for i in tb[nfnlct.CTA_IP_V6_SRC].get_payload_v()))
 
 
 @mnl.attribute_cb
@@ -101,17 +103,17 @@ def parse_tuple_cb(attr, tb):
     attr_type = attr.get_type()
 
     try:
-        attr.type_valid(h.CTA_TUPLE_MAX)
+        attr.type_valid(nfnlct.CTA_TUPLE_MAX)
     except OSError as e:
         return mnl.MNL_CB_OK
 
-    if attr_type == h.CTA_TUPLE_IP:
+    if attr_type == nfnlct.CTA_TUPLE_IP:
         try:
             attr.validate(mnl.MNL_TYPE_NESTED)
         except OSError as e:
             print("mnl_attr_validate: %s" % e, file=sys.stderr)
             return mnl.MNL_CB_ERROR
-        
+
     tb[attr_type] = attr
     return mnl.MNL_CB_OK
 
@@ -120,8 +122,8 @@ def parse_tuple(nest, ns):
     tb = dict()
 
     nest.parse_nested(parse_tuple_cb, tb)
-    if h.CTA_TUPLE_IP in tb:
-        parse_ip(tb[h.CTA_TUPLE_IP], ns)
+    if nfnlct.CTA_TUPLE_IP in tb:
+        parse_ip(tb[nfnlct.CTA_TUPLE_IP], ns)
 
 
 @mnl.attribute_cb
@@ -129,11 +131,11 @@ def data_attr_cb(attr, tb):
     attr_type = attr.get_type()
 
     try:
-        attr.type_valid(h.CTA_MAX)
+        attr.type_valid(nfnlct.CTA_MAX)
     except OSError as e:
         return mnl.MNL_CB_OK
 
-    if attr_type in (h.CTA_TUPLE_ORIG, h.CTA_COUNTERS_ORIG, h.CTA_COUNTERS_REPLY):
+    if attr_type in (nfnlct.CTA_TUPLE_ORIG, nfnlct.CTA_COUNTERS_ORIG, nfnlct.CTA_COUNTERS_REPLY):
         try:
             attr.validate(mnl.MNL_TYPE_NESTED)
         except OSError as e:
@@ -150,14 +152,14 @@ def data_cb(nlh, data):
     ns = Nstats()
 
     nlh.parse(nfnl.Nfgenmsg.sizeof(), data_attr_cb, tb)
-    if h.CTA_TUPLE_ORIG in tb:
-        parse_tuple(tb[h.CTA_TUPLE_ORIG], ns)
+    if nfnlct.CTA_TUPLE_ORIG in tb:
+        parse_tuple(tb[nfnlct.CTA_TUPLE_ORIG], ns)
 
-    if h.CTA_COUNTERS_ORIG in tb:
-        parse_counters(tb[h.CTA_COUNTERS_ORIG], ns)
+    if nfnlct.CTA_COUNTERS_ORIG in tb:
+        parse_counters(tb[nfnlct.CTA_COUNTERS_ORIG], ns)
 
-    if h.CTA_COUNTERS_REPLY in tb:
-        parse_counters(tb[h.CTA_COUNTERS_REPLY], ns)
+    if nfnlct.CTA_COUNTERS_REPLY in tb:
+        parse_counters(tb[nfnlct.CTA_COUNTERS_REPLY], ns)
 
     cur = nstats_dict.setdefault(ns.addr, ns)
     cur.pkts += ns.pkts
@@ -208,7 +210,7 @@ def main():
     with mnl.Socket(netlink.NETLINK_NETFILTER) as nl:
         # Subscribe to destroy events to avoid leaking counters. The same
         # socket is used to periodically atomically dump and reset counters.
-        nl.bind(h.NF_NETLINK_CONNTRACK_DESTROY, mnl.MNL_SOCKET_AUTOPID)
+        nl.bind(nfnlcm.NF_NETLINK_CONNTRACK_DESTROY, mnl.MNL_SOCKET_AUTOPID)
 
         # Set netlink receiver buffer to 16 MBytes, to avoid packet drops
         # XXX: has to use python's. socket.fromfd() is available only in Unix
@@ -234,17 +236,17 @@ def main():
         nlh = mnl.nlmsg_put_header(buf, mnl.Header)
 
         # Counters are atomically zerod in each dump
-        nlh.type = (h.NFNL_SUBSYS_CTNETLINK << 8) | h.IPCTNL_MSG_CT_GET_CTRZERO
+        nlh.type = (nfnl.NFNL_SUBSYS_CTNETLINK << 8) | nfnlct.IPCTNL_MSG_CT_GET_CTRZERO
         nlh.flags = netlink.NLM_F_REQUEST|netlink.NLM_F_DUMP
 
         nfh = nlh.put_extra_header_as(nfnl.Nfgenmsg)
         nfh.family = socket.AF_INET
-        nfh.version = h.NFNETLINK_V0
+        nfh.version = nfnl.NFNETLINK_V0
         nfh.res_id = 0
 
         # Filter by mark: We only want to dump entries whose mark is zefo
-        nlh.put_u32(h.CTA_MARK, socket.htonl(0))
-        nlh.put_u32(h.CTA_MARK_MASK, socket.htonl(0xffffffff))
+        nlh.put_u32(nfnlct.CTA_MARK, socket.htonl(0))
+        nlh.put_u32(nfnlct.CTA_MARK_MASK, socket.htonl(0xffffffff))
 
         rlist, wlist, xlist = [], [], []
         tv = 0.0

@@ -5,9 +5,8 @@ from __future__ import print_function, absolute_import
 
 import sys, logging, socket, time, struct
 
-from cpylmnl import netlink, h
-import cpylmnl.nlstructs.rtnetlink as rtnl
-from cpylmnl.nlstructs import if_addr
+import cpylmnl.linux.netlinkh as netlink
+import cpylmnl.linux.rtnetlinkh as rtnl
 import cpylmnl as mnl
 
 
@@ -17,7 +16,7 @@ log = logging.getLogger(__name__)
 def data_attr_cb2(attr, tb):
     # skip unsupported attribute
     try:
-        attr.type_valid(h.RTAX_MAX)
+        attr.type_valid(rtnl.RTAX_MAX)
     except OSError as e:
         return mnl.MNL_CB_OK
 
@@ -40,18 +39,18 @@ def attributes_show_ipv4(tb):
         addr = attr.get_payload_v()
         print(fmt % socket.inet_ntoa(addr), end='')
 
-    h.RTA_TABLE in tb 	 and _print_u32("table=%u ", tb[h.RTA_TABLE])
-    h.RTA_DST in tb	 and _print_addr("dst=%s ", tb[h.RTA_DST])
-    h.RTA_SRC in tb	 and _print_u32_addr("src=%s ", tb[h.RTA_SRC])
-    h.RTA_OIF in tb	 and _print_u32("oif=%u ", tb[h.RTA_OIF])
-    h.RTA_FLOW in tb	 and _print_u32("flow=%u ",  tb[h.RTA_FLOW])
-    h.RTA_PREFSRC in tb  and _print_addr("prefsrc=%s ", tb[h.RTA_PREFSRC])
-    h.RTA_GATEWAY in tb  and _print_addr("gw=%s ", tb[h.RTA_GATEWAY])
-    h.RTA_PRIORITY in tb and _print_u32("prio=%u ", tb[h.RTA_PRIORITY])
-    if h.RTA_METRICS in tb:
+    rtnl.RTA_TABLE in tb    and _print_u32("table=%u ", tb[rtnl.RTA_TABLE])
+    rtnl.RTA_DST in tb	    and _print_addr("dst=%s ", tb[rtnl.RTA_DST])
+    rtnl.RTA_SRC in tb	    and _print_u32_addr("src=%s ", tb[rtnl.RTA_SRC])
+    rtnl.RTA_OIF in tb	    and _print_u32("oif=%u ", tb[rtnl.RTA_OIF])
+    rtnl.RTA_FLOW in tb	    and _print_u32("flow=%u ",  tb[rtnl.RTA_FLOW])
+    rtnl.RTA_PREFSRC in tb  and _print_addr("prefsrc=%s ", tb[rtnl.RTA_PREFSRC])
+    rtnl.RTA_GATEWAY in tb  and _print_addr("gw=%s ", tb[rtnl.RTA_GATEWAY])
+    rtnl.RTA_PRIORITY in tb and _print_u32("prio=%u ", tb[rtnl.RTA_PRIORITY])
+    if rtnl.RTA_METRICS in tb:
         tbx = dict()
-        tb[h.RTA_METRICS].parse_nested(data_attr_cb2, tbx)
-        for i in range(h.RTAX_MAX):
+        tb[rtnl.RTA_METRICS].parse_nested(data_attr_cb2, tbx)
+        for i in range(rtnl.RTAX_MAX):
             i in tbx	 and print("metrics[%d]=%u " % (i, tbx[i].get_u32()), end='')
 
 
@@ -67,37 +66,21 @@ def attributes_show_ipv6(tb):
         addr = attr.get_payload_v()
         print(fmt % inet6_ntoa(addr), end='')
 
-    h.RTA_TABLE in tb    and _print_u32("table=%u ", tb[h.RTA_TABLE])
-    h.RTA_DST in tb      and _print_addr6("dst=%s ", tb[h.RTA_DST])
-    h.RTA_SRC in tb      and _print_addr6("src=%s ", tb[h.RTA_SRC])
-    h.RTA_OIF in tb      and _print_u32("oif=%u ", tb[h.RTA_OIF])
-    h.RTA_FLOW in tb     and _print_u32("flow=%u ", tb[h.RTA_FLOW])
-    h.RTA_PREFSRC in tb  and _print_addr6("prefsrc=%s ", tb[h.RTA_PREFSRC])
-    h.RTA_GATEWAY in tb  and _print_addr6("gw=%s ", tb[h.RTA_GATEWAY])
-    h.RTA_PRIORITY in tb and _print_u32("prio=%u ", tb[h.RTA_PRIORITY])
-    if h.RTA_METRICS in tb:
+    rtnl.RTA_TABLE in tb    and _print_u32("table=%u ", tb[rtnl.RTA_TABLE])
+    rtnl.RTA_DST in tb      and _print_addr6("dst=%s ", tb[rtnl.RTA_DST])
+    rtnl.RTA_SRC in tb      and _print_addr6("src=%s ", tb[rtnl.RTA_SRC])
+    rtnl.RTA_OIF in tb      and _print_u32("oif=%u ", tb[rtnl.RTA_OIF])
+    rtnl.RTA_FLOW in tb     and _print_u32("flow=%u ", tb[rtnl.RTA_FLOW])
+    rtnl.RTA_PREFSRC in tb  and _print_addr6("prefsrc=%s ", tb[rtnl.RTA_PREFSRC])
+    rtnl.RTA_GATEWAY in tb  and _print_addr6("gw=%s ", tb[rtnl.RTA_GATEWAY])
+    rtnl.RTA_PRIORITY in tb and _print_u32("prio=%u ", tb[rtnl.RTA_PRIORITY])
+    if rtnl.RTA_METRICS in tb:
         tbx = dict()
-        tb[h.RTA_METRICS].parse_nested(data_attr_cb2, tbx)
+        tb[rtnl.RTA_METRICS].parse_nested(data_attr_cb2, tbx)
 
-        for i in range(h.RTAX_MAX):
+        for i in range(rtnl.RTAX_MAX):
             if i in tbx:
                 print("metrics[%d]=%u " % (i, tbx[i].get_u32()), end='')
-
-
-def _validate_u32(attr):
-    if attr.validate(mnl.MNL_TYPE_U32) < 0:
-        return mnl.MNL_CB_ERROR
-    return mnl.MNL_CB_OK
-
-def _validate_nested(attr):
-    if attr.validate(mnl.MNL_TYPE_NESTED) < 0:
-        return mnl.MNL_CB_ERROR
-    return mnl.MNL_CB_OK
-
-def _validate_in6_addr(attr):
-    if attr.validate2(mnl.MNL_TYPE_BINARY, 16) < 0: # XXX: sizeof(struct in6_addr)
-        return mnl.MNL_CB_ERROR
-    return mnl.MNL_CB_OK
 
 
 @mnl.attribute_cb
@@ -106,19 +89,19 @@ def data_ipv4_attr_cb(attr, tb):
 
     # skip unsupported attribute in user-space
     try:
-        attr.type_valid(h.RTA_MAX)
+        attr.type_valid(rtnl.RTA_MAX)
     except OSError as e:
         return mnl.MNL_CB_OK
 
-    ftbl = {h.RTA_TABLE   : _validate_u32,
-            h.RTA_DST     : _validate_u32,
-            h.RTA_SRC     : _validate_u32,
-            h.RTA_OIF     : _validate_u32,
-            h.RTA_FLOW    : _validate_u32,
-            h.RTA_PREFSRC : _validate_u32,
-            h.RTA_GATEWAY : _validate_u32,
-            h.RTA_PRIORITY: _validate_u32,
-            h.RTA_METRICS : _validate_nested,
+    ftbl = {rtnl.RTA_TABLE   : lambda x: x.validate(mnl.MNL_TYPE_U32),
+            rtnl.RTA_DST     : lambda x: x.validate(mnl.MNL_TYPE_U32),
+            rtnl.RTA_SRC     : lambda x: x.validate(mnl.MNL_TYPE_U32),
+            rtnl.RTA_OIF     : lambda x: x.validate(mnl.MNL_TYPE_U32),
+            rtnl.RTA_FLOW    : lambda x: x.validate(mnl.MNL_TYPE_U32),
+            rtnl.RTA_PREFSRC : lambda x: x.validate(mnl.MNL_TYPE_U32),
+            rtnl.RTA_GATEWAY : lambda x: x.validate(mnl.MNL_TYPE_U32),
+            rtnl.RTA_PRIORITY: lambda x: x.validate(mnl.MNL_TYPE_U32),
+            rtnl.RTA_METRICS : lambda x: x.validate(mnl.MNL_TYPE_NESTED),
             }
 
     if ftbl.get(attr_type, lambda a: (0, None))(attr) < 0:
@@ -134,19 +117,19 @@ def data_ipv6_attr_cb(attr, tb):
 
     # skip unsupported attribute in user-space
     try:
-        attr.type_valid(h.RTA_MAX)
+        attr.type_valid(rtnl.RTA_MAX)
     except Exception as e:
         return mnl.MNL_CB_OK
 
-    ftbl = {h.RTA_TABLE	  : _validate_u32,
-            h.RTA_OIF	  : _validate_u32,
-            h.RTA_FLOW	  : _validate_u32,
-            h.RTA_DST	  : _validate_in6_addr,
-            h.RTA_SRC	  : _validate_in6_addr,
-            h.RTA_PREFSRC : _validate_in6_addr,
-            h.RTA_GATEWAY : _validate_in6_addr,
-            h.RTA_PRIORITY: _validate_u32,
-            h.RTA_METRICS : _validate_nested,
+    ftbl = {rtnl.RTA_TABLE   : lambda x: x.validate(mnl.MNL_TYPE_U32),
+            rtnl.RTA_OIF     : lambda x: x.validate(mnl.MNL_TYPE_U32),
+            rtnl.RTA_FLOW    : lambda x: x.validate(mnl.MNL_TYPE_U32),
+            rtnl.RTA_DST     : lambda x: x.validate2(mnl.MNL_TYPE_BINARY, 16),
+            rtnl.RTA_SRC     : lambda x: x.validate2(mnl.MNL_TYPE_BINARY, 16),
+            rtnl.RTA_PREFSRC : lambda x: x.validate2(mnl.MNL_TYPE_BINARY, 16),
+            rtnl.RTA_GATEWAY : lambda x: x.validate2(mnl.MNL_TYPE_BINARY, 16),
+            rtnl.RTA_PRIORITY: lambda x: x.validate(mnl.MNL_TYPE_U32),
+            rtnl.RTA_METRICS : lambda x: x.validate(mnl.MNL_TYPE_NESTED),
             }
     if ftbl.get(attr_type, lambda a: (0, None))(attr) < 0:
         return mnl.MNL_CB_ERROR
@@ -160,9 +143,9 @@ def data_cb(nlh, tb):
     tb = dict()
     rm = nlh.get_payload_as(rtnl.Rtmsg)
 
-    if nlh.type == h.RTM_NEWROUTE:
+    if nlh.type == rtnl.RTM_NEWROUTE:
         print("[NEW] ", end='')
-    elif nlh.type == h.RTM_DELROUTE:
+    elif nlh.type == rtnl.RTM_DELROUTE:
         print("[DEL] ", end='')
 
     # protocol family = AF_INET | AF_INET6
@@ -205,15 +188,21 @@ def data_cb(nlh, tb):
 
 def main():
     with mnl.Socket(netlink.NETLINK_ROUTE) as nl:
-        nl.bind(h.RTMGRP_IPV4_ROUTE | h.RTMGRP_IPV6_ROUTE, mnl.MNL_SOCKET_AUTOPID)
+        nl.bind(rtnl.RTMGRP_IPV4_ROUTE | rtnl.RTMGRP_IPV6_ROUTE, mnl.MNL_SOCKET_AUTOPID)
 
         ret = mnl.MNL_CB_OK
         while ret > mnl.MNL_CB_STOP:
-            buf = nl.recv(mnl.MNL_SOCKET_BUFFER_SIZE)
-            ret = mnl.cb_run(buf, 0, 0, data_cb, None)
-
-    if ret < 0: # not valid. cb_run may raise Exception
-        print("mnl_cb_run returns ERROR", file=sys.stderr)
+            try:
+                buf = nl.recv(mnl.MNL_SOCKET_BUFFER_SIZE)
+            except Exception as e:
+                print("mnl_socket_recvfrom: %s" % e, file=sys.stderr)
+                raise
+            if len(buf) == 0: break
+            try:
+                ret = mnl.cb_run(buf, 0, 0, data_cb, None)
+            except Exception as e:
+                print("mnl_cb_run: %s" % e, file=sys.stderr)
+                raise
 
 
 if __name__ == '__main__':
