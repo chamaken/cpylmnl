@@ -38,12 +38,9 @@ def cb_run(buf, seq, portid, cb_data, data):
 
 def _cb_factory(argcls, cftype):
     def _decorator(cbfunc):
-        def _inner(p1, p2):
-            attr = cast(p1, POINTER(argcls)).contents
-            # data = p2 is None and None or cast(p2, py_object).value
-            if p2 is None: data = None
-            else: data = cast(p2, py_object).value
-            ret = cbfunc(attr, data)
+        def _inner(ptr, data):
+            o = cast(ptr, POINTER(argcls)).contents
+            ret = cbfunc(o, data)
             return ret
         return cftype(_inner)
     return _decorator

@@ -48,6 +48,7 @@ class TestSuite(unittest.TestCase):
         # cb_data = lambda h, d: h.type == 0xff and (mnl.MNL_CB_ERROR, Exception("cb error")) or (mnl.MNL_CB_OK, None)
         @mnl.mnl_cb_t
         def cb_data(h, d):
+            d is not None and d.append(h.type)
             if h.type == 0xff: return mnl.MNL_CB_ERROR
             else: return mnl.MNL_CB_OK
 
@@ -56,8 +57,11 @@ class TestSuite(unittest.TestCase):
                             + struct.pack("H", 0xff) + struct.pack("H", netlink.NLM_F_REQUEST) \
                             + struct.pack("I", 1) \
                             + struct.pack("I", 1))
-        ret = mnl.cb_run2(b + eb, 1, 1, cb_data, None)
+        l = []
+        ret = mnl.cb_run2(b + eb, 1, 1, cb_data, l)
         self.assertEqual(ret, mnl.MNL_CB_ERROR)
+        self.assertEqual(l[0], netlink.NLMSG_MIN_TYPE)
+        self.assertEqual(l[1], 0xff)
 
         eb = bytearray(struct.pack("I", 16) \
                            + struct.pack("H", 0xff) + struct.pack("H", netlink.NLM_F_REQUEST) \
@@ -77,12 +81,16 @@ class TestSuite(unittest.TestCase):
                            + struct.pack("H", 0xff) + struct.pack("H", netlink.NLM_F_REQUEST | netlink.NLM_F_DUMP_INTR) \
                            + struct.pack("I", 1) \
                            + struct.pack("I", 1))
-        self.assertRaises(OSError, mnl.cb_run2, b + eb, 1, 1, cb_data, None)
-        self.assertEqual(ctypes.get_errno(), errno.EINTR)
-        
-        self.assertRaises(OSError, mnl.cb_run, b + eb, 1, 1, cb_data, None)
-        self.assertEqual(ctypes.get_errno(), errno.EINTR)
+        # Python2.6 returns -1 but could not get EINTR?
+        if sys.version_info < (2, 7):
+            ret = mnl.cb_run2(b + eb, 1, 1, cb_data, None)
+            self.assertEquals(ret, mnl.MNL_CB_ERROR)
+        else:
+            self.assertRaises(OSError, mnl.cb_run2, b + eb, 1, 1, cb_data, None)
+            self.assertEqual(ctypes.get_errno(), errno.EINTR)
 
+            self.assertRaises(OSError, mnl.cb_run, b + eb, 1, 1, cb_data, None)
+            self.assertEqual(ctypes.get_errno(), errno.EINTR)
 
         # XXX: no cb_ctls specifying
 

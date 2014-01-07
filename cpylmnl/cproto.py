@@ -416,7 +416,7 @@ c_attr_next.restype = POINTER(netlink.Nlattr)
 
 ## TLV callback-based attribute parsers
 #typedef int (*mnl_attr_cb_t)(const struct nlattr *attr, void *data);
-MNL_ATTR_CB_T = CFUNCTYPE(c_int, POINTER(netlink.Nlattr), c_void_p, use_errno=True)
+MNL_ATTR_CB_T = CFUNCTYPE(c_int, POINTER(netlink.Nlattr), py_object, use_errno=True)
 
 # extern int mnl_attr_parse(const struct nlmsghdr *nlh, unsigned int offset, mnl_attr_cb_t cb, void *data);
 c_attr_parse = LIBMNL.mnl_attr_parse
@@ -438,7 +438,7 @@ c_attr_parse_payload.restype = c_int
 # callback API
 ##
 #typedef int (*mnl_cb_t)(const struct nlmsghdr *nlh, void *data);
-MNL_CB_T = CFUNCTYPE(c_int, POINTER(netlink.Nlmsghdr), py_object)
+MNL_CB_T = CFUNCTYPE(c_int, POINTER(netlink.Nlmsghdr), py_object, use_errno=True)
 
 # extern int mnl_cb_run(const void *buf, size_t numbytes, unsigned int seq,
 #		      unsigned int portid, mnl_cb_t cb_data, void *data);
