@@ -8,7 +8,6 @@ import sys, logging, socket, time
 import cpylmnl.linux.netlinkh as netlink
 import cpylmnl.linux.netfilter.nfnetlinkh as nfnl
 import cpylmnl.linux.netfilter.nfnetlink_logh as nfulnl
-import cpylmnl.linux.netfilter.nfnetlink_compath as nfnlcm
 import cpylmnl as mnl
 
 
@@ -23,7 +22,7 @@ def parse_attr_cb(attr, tb):
     try:
         attr.type_valid(nfulnl.NFULA_MAX)
     except OSError as e:
-        return mnl.MNL_CB_OK, None
+        return mnl.MNL_CB_OK
 
     if attr_type in (nfulnl.NFULA_MARK,
                      nfulnl.NFULA_IFINDEX_INDEV,
