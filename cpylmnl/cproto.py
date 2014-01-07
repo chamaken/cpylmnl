@@ -11,6 +11,10 @@ LIBMNL = CDLL("libmnl.so", use_errno=True)
 
 c_socklen_t = c_uint
 c_pid_t = c_int
+try:
+    from ctypes import c_ssize_t
+except ImportError:
+    c_ssize_t = c_longlong
 
 '''
 treat inner struct as opaque, c_void_p
