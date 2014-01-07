@@ -9,7 +9,6 @@ import cpylmnl.linux.netlinkh as netlink
 import cpylmnl.linux.netfilter.nfnetlinkh as nfnl
 import cpylmnl.linux.netfilter.nfnetlink_conntrackh as nfnlct
 import cpylmnl.linux.netfilter.nfnetlink_compath as nfnlcm
-import cpylmnl.linux.netfilter.nf_conntrack_commonh as nfctcm
 import cpylmnl as mnl
 
 
