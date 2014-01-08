@@ -3,7 +3,7 @@
 
 from __future__ import print_function, absolute_import
 
-import sys, logging, socket, time, struct
+import sys, logging, socket, time, struct, multiprocessing
 import cPickle as pickle
 
 import dpkt
@@ -146,9 +146,12 @@ def log_cb(nlh, data_list):
     tb = dict()
 
     nlh.parse(nfnl.Nfgenmsg.sizeof(), parse_attr_cb, tb)
-    if not nfulnl.NFULA_TIMESTAMP in tb:
+    if nfulnl.NFULA_TIMESTAMP in tb:
+        ts = tb[nfulnl.NFULA_TIMESTAMP].get_payload_as(nfulnl.NfulnlMsgPacketTimestamp)
+        second = be64toh(ts.sec)
+    else:
         log.warn("no NFULA_TIMESTAMP")
-        return mnl.MNL_CB_OK
+        second = int(time.time())
     if not nfulnl.NFULA_PACKET_HDR in tb:
         log.warn("no NFULA_PACKET_HDR")
         return mnl.MNL_CB_OK
@@ -157,14 +160,14 @@ def log_cb(nlh, data_list):
         return mnl.MNL_CB_OK
 
     ph = tb[nfulnl.NFULA_PACKET_HDR].get_payload_as(nfulnl.NfulnlMsgPacketHdr)
-    ts = tb[nfulnl.NFULA_TIMESTAMP].get_payload_as(nfulnl.NfulnlMsgPacketTimestamp)
     # copying - dpkt require bytes, it uses struct.unpack
     pkt_buffer = bytes(bytearray(tb[nfulnl.NFULA_PAYLOAD].get_payload_v()))
 
-    carbon_values = (be64toh(ts.sec), len(pkt_buffer))
+    carbon_values = (second, len(pkt_buffer))
     carbon_path = make_carbon_path(socket.ntohs(ph.hw_protocol), pkt_buffer)
-    print("(%s, %r)" % (carbon_path, carbon_values))
-    # data_list.append((carbon_path, varbon_values))
+    if carbon_path is not None:
+        # print("(%s, %r)" % (carbon_path, carbon_values))
+        data_list.append((carbon_path, carbon_values))
 
     return mnl.MNL_CB_OK
 
@@ -245,14 +248,16 @@ def main():
     buf = bytearray(mnl.MNL_SOCKET_BUFFER_SIZE)
 
     # prepare for sending to carbon
-    sock = socket()
+    sock = socket.socket()
     try:
         sock.connect((CARBON_SERVER, CARBON_PORT))
     except Exception as e:
         log.fatal("could not connect to carbon server %d@%s" % (CARBON_PORT, CARBON_SERVER))
         sys.exit(-1)
+
     q = multiprocessing.Queue() # XXX: size?
     p = multiprocessing.Process(target=send_process, args=(sock, q))
+    p.start()
 
     # netlink transaction
     with mnl.Socket(netlink.NETLINK_NETFILTER) as nl:
@@ -279,12 +284,13 @@ def main():
                 nrecv = nl.recv_into(buf)
                 data_list = []
                 ret = mnl.cb_run(buf[:nrecv], 0, portid, log_cb, data_list)
-                q.put(data_list)
+                if len(data_list) > 0:
+                    q.put(data_list)
             except Exception as e:
                 raise
 
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.WARN,
+    logging.basicConfig(level=logging.INFO,
                         format='%(asctime)s %(levelname)s %(module)s.%(funcName)s line: %(lineno)d %(message)s')
     main()
