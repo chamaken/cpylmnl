@@ -7,6 +7,5 @@ from .attr import *
 from .nlmsg import *
 from .socket import *
 from .callback import *
-# from .mmap import *
 
 from .py_class import *

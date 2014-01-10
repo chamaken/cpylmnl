@@ -132,6 +132,10 @@ class Socket(object):
     def get_fd(self):			return socket_get_fd(self._nls)
     def get_portid(self):		return socket_get_portid(self._nls)
     def bind(self, groups, pid):	return socket_bind(self._nls, groups, pid)
+    def set_ringopt(self, req, rt):	return socket_set_ringopt(self._nls, req, rt)
+    def map_ring(self):			return socket_map_ring(self._nls)
+    def get_frame(self, rt):		return socket_get_frame(self._nls, rt)
+    def advance_ring(self, rt):		return socket_advance_ring(self._nls, rt)
     def sendto(self, buf):		return socket_sendto(self._nls, buf)
     def send_nlmsg(self, nlh):		return socket_send_nlmsg(self._nls, nlh)
     def recv(self, size):		return socket_recv(self._nls, size)
@@ -145,6 +149,7 @@ class Socket(object):
         return False
 
 
+# C macro: #define mnl_attr_for_each_payload(payload, payload_size)
 def payload_attributes(payload): # buffer
     p = addressof((ctypes.c_ubyte * len(payload)).from_buffer(payload))
     attr = Attribute(payload)
