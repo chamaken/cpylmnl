@@ -54,26 +54,30 @@ c_socket_bind = LIBMNL.mnl_socket_bind
 c_socket_bind.argtypes = [c_void_p, c_uint, c_pid_t]
 c_socket_bind.restype = c_int
 
-# extern int mnl_socket_set_ringopt(struct mnl_socket *nl, struct nl_mmap_req *req, enum mnl_ring_types type);
-c_socket_set_ringopt = LIBMNL.mnl_socket_set_ringopt
-c_socket_set_ringopt.argtypes = [c_void_p, POINTER(netlink.NlMmapReq), c_int]
-c_socket_set_ringopt.restype = c_int
+HAS_MNL_RING = False
+try: # ring functions
+    # extern int mnl_socket_set_ringopt(struct mnl_socket *nl, struct nl_mmap_req *req, enum mnl_ring_types type);
+    c_socket_set_ringopt = LIBMNL.mnl_socket_set_ringopt
+    c_socket_set_ringopt.argtypes = [c_void_p, POINTER(netlink.NlMmapReq), c_int]
+    c_socket_set_ringopt.restype = c_int
 
-# extern int mnl_socket_map_ring(struct mnl_socket *nl);
-c_socket_map_ring = LIBMNL.mnl_socket_map_ring
-c_socket_map_ring.argtypes = [c_void_p]
-c_socket_map_ring.restype = c_int
+    # extern int mnl_socket_map_ring(struct mnl_socket *nl);
+    c_socket_map_ring = LIBMNL.mnl_socket_map_ring
+    c_socket_map_ring.argtypes = [c_void_p]
+    c_socket_map_ring.restype = c_int
 
-# extern struct nl_mmap_hdr *mnl_socket_get_frame(const struct mnl_socket *nl, enum mnl_ring_types type);
-c_socket_get_frame = LIBMNL.mnl_socket_get_frame
-c_socket_get_frame.argtypes = [c_void_p, c_int]
-c_socket_get_frame.restype = POINTER(netlink.NlMmapHdr)
+    # extern struct nl_mmap_hdr *mnl_socket_get_frame(const struct mnl_socket *nl, enum mnl_ring_types type);
+    c_socket_get_frame = LIBMNL.mnl_socket_get_frame
+    c_socket_get_frame.argtypes = [c_void_p, c_int]
+    c_socket_get_frame.restype = POINTER(netlink.NlMmapHdr)
 
-# extern int mnl_socket_advance_ring(const struct mnl_socket *nl, enum mnl_ring_types type);
-c_socket_advance_ring = LIBMNL.mnl_socket_advance_ring
-c_socket_advance_ring.argtypes = [c_void_p, c_int]
-c_socket_advance_ring.restype = c_int
-
+    # extern int mnl_socket_advance_ring(const struct mnl_socket *nl, enum mnl_ring_types type);
+    c_socket_advance_ring = LIBMNL.mnl_socket_advance_ring
+    c_socket_advance_ring.argtypes = [c_void_p, c_int]
+    c_socket_advance_ring.restype = c_int
+except AttributeError:
+    HAS_MNL_RING = False
+    
 # extern int mnl_socket_close(struct mnl_socket *nl);
 c_socket_close = LIBMNL.mnl_socket_close
 # c_socket_close.argtypes = [POINTER(MnlSocket)]

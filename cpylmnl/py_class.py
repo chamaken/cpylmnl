@@ -3,6 +3,7 @@
 from __future__ import absolute_import, print_function
 
 import ctypes # for Header put_header(), print(), mnl_attr_for_each_...
+from .cproto import HAS_MNL_RING
 from .linux import netlinkh as netlink
 from .attr import *
 from .nlmsg import *
@@ -132,10 +133,11 @@ class Socket(object):
     def get_fd(self):			return socket_get_fd(self._nls)
     def get_portid(self):		return socket_get_portid(self._nls)
     def bind(self, groups, pid):	return socket_bind(self._nls, groups, pid)
-    def set_ringopt(self, req, rt):	return socket_set_ringopt(self._nls, req, rt)
-    def map_ring(self):			return socket_map_ring(self._nls)
-    def get_frame(self, rt):		return socket_get_frame(self._nls, rt)
-    def advance_ring(self, rt):		return socket_advance_ring(self._nls, rt)
+    if HAS_MNL_RING:
+        def set_ringopt(self, req, rt):	return socket_set_ringopt(self._nls, req, rt)
+        def map_ring(self):		return socket_map_ring(self._nls)
+        def get_frame(self, rt):	return socket_get_frame(self._nls, rt)
+        def advance_ring(self, rt):	return socket_advance_ring(self._nls, rt)
     def sendto(self, buf):		return socket_sendto(self._nls, buf)
     def send_nlmsg(self, nlh):		return socket_send_nlmsg(self._nls, nlh)
     def recv(self, size):		return socket_recv(self._nls, size)
