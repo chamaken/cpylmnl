@@ -3,7 +3,9 @@
 
 from __future__ import print_function, absolute_import
 
-import sys, logging, socket, time, struct, multiprocessing
+import sys, logging
+import socket, time, struct, multiprocessing
+import signal
 import cPickle as pickle
 
 import dpkt
@@ -40,6 +42,10 @@ import cpylmnl as mnl
         copied. If you say '40', you will receive the first fourty bytes
         of every packet. Leave it to 0 to dump the whole packet.
 
+my adversaria:
+    iptables -t raw -A PREROUTING -j NFLOG --nflog-group 1 --nflog-prefix myrouter \
+                                           --nflog-qthreshold 16 --nflog-range 64
+
 ---
 
 carbon path structure is:
@@ -69,20 +75,12 @@ CARBON_PORT = 2004
 @mnl.attribute_cb
 def parse_attr_cb(attr, tb):
     """only interested in
-    timestamp second from NFULA_TIMESTAMP
     length from NFULA_PACKET_HDR
     payload from NFULA_PAYLOAD
     """
     attr_type = attr.get_type()
 
-    if attr_type == nfulnl.NFULA_TIMESTAMP:
-        try:
-            attr.validate2(mnl.MNL_TYPE_UNSPEC, nfulnl.NfulnlMsgPacketTimestamp.sizeof())
-        except OSError as e:
-            log.warn("invalid NFULA_TIMESTAMP: %s" % e)
-        else:
-            tb[attr_type] = attr
-    elif attr_type == nfulnl.NFULA_PACKET_HDR:
+    if attr_type == nfulnl.NFULA_PACKET_HDR:
         try:
             attr.validate2(mnl.MNL_TYPE_UNSPEC, nfulnl.NfulnlMsgPacketHdr.sizeof())
         except OSError as e:
@@ -98,23 +96,19 @@ def parse_attr_cb(attr, tb):
 def append_l4_tuple(proto, pkt, prefix):
     # pkt has already been dpkt instance
     if proto == dpkt.ip.IP_PROTO_ICMP: # isinstance(pkt, dpkt.icmp.ICMP):
-        return ".".join([prefix, str(pkt.type), str(pkt.code)])
+        return prefix + [pkt.type, pkt.code]
     elif proto in (dpkt.ip.IP_PROTO_TCP,
                    dpkt.ip.IP_PROTO_UDP,
                    dpkt.ip.IP_PROTO_SCTP):
-        return ".".join([prefix, str(pkt.sport), str(pkt.dport)])
+        return prefix + [pkt.sport, pkt.dport]
+        # return ".".join([prefix, str(pkt.sport), str(pkt.dport)])
     else:
         log.info("unknown IP_PROTO: %r" % pkt)
         return prefix
 
 
-def make_prefix(dg):
-    return ".".join((":".join([str(ord(i)) for i in dg.src]),
-                     ":".join([str(ord(i)) for i in dg.dst]),
-                     str(dg.p)))
-
-def make_carbon_path(ethtype, pktbuf):
-    """make carbon path from 5 elements.
+def make_key_tuple(ethtype, pktbuf):
+    """make 5 elements list.
 
     src and dst address, protocol and
     - TCP, UDP, SCTP, DCCP: src and dst port
@@ -122,10 +116,10 @@ def make_carbon_path(ethtype, pktbuf):
     """
     if ethtype == 0x0800: # ETH_P_IP:
         dg = dpkt.ip.IP(pktbuf)
-        prefix = make_prefix(dg)
+        prefix = [dg.src, dg.dst, dg.p]
     elif ethtype == 0x86DD: # ETH_P_IPV6:
         dg = dpkt.ip6.IP6(pktbuf)
-        prefix = make_prefix(dg)
+        prefix = [dg.src, dg.dst, dg.p]
     elif ethtype == 0x0806: # ETH_P_ARP 
         # dg = dpkt.arp.ARP(pktbuf)
         log.info("ignore ARP")
@@ -134,24 +128,14 @@ def make_carbon_path(ethtype, pktbuf):
         log.info("ignore unknown ether type (not in ETH_P_IP, ETH_P_IPV6, ETH_P_ARP)")
         return None
 
-    return append_l4_tuple(dg.p, dg.data, prefix)
+    return tuple(append_l4_tuple(dg.p, dg.data, prefix))
 
-
-def be64toh(q):
-    return struct.unpack(">Q", struct.pack("Q", q))[0]
-    
 
 @mnl.header_cb
-def log_cb(nlh, data_list):
+def log_cb(nlh, data):
     tb = dict()
 
     nlh.parse(nfnl.Nfgenmsg.sizeof(), parse_attr_cb, tb)
-    if nfulnl.NFULA_TIMESTAMP in tb:
-        ts = tb[nfulnl.NFULA_TIMESTAMP].get_payload_as(nfulnl.NfulnlMsgPacketTimestamp)
-        second = be64toh(ts.sec)
-    else:
-        log.warn("no NFULA_TIMESTAMP")
-        second = int(time.time())
     if not nfulnl.NFULA_PACKET_HDR in tb:
         log.warn("no NFULA_PACKET_HDR")
         return mnl.MNL_CB_OK
@@ -162,12 +146,10 @@ def log_cb(nlh, data_list):
     ph = tb[nfulnl.NFULA_PACKET_HDR].get_payload_as(nfulnl.NfulnlMsgPacketHdr)
     # copying - dpkt require bytes, it uses struct.unpack
     pkt_buffer = bytes(bytearray(tb[nfulnl.NFULA_PAYLOAD].get_payload_v()))
-
-    carbon_values = (second, len(pkt_buffer))
-    carbon_path = make_carbon_path(socket.ntohs(ph.hw_protocol), pkt_buffer)
-    if carbon_path is not None:
+    k = make_key_tuple(socket.ntohs(ph.hw_protocol), pkt_buffer)
+    if k is not None:
         # print("(%s, %r)" % (carbon_path, carbon_values))
-        data_list.append((carbon_path, carbon_values))
+        data[k] = data.get(k, 0) + len(pkt_buffer)
 
     return mnl.MNL_CB_OK
 
@@ -226,16 +208,53 @@ def nflog_build_cfg_params(buf, mode, copy_range, qnum):
     return nlh
 
 
+def make_carbon_path(t):
+    # t: (saddr, dattr, proto, sport, dport)
+    # XXX: addr len condition
+    if len(t[0]) == 4:
+        "represents IPv4 address :decimal"
+        s = ".".join((":".join([str(ord(i)) for i in t[0]]),
+                      ":".join([str(ord(i)) for i in t[1]]),
+                      str(t[2])))
+    else:
+        s = ".".join((":".join(["%04x" % ((ord(t[0][i]) << 8) + ord(t[0][i + 1]))
+                               for i in range(len(t[0])) if i %2 == 0]),
+                      ":".join(["%04x" % ((ord(t[1][i]) << 8) + ord(t[1][i + 1]))
+                               for i in range(len(t[1])) if i %2 == 0]),
+                      str(t[2])))
+    if len(t) != 5:
+        return s
+    return ".".join((s, str(t[3]), str(t[4])))
+
+
 def send_process(sock, q):
     while True:
-        listOfMetricTuples = q.get()
-        if listOfMetricTuples is None: # means finish
+        # got from q: {(saddr, dattr, proto, sport, dport): payload_len}
+        d = q.get()
+        if d is None:
             return
 
+        now = int(time.time())
+        listOfMetricTuples = []
+        for k, v in d.iteritems():
+            listOfMetricTuples.append((make_carbon_path(k), (now, v)))
+        """
+        print("\n\nsending entries: %d" % len(listOfMetricTuples))
+        for e in listOfMetricTuples:
+            print(e)
+        """
         payload = pickle.dumps(listOfMetricTuples)
         header = struct.pack("!L", len(payload))
         message = header + payload
+        # should catch EINTR?
         sock.sendall(message)
+
+
+sendable = False
+
+def handler(signum, frame):
+    global sendable
+    sendable = True
 
 
 def main():
@@ -277,17 +296,35 @@ def main():
         nlh = nflog_build_cfg_params(buf, nfulnl.NFULNL_COPY_PACKET, 0xFFFF, qnum)
         nl.send_nlmsg(nlh)
 
+        # prepare for loop
+        signal.signal(signal.SIGALRM, handler)
+        signal.setitimer(signal.ITIMER_REAL, 2, 2)
+        global sendable
+
+        # {(saddr, dattr, proto, sport, dport): payload_len}
+        data = dict()
+
         # receiving loop
         ret = mnl.MNL_CB_OK
         while ret >= mnl.MNL_CB_STOP:
             try:
                 nrecv = nl.recv_into(buf)
-                data_list = []
-                ret = mnl.cb_run(buf[:nrecv], 0, portid, log_cb, data_list)
-                if len(data_list) > 0:
-                    q.put(data_list)
+            except OSError as oe:
+                if oe.errno == 4: # EINTR
+                    continue
             except Exception as e:
-                raise
+                log.error("mnl_socket_recvfrom: %s" % e)
+                continue
+            try:
+                ret = mnl.cb_run(buf[:nrecv], 0, portid, log_cb, data)
+            except Exception as e:
+                log.error("mnl_cb_run: %s" %e)
+
+            if sendable and len(data) > 0:
+                sendable = False
+                q.put(data)
+                data = dict()
+        q.put(None)
 
 
 if __name__ == '__main__':
