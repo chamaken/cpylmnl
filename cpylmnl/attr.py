@@ -47,37 +47,30 @@ def attr_next(attr):
 ### check if the attribute type is valid
 # int mnl_attr_type_valid(const struct nlattr *attr, uint16_t max)
 def attr_type_valid(attr, maxtype):
-    set_errno(0)
     ret = c_attr_type_valid(attr, maxtype)
-    if ret < 0: c_raise_if_errno()
-    return ret
+    if ret < 0: raise os_error()
 
 ### validate netlink attribute (simplified version)
 # int mnl_attr_validate(const struct nlattr *attr, enum mnl_attr_data_type type)
 def attr_validate(attr, data_type):
-    set_errno(0)
     ret = c_attr_validate(attr, data_type)
-    if ret < 0: c_raise_if_errno()
-    return ret
+    if ret < 0: raise os_error()
 
 ### validate netlink attribute (extended version)
 # int
 # mnl_attr_validate2(const struct nlattr *attr, enum mnl_attr_data_type type,
 #                    size_t exp_len)
 def attr_validate2(attr, data_type, exp_len):
-    set_errno(0)
     ret = c_attr_validate2(attr, data_type, exp_len)
-    if ret < 0: c_raise_if_errno()
-    return ret
+    if ret < 0: raise os_error()
 
 ### parse attributes
 # int
 # mnl_attr_parse(const struct nlmsghdr *nlh, unsigned int offset,
 #                mnl_attr_cb_t cb, void *data)
 def attr_parse(nlh, offset, cb, data):
-    set_errno(0)
     ret = c_attr_parse(nlh, offset, cb, data)
-    if ret < 0: c_raise_if_errno()
+    if ret < 0: raise os_error()
     return ret
 
 ### parse attributes inside a nest
@@ -85,9 +78,8 @@ def attr_parse(nlh, offset, cb, data):
 # mnl_attr_parse_nested(const struct nlattr *nested,
 #                       mnl_attr_cb_t cb, void *data)
 def attr_parse_nested(attr, cb, data):
-    set_errno(0)
     ret = c_attr_parse_nested(attr, cb, data)
-    if ret < 0: c_raise_if_errno()
+    if ret < 0: raise os_error()
     return ret
 
 ### parse attributes in payload of Netlink message
@@ -95,9 +87,8 @@ def attr_parse_nested(attr, cb, data):
 # 	                     mnl_attr_cb_t cb, void *data)
 def attr_parse_payload(payload, cb, data):
     b = (c_ubyte * len(payload)).from_buffer(payload)
-    set_errno(0)
     ret = c_attr_parse_payload(b, len(payload), cb, data)
-    if ret < 0: c_raise_if_errno()
+    if ret < 0: raise os_error()
     return ret
 
 ### returns 8-bit unsigned integer attribute payload

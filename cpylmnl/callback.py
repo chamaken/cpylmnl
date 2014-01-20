@@ -21,18 +21,17 @@ def cb_run2(buf, seq, portid, cb_data, data, cb_ctls=None):
     c_buf = (c_ubyte * len(buf)).from_buffer(buf)
     if cb_data is None: cb_data = MNL_CB_T()
 
-    set_errno(0)
     ret = c_cb_run2(c_buf, len(c_buf), seq, portid, cb_data, data, c_cb_ctls, cb_ctls_len)
-    if ret < 0: c_raise_if_errno()
+    if ret < 0: raise os_error()
     return ret
 
 
 def cb_run(buf, seq, portid, cb_data, data):
     c_buf = (c_ubyte * len(buf)).from_buffer(buf)
     if cb_data is None: cb_data = MNL_CB_T()
-    set_errno(0)
+
     ret = c_cb_run(c_buf, len(c_buf), seq, portid, cb_data, data)
-    if ret < 0: c_raise_if_errno()
+    if ret < 0: raise os_error()
     return ret
 
 

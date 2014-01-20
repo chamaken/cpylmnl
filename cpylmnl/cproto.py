@@ -459,12 +459,6 @@ c_cb_run2.restype = c_int
 
 
 # helper
-def c_raise_if_errno():
-    en = get_errno()
-    if en != 0:
-        raise OSError(en, errno.errorcode[en])
-
-
 def os_error():
     en = get_errno()
     return OSError(en, errno.errorcode[en])

@@ -59,6 +59,14 @@ class TestSuite(unittest.TestCase):
         self.nlmsghdr_error += error_msg
         self.nlmsghdr_error.len = len(self.nlmsghdr_error)
 
+        type7F_msg = NlmsghdrBuf(16)
+        type7F_msg.len = 16
+        type7F_msg.type = 0x7f
+        type7F_msg.flags = netlink.NLM_F_REQUEST
+        type7F_msg.seq = 1
+        type7F_msg.pid = 1
+        self.nlmsghdr_type7F = self.nlmsghdr_mintype + type7F_msg
+
         typeFF_msg = NlmsghdrBuf(16)
         typeFF_msg.len = 16
         typeFF_msg.type = 0xff
@@ -103,13 +111,17 @@ class TestSuite(unittest.TestCase):
         def cb_data(h, d):
             d is not None and d.append(h.type)
             if h.type == 0xff: return mnl.MNL_CB_ERROR
+            elif h.type == 0x7f: return mnl.MNL_CB_STOP
             else: return mnl.MNL_CB_OK
 
         l = []
-        ret = mnl.cb_run2(self.nlmsghdr_typeFF, 1, 1, cb_data, l)
-        self.assertEqual(ret, mnl.MNL_CB_ERROR)
+        self.assertRaises(OSError, mnl.cb_run2, self.nlmsghdr_typeFF, 1, 1, cb_data, l)
+
+        l = []
+        ret = mnl.cb_run2(self.nlmsghdr_type7F, 1, 1, cb_data, l)
+        self.assertEqual(ret, mnl.MNL_CB_STOP)
         self.assertEqual(l[0], netlink.NLMSG_MIN_TYPE)
-        self.assertEqual(l[1], 0xff)
+        self.assertEqual(l[1], 0x7f)
 
         self.assertRaises(OSError, mnl.cb_run2, self.nlmsghdr_pid2, 1, 1, cb_data, None)
         self.assertEqual(ctypes.get_errno(), errno.ESRCH)

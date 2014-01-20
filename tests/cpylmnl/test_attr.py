@@ -118,7 +118,8 @@ class TestSuite(unittest.TestCase):
         self.abuf.len = 251
         for i in range(mnl.MNL_TYPE_MAX):
             self.nla.type = i
-            self.assertTrue(self.nla.type_valid(i + 1) == 1)
+            # XXX: notRaises
+            self.nla.type_valid(i + 1)
 
         self.abuf.type = mnl.MNL_TYPE_MAX + 1
         self.assertRaises(OSError, self.nla.type_valid, mnl.MNL_TYPE_MAX)
@@ -133,8 +134,10 @@ class TestSuite(unittest.TestCase):
 
         for t in self.valid_len:
             self.abuf.len = mnl.MNL_ATTR_HDRLEN + self.valid_len[t][0]
-            self.assertTrue(self.nla.validate(t) == 0)
-            self.assertTrue(self.nla.validate2(t, self.valid_len[t][1]) == 0)
+            # notRaises
+            self.nla.validate(t)
+            # notRaises
+            self.nla.validate2(t, self.valid_len[t][1])
 
         for t in self.invalid_len:
             self.abuf.len = mnl.MNL_ATTR_HDRLEN + self.invalid_len[t][0]
@@ -161,7 +164,8 @@ class TestSuite(unittest.TestCase):
         self.assertTrue(ctypes.get_errno() == errno.ERANGE)
 
         self.abuf.len = mnl.MNL_ATTR_HDRLEN
-        self.assertTrue(self.nla.validate(mnl.MNL_TYPE_NESTED) == 0)
+        # notRaises
+        self.nla.validate(mnl.MNL_TYPE_NESTED)
 
         self.abuf.len = mnl.MNL_ATTR_HDRLEN + 1
         self.assertRaises(OSError, self.nla.validate2, mnl.MNL_TYPE_NESTED, 0)
@@ -234,7 +238,7 @@ class TestSuite(unittest.TestCase):
 
         self.assertTrue(nested.parse_nested(cb, True) == mnl.MNL_CB_OK)
         self.assertTrue(nested.parse_nested(cb, False) == mnl.MNL_CB_STOP)
-        self.assertTrue(nested.parse_nested(cb, True) == mnl.MNL_CB_ERROR)
+        self.assertRaises(OSError, nested.parse_nested, cb, True)
 
 
     def test_attr_parse_payload(self):
@@ -255,7 +259,7 @@ class TestSuite(unittest.TestCase):
 
         self.assertTrue(mnl.attr_parse_payload(b, cb, True) == mnl.MNL_CB_OK)
         self.assertTrue(mnl.attr_parse_payload(b, cb, False) == mnl.MNL_CB_STOP)
-        self.assertTrue(mnl.attr_parse_payload(b, cb, True) == mnl.MNL_CB_ERROR)
+        self.assertRaises(OSError, mnl.attr_parse_payload, b, cb, True)
 
 
     def test_get_u8(self):
