@@ -3,7 +3,8 @@
 
 from __future__ import print_function, absolute_import
 
-import sys, os, logging, socket, time, struct, select
+import sys, os, logging, socket, time, struct
+import errno, select, signal
 import ipaddr
 
 import cpylmnl.linux.netlinkh as netlink
@@ -14,16 +15,18 @@ import cpylmnl as mnl
 
 
 log = logging.getLogger(__name__)
+nstats = dict() # {ipaddr: Nstat}
+# for sig handler
+nl_socket = None
+sending_nlh = None
 
 
-class Nstats(object):
+class Nstat(object):
     __slots__ = ["addr", "pkts", "bytes"]
     def __init__(self):
         self.addr = None
         self.pkts = 0
         self.bytes = 0
-
-nstats_dict = dict() # {ipaddr: Nstats}
 
 
 @mnl.attribute_cb
@@ -149,7 +152,7 @@ def data_attr_cb(attr, tb):
 def data_cb(nlh, data):
     tb = dict()
     nfg = nlh.get_payload_as(nfnl.Nfgenmsg)
-    ns = Nstats()
+    ns = Nstat()
 
     nlh.parse(nfnl.Nfgenmsg.sizeof(), data_attr_cb, tb)
     if nfnlct.CTA_TUPLE_ORIG in tb:
@@ -161,7 +164,7 @@ def data_cb(nlh, data):
     if nfnlct.CTA_COUNTERS_REPLY in tb:
         parse_counters(tb[nfnlct.CTA_COUNTERS_REPLY], ns)
 
-    cur = nstats_dict.setdefault(ns.addr, ns)
+    cur = nstats.setdefault(ns.addr, ns)
     cur.pkts += ns.pkts
     cur.bytes += ns.bytes
 
@@ -193,7 +196,20 @@ def handle(nl):
     return 0
 
 
+def alarm_handler(signum, frame):
+    global nl_socket
+    global sending_nlh
+
+    nl_socket.send_nlmsg(sending_nlh)
+    for cur in nstats.itervalues():
+        print("src={cur.addr} counters {cur.pkts} {cur.bytes}".format(cur=cur))
+
+
+
 def main():
+    global nl_socket
+    global sending_nlh
+
     if len(sys.argv) != 2:
         print("Usage: %s <poll-secs>" % sys.argv[0])
         sys.exit(-1)
@@ -207,15 +223,15 @@ def main():
     os.nice(-20)
 
     # Open netlink socket to operate with netfilter
-    with mnl.Socket(netlink.NETLINK_NETFILTER) as nl:
+    with mnl.Socket(netlink.NETLINK_NETFILTER) as nl_socket:
         # Subscribe to destroy events to avoid leaking counters. The same
         # socket is used to periodically atomically dump and reset counters.
-        nl.bind(nfnlcm.NF_NETLINK_CONNTRACK_DESTROY, mnl.MNL_SOCKET_AUTOPID)
+        nl_socket.bind(nfnlcm.NF_NETLINK_CONNTRACK_DESTROY, mnl.MNL_SOCKET_AUTOPID)
 
         # Set netlink receiver buffer to 16 MBytes, to avoid packet drops
         # XXX: has to use python's. socket.fromfd() is available only in Unix
         buffersize = 1 << 22
-        sock = socket.fromfd(nl.get_fd(), socket.AF_NETLINK, socket.SOCK_RAW)
+        sock = socket.fromfd(nl_socket.get_fd(), socket.AF_NETLINK, socket.SOCK_RAW)
         sock.setsockopt(socket.SOL_SOCKET, 33, buffersize) # SO_RCVBUFFORCE
 
         # The two tweaks below enable reliable event delivery, packets may
@@ -229,44 +245,40 @@ def main():
         # b) if the user-space process does not pull message from the
         #    receiver buffer so often.
         on = struct.pack("i", 1)[0]
-        nl.setsockopt(netlink.NETLINK_BROADCAST_ERROR, on)
-        nl.setsockopt(netlink.NETLINK_NO_ENOBUFS, on)
+        nl_socket.setsockopt(netlink.NETLINK_BROADCAST_ERROR, on)
+        nl_socket.setsockopt(netlink.NETLINK_NO_ENOBUFS, on)
 
         buf = bytearray(mnl.MNL_SOCKET_BUFFER_SIZE)
-        nlh = mnl.nlmsg_put_header(buf, mnl.Header)
+        sending_nlh = mnl.nlmsg_put_header(buf, mnl.Header)
 
         # Counters are atomically zerod in each dump
-        nlh.type = (nfnl.NFNL_SUBSYS_CTNETLINK << 8) | nfnlct.IPCTNL_MSG_CT_GET_CTRZERO
-        nlh.flags = netlink.NLM_F_REQUEST|netlink.NLM_F_DUMP
+        sending_nlh.type = (nfnl.NFNL_SUBSYS_CTNETLINK << 8) | nfnlct.IPCTNL_MSG_CT_GET_CTRZERO
+        sending_nlh.flags = netlink.NLM_F_REQUEST|netlink.NLM_F_DUMP
 
-        nfh = nlh.put_extra_header_as(nfnl.Nfgenmsg)
+        nfh = sending_nlh.put_extra_header_as(nfnl.Nfgenmsg)
         nfh.family = socket.AF_INET
         nfh.version = nfnl.NFNETLINK_V0
         nfh.res_id = 0
 
         # Filter by mark: We only want to dump entries whose mark is zefo
-        nlh.put_u32(nfnlct.CTA_MARK, socket.htonl(0))
-        nlh.put_u32(nfnlct.CTA_MARK_MASK, socket.htonl(0xffffffff))
+        sending_nlh.put_u32(nfnlct.CTA_MARK, socket.htonl(0))
+        sending_nlh.put_u32(nfnlct.CTA_MARK_MASK, socket.htonl(0xffffffff))
 
-        rlist, wlist, xlist = [], [], []
-        tv = 0.0
-        fd = nl.get_fd()
+        # Every N seconds ...
+        signal.signal(signal.SIGALRM, alarm_handler)
+        signal.setitimer(signal.ITIMER_REAL, secs, secs)
+
+        fd = nl_socket.get_fd()
         while True:
-            # Every N seconds ...
-            if all(len(l) == 0 for l in (rlist, wlist, xlist)):
-                # ... request a fresh dump of the table from kernel
-                nl.send_nlmsg(nlh)
-                tv = float(secs)
-
-                # print the content of the dict
-                for cur in nstats_dict.itervalues():
-                    print("src={cur.addr} counters {cur.pkts} {cur.bytes}".format(cur=cur))
-
-            rlist, wlist, xlist = select.select([fd], [], [], tv)
+            try:
+                rlist, wlist, xlist = select.select([fd], [], [])
+            except select.error as e:
+                if e[0] == errno.EINTR: continue
+                raise
 
             # Handled event and periodic atomic-dump-and-reset messages
             if fd in rlist:
-                if handle(nl) < 0:
+                if handle(nl_socket) < 0:
                     return -1
 
 
