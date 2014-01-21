@@ -83,17 +83,15 @@ def mnl_socket_poll(nl):
 
 def main():
     frame_size = 16384
-    nlmr = netlink.NlMmapReq(block_size = mnl.MNL_SOCKET_BUFFER_SIZE * 16,
-                             block_nr = 64,
-                             frame_size = frame_size,
-                             frame_nr = 64 * mnl.MNL_SOCKET_BUFFER_SIZE * 16 / frame_size)
-
     with mnl.Socket(netlink.NETLINK_ROUTE) as nl:
-        nl.set_ringopt(nlmr, mnl.MNL_RING_RX)
-        nl.set_ringopt(nlmr, mnl.MNL_RING_TX)
+        nl.set_ringopt(mnl.MNL_RING_RX, mnl.MNL_SOCKET_BUFFER_SIZE * 16, 64,
+                       frame_size, 64 * mnl.MNL_SOCKET_BUFFER_SIZE * 16 / frame_size)
+        nl.set_ringopt(mnl.MNL_RING_TX, mnl.MNL_SOCKET_BUFFER_SIZE * 16, 64,
+                       frame_size, 64 * mnl.MNL_SOCKET_BUFFER_SIZE * 16 / frame_size)
         nl.map_ring()
-        hdr = nl.get_frame(mnl.MNL_RING_TX)
-        buf = mnl.RING_MSGHDR(hdr, frame_size)
+        txring = nl.get_ring(mnl.MNL_RING_TX)
+        frame = txring.get_frame()
+        buf = mnl.MNL_FRAME_PAYLOAD(frame, frame_size)
 
         nlh = mnl.nlmsg_put_header(buf, mnl.Header)
         nlh.type = rtnl.RTM_GETLINK
@@ -103,26 +101,27 @@ def main():
         rt = nlh.put_extra_header_as(rtnl.Rtgenmsg)
         rt.family = socket.AF_PACKET
 
-        hdr.len = nlh.len
-        hdr.status = netlink.NL_MMAP_STATUS_VALID
+        frame.len = nlh.len
+        frame.status = netlink.NL_MMAP_STATUS_VALID
 
         nl.bind(0, mnl.MNL_SOCKET_AUTOPID)
         portid = nl.get_portid()
         nl.sendto(None)
-        nl.advance_ring(mnl.MNL_RING_TX)
+        txring.advance()
 
+        rxring = nl.get_ring(mnl.MNL_RING_RX)
         ret = mnl.MNL_CB_OK
         while ret > mnl.MNL_CB_STOP:
             # XXX: no try / except
             mnl_socket_poll(nl)
-            hdr = nl.get_frame(mnl.MNL_RING_RX);
-            if hdr.status == netlink.NL_MMAP_STATUS_VALID:
-                buf = mnl.RING_MSGHDR(hdr, hdr.len)
-            elif hdr.status == netlink.NL_MMAP_STATUS_COPY:
+            frame = rxring.get_frame();
+            if frame.status == netlink.NL_MMAP_STATUS_VALID:
+                buf = mnl.MNL_FRAME_PAYLOAD(frame, frame.len)
+            elif frame.status == netlink.NL_MMAP_STATUS_COPY:
                 buf = nl.recv(frame_size * 2)
             else:
-                hdr.status = netlink.NL_MMAP_STATUS_UNUSED
-                nl.advance_ring(mnl.MNL_RING_RX)
+                frame.status = netlink.NL_MMAP_STATUS_UNUSED
+                rxring.advance()
                 continue
 
             try:
@@ -130,8 +129,8 @@ def main():
             except Exception as e:
                 print("mnl_cb_run: %s" % e, file=sys.stderr)
                 raise
-            hdr.status = netlink.NL_MMAP_STATUS_UNUSED
-            nl.advance_ring(mnl.MNL_RING_RX)
+            frame.status = netlink.NL_MMAP_STATUS_UNUSED
+            rxring.advance()
 
 
 if __name__ == '__main__':
