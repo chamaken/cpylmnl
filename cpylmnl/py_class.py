@@ -134,10 +134,10 @@ class Socket(object):
     def get_portid(self):		return socket_get_portid(self._nls)
     def bind(self, groups, pid):	socket_bind(self._nls, groups, pid)
     if HAS_MNL_RING:
-        def set_ringopt(self, req, rt):	return socket_set_ringopt(self._nls, req, rt)
-        def map_ring(self):		return socket_map_ring(self._nls)
-        def get_frame(self, rt):	return socket_get_frame(self._nls, rt)
-        def advance_ring(self, rt):	return socket_advance_ring(self._nls, rt)
+        def set_ringopt(self, rt, bs, bn, fs, fn):	socket_set_ringopt(self._nls, rt, bs, bn, fs, fn)
+        def map_ring(self):		socket_map_ring(self._nls)
+        def unmap_ring(self):		socket_unmap_ring(self._nls)
+        def get_ring(self, rt):		return Ring(socket_get_ring(self._nls, rt))
     def sendto(self, buf):		return socket_sendto(self._nls, buf)
     def send_nlmsg(self, nlh):		return socket_send_nlmsg(self._nls, nlh)
     def recv(self, size):		return socket_recv(self._nls, size)
@@ -149,6 +149,12 @@ class Socket(object):
     def __exit__(self, t, v, tb):
         socket_close(self._nls)
         return False
+
+
+class Ring(object):
+    def __init__(self, ring):		self._ring = ring
+    def advance(self):			ring_advance(self._ring)
+    def get_frame(self):		return ring_get_frame(self._ring)
 
 
 # C macro: #define mnl_attr_for_each_payload(payload, payload_size)

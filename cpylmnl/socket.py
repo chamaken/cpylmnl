@@ -36,33 +36,37 @@ def socket_bind(nl, groups, pid):
 if HAS_MNL_RING:
     ### set ring opt to prepare for mnl_socket_map_ring()
     # extern int mnl_socket_set_ringopt(struct mnl_socket *nl, struct nl_mmap_req *req, enum mnl_ring_types type);
-    def socket_set_ringopt(nl, req, rtype):
-        set_errno(0)
-        ret = c_socket_set_ringopt(nl, req, rtype)
+    def socket_set_ringopt(nl, rtype, block_size, block_nr, frame_size, frame_nr):
+        ret = c_socket_set_ringopt(nl, rtype, block_size, block_nr, frame_size, frame_nr)
         if ret < 0: raise os_error()
-        return ret
 
     ### setup a ring for mnl_socket
     # extern int mnl_socket_map_ring(struct mnl_socket *nl);
     def socket_map_ring(nl):
-        set_errno(0)
         ret = c_socket_map_ring(nl)
         if ret < 0: raise os_error()
+
+    ## unmap a ring for mnl_socket
+    def socket_unmap_ring(nl):
+        ret = c_socket_unmap_ring(nl)
+        if ret < 0: raise os_error()
+
+    ### get ring from mnl_socket
+    # struct mnl_ring *mnl_socket_get_ring(const struct mnl_socket *nl, enum mnl_ring_types type)
+    def socket_get_ring(nl, rtype):
+        ret = c_socket_get_ring(nl, rtype)
+        if ret is None: raise os_error()
         return ret
 
-    ### get current frame
-    # struct nl_mmap_hdr *mnl_socket_get_frame(const struct mnl_socket *nl, enum mnl_ring_types type)
-    def socket_get_frame(nl, rtype):
-        return c_socket_get_frame(nl, rtype).contents
+    ## get current frame
+    # struct nl_mmap_hdr *mnl_ring_get_frame(const struct mnl_ring *ring)
+    def ring_get_frame(ring):
+        return c_ring_get_frame(ring).contents
 
     ### set forward frame pointer
     # int mnl_socket_advance_ring(const struct mnl_socket *nl, enum mnl_ring_types type)
-    def socket_advance_ring(nl, rtype):
-        set_errno(0)
-        ret = c_socket_advance_ring(nl, rtype)
-        if ret < 0: raise os_error()
-        return ret
-# end has_nl_mmap
+    ring_advance = c_ring_advance
+#### END HAS_MNL_RING
 
 ### send a netlink message of a certain size
 # mnl_socket_sendto(const struct mnl_socket *nl, const void *buf, size_t len)

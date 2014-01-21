@@ -69,7 +69,7 @@ def MNL_ARRAY_SIZE(a):	return (ctypes.sizeof(a)/ctypes.sizeof((a)[0]))
 
 
 ### a little bit differ from C macro - requires len
-def RING_MSGHDR(hdr, size):
+def MNL_FRAME_PAYLOAD(hdr, size):
     return ctypes.cast(ctypes.addressof(hdr) + netlink.NL_MMAP_HDRLEN,
                        ctypes.POINTER(ctypes.c_ubyte * size)).contents
 
