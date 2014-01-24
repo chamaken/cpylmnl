@@ -8,6 +8,8 @@ try:
 except ImportError:
     Enum = object
 
+from .cproto import HAS_MNL_RING
+
 
 # Netlink socket API
 MNL_SOCKET_AUTOPID = 0
@@ -68,10 +70,10 @@ SOL_NETLINK		= 270
 def MNL_ARRAY_SIZE(a):	return (ctypes.sizeof(a)/ctypes.sizeof((a)[0]))
 
 
-### a little bit differ from C macro - requires len
-def MNL_FRAME_PAYLOAD(hdr, size):
-    return ctypes.cast(ctypes.addressof(hdr) + netlink.NL_MMAP_HDRLEN,
-                       ctypes.POINTER(ctypes.c_ubyte * size)).contents
+if HAS_MNL_RING:
+    def MNL_FRAME_PAYLOAD(frame):
+        return ctypes.cast(ctypes.addressof(frame) + netlink.NL_MMAP_HDRLEN,
+                           ctypes.POINTER(ctypes.c_ubyte * frame.len)).contents
 
-MNL_RING_RX = 0
-MNL_RING_TX = 1
+    MNL_RING_RX = 0
+    MNL_RING_TX = 1
