@@ -69,8 +69,8 @@ def mnl_socket_poll(nl):
         p.register(fd, select.POLLIN | select.POLLERR)
         try:
             events = p.poll(-1)
-        except OSError as e:
-            if e.errno == errno.EINTR:
+        except select.error as e:
+            if e[0] == errno.EINTR:
                 continue
             raise
         for efd, event in events:
@@ -80,7 +80,7 @@ def mnl_socket_poll(nl):
                 if event == select.POLLERR:
                     return -1
 
-    
+
 def main():
     frame_size = 16384
     nl = mnl.socket_open(netlink.NETLINK_ROUTE)
@@ -91,7 +91,7 @@ def main():
     mnl.socket_map_ring(nl)
     txring = mnl.socket_get_ring(nl, mnl.MNL_RING_TX)
     frame = mnl.ring_get_frame(txring)
-    buf = mnl.MNL_FRAME_PAYLOAD(frame, frame_size)
+    buf = mnl.MNL_FRAME_PAYLOAD(frame)
 
     nlh = mnl.nlmsg_put_header(buf)
     nlh.type = rtnl.RTM_GETLINK

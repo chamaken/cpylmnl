@@ -69,8 +69,8 @@ def mnl_socket_poll(nl):
         p.register(fd, select.POLLIN | select.POLLERR)
         try:
             events = p.poll(-1)
-        except OSError as e:
-            if e.errno == errno.EINTR:
+        except select.error as e:
+            if e[0] == errno.EINTR:
                 continue
             raise
         for efd, event in events:
@@ -91,7 +91,7 @@ def main():
         nl.map_ring()
         txring = nl.get_ring(mnl.MNL_RING_TX)
         frame = txring.get_frame()
-        buf = mnl.MNL_FRAME_PAYLOAD(frame, frame_size)
+        buf = mnl.MNL_FRAME_PAYLOAD(frame)
 
         nlh = mnl.nlmsg_put_header(buf, mnl.Header)
         nlh.type = rtnl.RTM_GETLINK
@@ -114,7 +114,7 @@ def main():
         while ret > mnl.MNL_CB_STOP:
             # XXX: no try / except
             mnl_socket_poll(nl)
-            frame = rxring.get_frame();
+            frame = rxring.get_frame()
             if frame.status == netlink.NL_MMAP_STATUS_VALID:
                 buf = mnl.MNL_FRAME_PAYLOAD(frame, frame.len)
             elif frame.status == netlink.NL_MMAP_STATUS_COPY:
