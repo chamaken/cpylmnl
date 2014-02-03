@@ -95,7 +95,7 @@ def socket_recv(nl, size):
     ret = socket_recv_into(nl, buf)
     if ret < 0: raise os_error()
     # We did not read as many bytes as we anticipated, resize the
-    # string if possible and be successful. */
+    # string if possible and be successful.
     return buf[:ret]
 
 def socket_recv_into(nl, buf):
@@ -123,9 +123,10 @@ def socket_setsockopt(nl, optype, buf):
 ### get a Netlink socket option
 # int mnl_socket_getsockopt(const struct mnl_socket *nl, int type,
 #                           void *buf, socklen_t *len)
-def soket_getsockopt(nl, optype, size):
+def socket_getsockopt(nl, optype, size):
     buf = bytearray(size)
-    c_buf = (c_char * len(buf)).from_buffer(buf)
-    ret = c_socket_getsockopt(nl, optype, c_buf, len(buf))
+    c_size = c_int(size)
+    c_buf = (c_char * size).from_buffer(buf)
+    ret = c_socket_getsockopt(nl, optype, c_buf, byref(c_size))
     if ret < 0: raise os_error()
     return c_buf.raw
