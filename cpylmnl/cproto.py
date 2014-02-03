@@ -485,4 +485,5 @@ c_cb_run2.restype = c_int
 # helper
 def os_error():
     en = get_errno()
+    set_errno(0)
     return OSError(en, errno.errorcode[en])
