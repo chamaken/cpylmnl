@@ -18,10 +18,9 @@ not prepared yet
 requires
 --------
 
-libmnl
-Python >= 2.6
-
-  * test reqs (optional): **python-coverage**, **python-nose**
+* libmnl
+* Python >= 2.6
+* test reqs (optional): **python-coverage**, **python-nose**
 
 
 links
