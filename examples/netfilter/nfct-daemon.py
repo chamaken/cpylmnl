@@ -98,7 +98,8 @@ def parse_ip(nest, ns):
         # ns.addr = ipaddr.IPv4Address(struct.unpack(">I", bytes(bytearray(tb[nfnlct.CTA_IP_V4_SRC].get_payload_v()))))
         ns.addr = ipaddr.IPv4Address(".".join("%d" % i for i in tb[nfnlct.CTA_IP_V4_SRC].get_payload_v()))
     if nfnlct.CTA_IP_V6_SRC in tb:
-        ns.addr = ipaddr.IPv6Address(":".join("%x" % i for i in tb[nfnlct.CTA_IP_V6_SRC].get_payload_v()))
+        v6addr = tb[nfnlct.CTA_IP_V6_SRC].get_payload_v()
+        ns.addr = ipaddr.IPv6Address(":".join(["%x%x" % (a[i], a[i + 1]) for i in range(0, len(v6addr), 2)]))
 
 
 @mnl.attribute_cb
@@ -190,10 +191,8 @@ def handle(nl):
     except OSError as e:
         print("mnl_cb_run: %s" % e, file=sys.stderr)
         return -1
-    if ret <= mnl.MNL_CB_STOP:
-        return 0
 
-    return 0
+    return ret
 
 
 def alarm_handler(signum, frame):
@@ -244,7 +243,7 @@ def main():
         #
         # b) if the user-space process does not pull message from the
         #    receiver buffer so often.
-        on = struct.pack("i", 1)[0]
+        on = struct.pack("i", 1)
         nl_socket.setsockopt(netlink.NETLINK_BROADCAST_ERROR, on)
         nl_socket.setsockopt(netlink.NETLINK_NO_ENOBUFS, on)
 
@@ -264,7 +263,8 @@ def main():
         sending_nlh.put_u32(nfnlct.CTA_MARK, socket.htonl(0))
         sending_nlh.put_u32(nfnlct.CTA_MARK_MASK, socket.htonl(0xffffffff))
 
-        # Every N seconds ...
+        # Every N seconds...
+        # unfotunately python does not return remainded time
         signal.signal(signal.SIGALRM, alarm_handler)
         signal.setitimer(signal.ITIMER_REAL, secs, secs)
 
