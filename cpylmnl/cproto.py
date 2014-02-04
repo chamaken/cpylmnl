@@ -486,4 +486,7 @@ c_cb_run2.restype = c_int
 def os_error():
     en = get_errno()
     set_errno(0)
-    return OSError(en, errno.errorcode[en])
+    if en == 0:
+        return OSError(en, "(no errno found)")
+    else:
+        return OSError(en, errno.errorcode[en])
