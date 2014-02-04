@@ -145,6 +145,7 @@ class Socket(object):
     def close(self):			return socket_close(self._nls)
     def setsockopt(self, t, b):		return socket_setsockopt(self._nls, t, b)
     def getsockopt(self, t, size):	return socket_getsockopt(self._nls, t, size)
+    def getsockopt_as(self, t, c):	return socket_getsockopt_ctype(self._nls, t, c)
     def __enter__(self):		return self
     def __exit__(self, t, v, tb):
         socket_close(self._nls)

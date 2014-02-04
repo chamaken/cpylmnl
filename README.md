@@ -116,3 +116,4 @@ comparison
 | mnl_socket_close			| socket_close			|				|
 | mnl_socket_setsockopt			| socket_setsockopt		| require mutable buffer	|
 | mnl_socket_getsockopt			| socket_getsockopt		| require buflen returns bytes	|
+| (add)					| socket_getsockopt_as		| 				|

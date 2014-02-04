@@ -130,3 +130,15 @@ def socket_getsockopt(nl, optype, size):
     ret = c_socket_getsockopt(nl, optype, c_buf, byref(c_size))
     if ret < 0: raise os_error()
     return c_buf.raw
+
+def socket_getsockopt_ctype(nl, optype, cls):
+    optval = cls.__new__(cls)
+    try:
+        size = sizeof(optval)
+    except TypeError:
+        raise OSError(errno.EINVAL, "value must be ctypes type")
+    c_size = c_int(size)
+    ret = c_socket_getsockopt(nl, optype, byref(optval), byref(c_size))
+    if ret < 0: raise os_error()
+    # return optval
+    return optval.value
