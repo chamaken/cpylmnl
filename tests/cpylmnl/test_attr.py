@@ -122,15 +122,26 @@ class TestSuite(unittest.TestCase):
             self.nla.type_valid(i + 1)
 
         self.abuf.type = mnl.MNL_TYPE_MAX + 1
-        self.assertRaises(OSError, self.nla.type_valid, mnl.MNL_TYPE_MAX)
-        self.assertTrue(ctypes.get_errno() == errno.EOPNOTSUPP)
-
+        try:
+            self.nla.type_valid(mnl.MNL_TYPE_MAX)
+        except OSError as e:
+            self.assertTrue(e.errno == errno.EOPNOTSUPP)
+        else:
+            self.fail("not raise OSError")
 
     def test_validate(self):
-        self.assertRaises(OSError, self.nla.validate, mnl.MNL_TYPE_MAX)
-        self.assertTrue(ctypes.get_errno() == errno.EINVAL)
-        self.assertRaises(OSError, self.nla.validate2, mnl.MNL_TYPE_MAX, 1)
-        self.assertTrue(ctypes.get_errno() == errno.EINVAL)
+        try:
+            self.nla.validate(mnl.MNL_TYPE_MAX)
+        except OSError as e:
+            self.assertTrue(e.errno == errno.EINVAL)
+        else:
+            self.fail("not raise OSError")
+        try:
+            self.nla.validate2( mnl.MNL_TYPE_MAX, 1)
+        except OSError as e:
+            self.assertTrue(e.errno == errno.EINVAL)
+        else:
+            self.fail("not raise OSError")
 
         for t in self.valid_len:
             self.abuf.len = mnl.MNL_ATTR_HDRLEN + self.valid_len[t][0]
@@ -141,35 +152,64 @@ class TestSuite(unittest.TestCase):
 
         for t in self.invalid_len:
             self.abuf.len = mnl.MNL_ATTR_HDRLEN + self.invalid_len[t][0]
-            self.assertRaises(OSError, self.nla.validate, t)
-            self.assertTrue(ctypes.get_errno() == errno.ERANGE)
-            self.assertRaises(OSError, self.nla.validate2, t, self.invalid_len[t][1])
-            self.assertTrue(ctypes.get_errno() == errno.ERANGE)
+            try:
+                self.nla.validate(t)
+            except OSError as e:
+                self.assertTrue(e.errno == errno.ERANGE)
+            else:
+                self.fail("not raise OSError")
+            try:
+                self.nla.validate2(t, self.invalid_len[t][1])
+            except OSError as e:
+                self.assertTrue(e.errno == errno.ERANGE)
+            else:
+                self.fail("not raise OSError")
 
         self.abuf.len = mnl.MNL_ATTR_HDRLEN + 1
-        self.assertRaises(OSError, self.nla.validate, mnl.MNL_TYPE_FLAG)
-        self.assertTrue(ctypes.get_errno() == errno.ERANGE)
+        try:
+            self.nla.validate(mnl.MNL_TYPE_FLAG)
+        except OSError as e:
+            self.assertTrue(e.errno == errno.ERANGE)
+        else:
+            self.fail("not raise OSError")
 
         self.abuf.len = 256
         self.abuf[self.abuf.len - 1] = 1
-        self.assertRaises(OSError, self.nla.validate, mnl.MNL_TYPE_NUL_STRING)
-        self.assertTrue(ctypes.get_errno() == errno.EINVAL)
+        try:
+            self.nla.validate(mnl.MNL_TYPE_NUL_STRING)
+        except OSError as e:
+            self.assertTrue(e.errno == errno.EINVAL)
+        else:
+            self.fail("not raise OSError")
+
         self.abuf[self.abuf.len - 1] = 0
         self.abuf.len = mnl.MNL_ATTR_HDRLEN
-        self.assertRaises(OSError, self.nla.validate, mnl.MNL_TYPE_NUL_STRING)
-        self.assertTrue(ctypes.get_errno() == errno.ERANGE)
+        try:
+            self.nla.validate(mnl.MNL_TYPE_NUL_STRING)
+        except OSError as e:
+            self.assertTrue(e.errno == errno.ERANGE)
+        else:
+            self.fail("not raise OSError")
 
         self.abuf.len = mnl.MNL_ATTR_HDRLEN
-        self.assertRaises(OSError, self.nla.validate, mnl.MNL_TYPE_STRING)
-        self.assertTrue(ctypes.get_errno() == errno.ERANGE)
+        try:
+            self.nla.validate(mnl.MNL_TYPE_STRING)
+        except OSError as e:
+            self.assertTrue(e.errno == errno.ERANGE)
+        else:
+            self.fail("not raise OSError")
 
         self.abuf.len = mnl.MNL_ATTR_HDRLEN
         # notRaises
         self.nla.validate(mnl.MNL_TYPE_NESTED)
 
         self.abuf.len = mnl.MNL_ATTR_HDRLEN + 1
-        self.assertRaises(OSError, self.nla.validate2, mnl.MNL_TYPE_NESTED, 0)
-        self.assertTrue(ctypes.get_errno() == errno.ERANGE)
+        try:
+            self.nla.validate2(mnl.MNL_TYPE_NESTED, 0)
+        except OSError as e:
+            self.assertTrue(e.errno == errno.ERANGE)
+        else:
+            self.fail("not raise OSError")
 
 
     def test_attr_parse(self):
@@ -232,7 +272,9 @@ class TestSuite(unittest.TestCase):
         @mnl.mnl_attr_cb_t
         def cb(attr, data):
             if not data: return mnl.MNL_CB_STOP
-            if atype[0] != attr.type: return mnl.MNL_CB_ERROR
+            if atype[0] != attr.type:
+                ctypes.set_errno(errno.EPERM)
+                return mnl.MNL_CB_ERROR
             atype[0] += 1
             return mnl.MNL_CB_OK
 
@@ -253,7 +295,9 @@ class TestSuite(unittest.TestCase):
         @mnl.mnl_attr_cb_t
         def cb(attr, data):
             if not data: return mnl.MNL_CB_STOP
-            if atype[0] != attr.type: return mnl.MNL_CB_ERROR
+            if atype[0] != attr.type:
+                ctypes.set_errno(errno.EPERM)
+                return mnl.MNL_CB_ERROR
             atype[0] += 1
             return mnl.MNL_CB_OK
 

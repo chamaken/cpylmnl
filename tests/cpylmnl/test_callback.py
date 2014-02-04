@@ -104,18 +104,29 @@ class TestSuite(unittest.TestCase):
     def test_cb_run2(self):
         self.assertEqual(mnl.cb_run2(self.nlmsghdr_noop, 1, 1, None, None), mnl.MNL_CB_OK)
         self.assertEqual(mnl.cb_run2(self.nlmsghdr_mintype, 1, 1, None, None), mnl.MNL_CB_OK)
-        self.assertRaises(OSError, mnl.cb_run2, self.nlmsghdr_error, 1, 1, None, None)
-        self.assertEquals(ctypes.get_errno(), errno.EPERM)
+        try:
+            mnl.cb_run2(self.nlmsghdr_error, 1, 1, None, None)
+        except OSError as e:
+            self.assertEquals(e.errno, errno.EPERM)
+        else:
+            self.fail("not raise OSError")
 
         @mnl.mnl_cb_t
         def cb_data(h, d):
             d is not None and d.append(h.type)
-            if h.type == 0xff: return mnl.MNL_CB_ERROR
+            if h.type == 0xff:
+                ctypes.set_errno(errno.ENOBUFS)
+                return mnl.MNL_CB_ERROR
             elif h.type == 0x7f: return mnl.MNL_CB_STOP
             else: return mnl.MNL_CB_OK
 
         l = []
-        self.assertRaises(OSError, mnl.cb_run2, self.nlmsghdr_typeFF, 1, 1, cb_data, l)
+        try:
+            mnl.cb_run2(self.nlmsghdr_typeFF, 1, 1, cb_data, l)
+        except OSError as e:
+            self.assertEquals(e.errno, errno.ENOBUFS)
+        else:
+            self.fail("not raise OSError")
 
         l = []
         ret = mnl.cb_run2(self.nlmsghdr_type7F, 1, 1, cb_data, l)
@@ -123,19 +134,31 @@ class TestSuite(unittest.TestCase):
         self.assertEqual(l[0], netlink.NLMSG_MIN_TYPE)
         self.assertEqual(l[1], 0x7f)
 
-        self.assertRaises(OSError, mnl.cb_run2, self.nlmsghdr_pid2, 1, 1, cb_data, None)
-        self.assertEqual(ctypes.get_errno(), errno.ESRCH)
-        
-        self.assertRaises(OSError, mnl.cb_run2, self.nlmsghdr_seq2, 1, 1, cb_data, None)
-        self.assertEqual(ctypes.get_errno(), errno.EPROTO)
+        try:
+            mnl.cb_run2(self.nlmsghdr_pid2, 1, 1, cb_data, None)
+        except OSError as e:
+            self.assertEqual(e.errno, errno.ESRCH)
+        else:
+            self.fail("not raise OSError")
+
+        try:
+            mnl.cb_run2(self.nlmsghdr_seq2, 1, 1, cb_data, None)
+        except OSError as e:
+            self.assertEqual(e.errno, errno.EPROTO)
+        else:
+            self.fail("not raise OSError")
 
         # Python2.6 returns -1 but could not get EINTR?
         if sys.version_info < (2, 7):
             ret = mnl.cb_run2(self.nlmsghdr_intr, 1, 1, cb_data, None)
             self.assertEquals(ret, mnl.MNL_CB_ERROR)
         else:
-            self.assertRaises(OSError, mnl.cb_run2, self.nlmsghdr_intr, 1, 1, cb_data, None)
-            self.assertEqual(ctypes.get_errno(), errno.EINTR)
+            try:
+                mnl.cb_run2(self.nlmsghdr_intr, 1, 1, cb_data, None)
+            except OSError as e:
+                self.assertEqual(e.errno, errno.EINTR)
+            else:
+                self.fail("not raise OSError")
 
         # with crl cb
         @mnl.header_cb
@@ -168,10 +191,18 @@ class TestSuite(unittest.TestCase):
                    netlink.NLMSG_ERROR: cb_err}
         self.assertEqual(mnl.cb_run2(self.nlmsghdr_noop, 1, 1, None, None, cb_ctls), mnl.MNL_CB_OK)
         self.assertEqual(mnl.cb_run2(self.nlmsghdr_done, 1, 1, None, None, cb_ctls), mnl.MNL_CB_STOP)
-        self.assertRaises(OSError, mnl.cb_run2, self.nlmsghdr_overrun, 1, 1, None, None, cb_ctls)
-        self.assertEqual(ctypes.get_errno(), errno.ENOSPC)
-        self.assertRaises(OSError, mnl.cb_run2, self.nlmsghdr_error, 1, 1, None, None, cb_ctls)
-        self.assertEqual(ctypes.get_errno(), errno.EPERM)
+        try:
+            mnl.cb_run2(self.nlmsghdr_overrun, 1, 1, None, None, cb_ctls)
+        except OSError as e:
+            self.assertEqual(e.errno, errno.ENOSPC)
+        else:
+            self.fail("not raise OSError")
+        try:
+            mnl.cb_run2(self.nlmsghdr_error, 1, 1, None, None, cb_ctls)
+        except OSError as e:
+            self.assertEqual(e.errno, errno.EPERM)
+        else:
+            self.fail("not raise OSError")
 
 
 if __name__ == '__main__':
