@@ -3,7 +3,7 @@
 from __future__ import absolute_import, print_function
 
 import ctypes # for Header put_header(), print(), mnl_attr_for_each_...
-from .cproto import HAS_MNL_RING
+from . import cproto
 from .linux import netlinkh as netlink
 from .attr import *
 from .nlmsg import *
@@ -83,7 +83,7 @@ class Header(netlink.Nlmsghdr):
         return ctypes.cast(ctypes.addressof(nlh), ctypes.POINTER(self.__class__)).contents, size
 
     def put_header(self):
-        c_nlmsg_put_header(ctypes.addressof(self))
+        cproto.c_nlmsg_put_header(ctypes.addressof(self))
 
     def fprint(self, elen, out=None):
         nlmsg_fprint(ctypes.ctypes.cast(ctypes.addressof(self), ctypes.POINTER(ctypes.c_ubyte * self.len)).contents, elen, out)
@@ -133,7 +133,7 @@ class Socket(object):
     def get_fd(self):			return socket_get_fd(self._nls)
     def get_portid(self):		return socket_get_portid(self._nls)
     def bind(self, groups, pid):	socket_bind(self._nls, groups, pid)
-    if HAS_MNL_RING:
+    if cproto.HAS_MNL_RING:
         def set_ringopt(self, rt, bs, bn, fs, fn):	socket_set_ringopt(self._nls, rt, bs, bn, fs, fn)
         def map_ring(self):		socket_map_ring(self._nls)
         def unmap_ring(self):		socket_unmap_ring(self._nls)
