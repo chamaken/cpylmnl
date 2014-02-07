@@ -116,7 +116,7 @@ def main():
             seq = int(time.time())
             for j, i in enumerate(list(range(1024, 65535))):
                 put_msg(b.current_v(), i, seq + j)
-                if b.next():
+                if b.next_batch():
                     continue
 
                 send_batch(nl, b, portid)

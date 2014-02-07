@@ -9,6 +9,7 @@ from . import attr
 from . import nlmsg
 from . import socket
 
+
 class Attribute(netlink.Nlattr):
     def get_type(self):			return attr.attr_get_type(self)
     def get_len(self):			return attr.attr_get_len(self)
@@ -110,19 +111,19 @@ class NlmsgBatch(object):
         self._buf = bytearray(bufsize) # for current_v()
         self._batch = nlmsg.nlmsg_batch_start(self._buf, limit)
 
-    def stop(self):	nlmsg.nlmsg_batch_stop(self._batch)
-    def next(self):	return nlmsg.nlmsg_batch_next(self._batch)
-    def reset(self):	nlmsg.nlmsg_batch_reset(self._batch)
-    def size(self):	return nlmsg.nlmsg_batch_size(self._batch)
-    def head(self):	return nlmsg.nlmsg_batch_head_v(self._batch)
-    def is_empty(self):	return nlmsg.nlmsg_batch_is_empty(self._batch)
-    def current(self):	return nlmsg.nlmsg_batch_current(self._batch)
+    def stop(self):		nlmsg.nlmsg_batch_stop(self._batch)
+    def next_batch(self):	return nlmsg.nlmsg_batch_next(self._batch)
+    def reset(self):		nlmsg.nlmsg_batch_reset(self._batch)
+    def size(self):		return nlmsg.nlmsg_batch_size(self._batch)
+    def head(self):		return nlmsg.nlmsg_batch_head_v(self._batch)
+    def is_empty(self):		return nlmsg.nlmsg_batch_is_empty(self._batch)
+    def current(self):		return nlmsg.nlmsg_batch_current(self._batch)
     def current_v(self):
         current = nlmsg.nlmsg_batch_current(self._batch)
         size =  nlmsg.nlmsg_batch_head(self._batch) + len(self._buf) - current
         return ctypes.cast(current, ctypes.POINTER(ctypes.c_ubyte * size)).contents
 
-    def __enter__(self): return self
+    def __enter__(self):	return self
     def __exit__(self, t, v, tb):
         self.stop()
         return False
@@ -154,8 +155,8 @@ class Socket(object):
 
 if cproto.HAS_MNL_RING:
     class Ring(object):
-        def __init__(self, ring):		self._ring = ring
-        def advance(self):			socket.ring_advance(self._ring)
+        def __init__(self, ring):	self._ring = ring
+        def advance(self):		socket.ring_advance(self._ring)
         def get_frame(self):		return socket.ring_get_frame(self._ring)
 
 
