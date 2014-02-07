@@ -199,7 +199,7 @@ def alarm_handler(signum, frame):
     global nl_socket
     global sending_nlh
 
-    nl_socket.send_nlmsg(sending_nlh)
+    nl_socket.send_nlmsg(sending_nlh) # XXX: will cause EBUSY if send while dumping
     for cur in nstats.itervalues():
         print("src={cur.addr} counters {cur.pkts} {cur.bytes}".format(cur=cur))
 
