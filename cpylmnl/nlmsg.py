@@ -141,3 +141,6 @@ nlmsg_batch_current	= cproto.c_nlmsg_batch_current
 ### check if there is any message in the batch
 # bool mnl_nlmsg_batch_is_empty(struct mnl_nlmsg_batch *b)
 nlmsg_batch_is_empty	= cproto.c_nlmsg_batch_is_empty
+
+
+__all__ = ["nlmsg_put_header"]

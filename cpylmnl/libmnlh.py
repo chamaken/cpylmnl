@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
 
-import resource
-import ctypes
+import resource, ctypes
+from . import cproto
 from .linux import netlinkh as netlink
 try:
     from enum import Enum
 except ImportError:
     Enum = object
-
-from .cproto import HAS_MNL_RING
 
 
 # Netlink socket API
@@ -70,10 +68,15 @@ SOL_NETLINK		= 270
 def MNL_ARRAY_SIZE(a):	return (ctypes.sizeof(a)/ctypes.sizeof((a)[0]))
 
 
-if HAS_MNL_RING:
+if cproto.HAS_MNL_RING:
     def MNL_FRAME_PAYLOAD(frame):
         return ctypes.cast(ctypes.addressof(frame) + netlink.NL_MMAP_HDRLEN,
                            ctypes.POINTER(ctypes.c_ubyte * frame.len)).contents
 
     MNL_RING_RX = 0
     MNL_RING_TX = 1
+
+
+import re
+export_symbol_exp = re.compile("^[A-Z]")
+__all__ = [s for s in globals().keys() if export_symbol_exp.search(s) is not None]

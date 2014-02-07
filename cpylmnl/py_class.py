@@ -152,10 +152,11 @@ class Socket(object):
         return False
 
 
-class Ring(object):
-    def __init__(self, ring):		self._ring = ring
-    def advance(self):			socket.ring_advance(self._ring)
-    def get_frame(self):		return socket.ring_get_frame(self._ring)
+if cproto.HAS_MNL_RING:
+    class Ring(object):
+        def __init__(self, ring):		self._ring = ring
+        def advance(self):			socket.ring_advance(self._ring)
+        def get_frame(self):		return socket.ring_get_frame(self._ring)
 
 
 # C macro: #define mnl_attr_for_each_payload(payload, payload_size)
@@ -165,3 +166,9 @@ def payload_attributes(payload): # buffer
     while a.ok(p + len(payload) - ctypes.addressof(a)):
         yield a
         a = a.next_attribute()
+
+
+if cproto.HAS_MNL_RING:
+    __all__ = ["Attribute", "Header", "put_new_header", "NlmsgBatch", "Socket", "payload_attributes", "Ring"]
+else:
+    __all__ = ["Attribute", "Header", "put_new_header", "NlmsgBatch", "Socket", "payload_attributes"]

@@ -206,3 +206,6 @@ attr_nest_end		= cproto.c_attr_nest_end
 # void
 # mnl_attr_nest_end(struct nlmsghdr *nlh, struct nlattr *start)
 attr_nest_cancel	= cproto.c_attr_nest_cancel
+
+
+__all__ = ["attr_parse_payload"]
