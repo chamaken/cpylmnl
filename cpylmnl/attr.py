@@ -7,7 +7,7 @@ import sys, os, errno, ctypes
 from .linux import netlinkh as netlink
 
 from . import cproto
-from .header import *
+from . import libmnlh
 
 """
 libmnl (http://www.netfilter.org/projects/libmnl/) attr.c
@@ -31,7 +31,7 @@ attr_get_payload_len	= cproto.c_attr_get_payload_len
 attr_get_payload	= cproto.c_attr_get_payload
 def attr_get_payload_v(attr):
     return ctypes.cast(cproto.c_attr_get_payload(attr),
-                ctypes.POINTER(ctypes.c_ubyte * (attr.len - MNL_ATTR_HDRLEN))).contents
+                ctypes.POINTER(ctypes.c_ubyte * (attr.len - libmnlh.MNL_ATTR_HDRLEN))).contents
 def attr_get_payload_as(attr, cls):
     return ctypes.cast(cproto.c_attr_get_payload(attr), ctypes.POINTER(cls)).contents
 

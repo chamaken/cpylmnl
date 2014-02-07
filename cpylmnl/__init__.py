@@ -2,7 +2,8 @@
 
 from __future__ import absolute_import
 
-from .header import *
+from .libmnlh import *
+
 from .attr import *
 from .nlmsg import *
 from .socket import *

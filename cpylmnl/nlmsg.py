@@ -6,7 +6,7 @@ import sys, os, errno, ctypes
 
 from .linux import netlinkh as netlink
 from . import cproto
-from .header import MNL_ALIGN
+from . import libmnlh
 
 """
 libmnl (http://www.netfilter.org/projects/libmnl/) nlmsg.c
@@ -41,7 +41,7 @@ def nlmsg_put_header(buf, cls=None):
 nlmsg_put_extra_header	= cproto.c_nlmsg_put_extra_header
 def nlmsg_put_extra_header_v(nlh, size):
     return ctypes.cast(cproto.c_nlmsg_put_extra_header(nlh, size),
-                ctypes.POINTER(ctypes.c_ubyte * MNL_ALIGN(size))).contents
+                ctypes.POINTER(ctypes.c_ubyte * libmnlh.MNL_ALIGN(size))).contents
 def nlmsg_put_extra_header_as(nlh, cls, size=None):
     if size is None:
         size = ctypes.sizeof(cls)
@@ -62,7 +62,7 @@ def nlmsg_get_payload_as(nlh, cls):
 nlmsg_get_payload_offset= cproto.c_nlmsg_get_payload_offset
 def nlmsg_get_payload_offset_v(nlh, offset):
     return ctypes.cast(cproto.c_nlmsg_get_payload_offset(nlh, offset),
-                ctypes.POINTER(ctypes.c_ubyte * (cproto.c_nlmsg_get_payload_len(nlh) - MNL_ALIGN(offset)))).contents
+                ctypes.POINTER(ctypes.c_ubyte * (cproto.c_nlmsg_get_payload_len(nlh) - libmnlh.MNL_ALIGN(offset)))).contents
 def nlmsg_get_payload_offset_as(nlh, offset, cls):
     return ctypes.cast(cproto.c_nlmsg_get_payload_offset(nlh, offset), ctypes.POINTER(cls)).contents
 
