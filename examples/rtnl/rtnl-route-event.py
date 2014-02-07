@@ -104,7 +104,10 @@ def data_ipv4_attr_cb(attr, tb):
             rtnl.RTA_METRICS : lambda x: x.validate(mnl.MNL_TYPE_NESTED),
             }
 
-    if ftbl.get(attr_type, lambda a: (0, None))(attr) < 0:
+    try:
+        ftbl.get(attr_type, lambda a: (0, None))(attr)
+    except OSError as e:
+        print("mnl_attr_validate: %s" % e, file=sys.stderr)
         return mnl.MNL_CB_ERROR
 
     tb[attr_type] = attr
@@ -131,7 +134,11 @@ def data_ipv6_attr_cb(attr, tb):
             rtnl.RTA_PRIORITY: lambda x: x.validate(mnl.MNL_TYPE_U32),
             rtnl.RTA_METRICS : lambda x: x.validate(mnl.MNL_TYPE_NESTED),
             }
-    if ftbl.get(attr_type, lambda a: (0, None))(attr) < 0:
+
+    try:
+        ftbl.get(attr_type, lambda a: (0, None))(attr)
+    except OSError as e:
+        print("mnl_attr_validate: %s" % e, file=sys.stderr)
         return mnl.MNL_CB_ERROR
 
     tb[attr_type] = attr

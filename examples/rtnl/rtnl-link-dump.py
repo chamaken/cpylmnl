@@ -8,7 +8,7 @@ import sys, logging, socket, time
 import cpylmnl as mnl
 import cpylmnl.linux.netlinkh as netlink
 import cpylmnl.linux.rtnetlinkh as rtnl
-from cpylmnl.linux import if_link, ifh
+from cpylmnl.linux import if_linkh, ifh
 
 
 log = logging.getLogger(__name__)
@@ -20,13 +20,13 @@ def data_attr_cb(attr, tb):
 
     # skip unsupported attribute in user-space
     try:
-        attr.type_valid(if_link.IFLA_MAX)
+        attr.type_valid(if_linkh.IFLA_MAX)
     except OSError as e:
         return mnl.MNL_CB_OK
 
-    ftbl = {if_link.IFLA_ADDRESS: lambda x: x.validate(mnl.MNL_TYPE_BINARY),
-            if_link.IFLA_MTU:     lambda x: x.validate(mnl.MNL_TYPE_U32),
-            if_link.IFLA_IFNAME:  lambda x: x.validate(mnl.MNL_TYPE_STRING)}
+    ftbl = {if_linkh.IFLA_ADDRESS: lambda x: x.validate(mnl.MNL_TYPE_BINARY),
+            if_linkh.IFLA_MTU:     lambda x: x.validate(mnl.MNL_TYPE_U32),
+            if_linkh.IFLA_IFNAME:  lambda x: x.validate(mnl.MNL_TYPE_STRING)}
 
     try:
         ftbl.get(attr_type, lambda x: 0)(attr)
@@ -51,12 +51,12 @@ def data_cb(nlh, tb):
     tb = dict()
     nlh.parse(rtnl.Ifinfomsg.sizeof(), data_attr_cb, tb)
 
-    if if_link.IFLA_MTU in tb:
-        print("mtu=%d " % tb[if_link.IFLA_MTU].get_u32(), end='')
-    if if_link.IFLA_IFNAME in tb:
-        print("name=%s " % tb[if_link.IFLA_IFNAME].get_str(), end='')
-    if if_link.IFLA_ADDRESS in tb:
-        hwaddr = tb[if_link.IFLA_ADDRESS].get_payload_v()
+    if if_linkh.IFLA_MTU in tb:
+        print("mtu=%d " % tb[if_linkh.IFLA_MTU].get_u32(), end='')
+    if if_linkh.IFLA_IFNAME in tb:
+        print("name=%s " % tb[if_linkh.IFLA_IFNAME].get_str(), end='')
+    if if_linkh.IFLA_ADDRESS in tb:
+        hwaddr = tb[if_linkh.IFLA_ADDRESS].get_payload_v()
         print("hwaddr=%s" % ":".join("%02x" % i for i in hwaddr), end='')
 
     print()

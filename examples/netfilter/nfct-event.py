@@ -82,15 +82,15 @@ def print_proto(nest):
     tb = dict()
 
     nest.parse_nested(parse_proto_cb, tb)
-    nfnlct.CTA_PROTO_NUM in tb:       and print("proto=%u " % tb[nfnlct.CTA_PROTO_NUM].get_u8(), end='')
-    nfnlct.CTA_PROTO_SRC_PORT in tb:  and \
+    if nfnlct.CTA_PROTO_NUM in tb:       print("proto=%u " % tb[nfnlct.CTA_PROTO_NUM].get_u8(), end='')
+    if nfnlct.CTA_PROTO_SRC_PORT in tb:
         print("sport=%u " % socket.ntohs(tb[nfnlct.CTA_PROTO_SRC_PORT].get_u16()), end='')
-    nfnlct.CTA_PROTO_DST_PORT in tb:  and \
+    if nfnlct.CTA_PROTO_DST_PORT in tb:
         print("dport=%u " % socket.ntohs(tb[nfnlct.CTA_PROTO_DST_PORT].get_u16()), end='')
-    nfnlct.CTA_PROTO_ICMP_ID in tb:   and
+    if nfnlct.CTA_PROTO_ICMP_ID in tb:
         print("id=%u " % socket.ntohs(tb[nfnlct.CTA_PROTO_ICMP_ID].get_u16()), end='')
-    nfnlct.CTA_PROTO_ICMP_TYPE in tb: and print("type=%u " % tb[nfnlct.CTA_PROTO_ICMP_TYPE].get_u8(), end='')
-    nfnlct.CTA_PROTO_ICMP_CODE in tb: and print("code=%u " % tb[nfnlct.CTA_PROTO_ICMP_CODE].get_u8(), end='')
+    if nfnlct.CTA_PROTO_ICMP_TYPE in tb: print("type=%u " % tb[nfnlct.CTA_PROTO_ICMP_TYPE].get_u8(), end='')
+    if nfnlct.CTA_PROTO_ICMP_CODE in tb: print("code=%u " % tb[nfnlct.CTA_PROTO_ICMP_CODE].get_u8(), end='')
 
 
 @mnl.attribute_cb
@@ -123,8 +123,8 @@ def print_tuple(nest):
     tb = dict()
 
     nest.parse_nested(parse_tuple_cb, tb)
-    nfnlct.CTA_TUPLE_IP in tb:    and print_ip(tb[nfnlct.CTA_TUPLE_IP])
-    nfnlct.CTA_TUPLE_PROTO in tb: and print_proto(tb[nfnlct.CTA_TUPLE_PROTO])
+    if nfnlct.CTA_TUPLE_IP in tb:    print_ip(tb[nfnlct.CTA_TUPLE_IP])
+    if nfnlct.CTA_TUPLE_PROTO in tb: print_proto(tb[nfnlct.CTA_TUPLE_PROTO])
 
 
 @mnl.attribute_cb
@@ -168,9 +168,9 @@ def data_cb(nlh, tb):
         print("%9s " % "[DESTROY] ", end='')
 
     nlh.parse(nfnl.Nfgenmsg.sizeof(), data_attr_cb, tb)
-    nfnlct.CTA_TUPLE_ORIG in tb: and print_tuple(tb[nfnlct.CTA_TUPLE_ORIG])
-    nfnlct.CTA_MARK in tb:       and print("mark=%u " % socket.ntohl(tb[nfnlct.CTA_MARK].get_u32()), end='')
-    nfnlct.CTA_SECMARK in tb:    and print("secmark=%u " % socket.ntohl(tb[nfnlct.CTA_SECMARK].get_u32()), end='')
+    if nfnlct.CTA_TUPLE_ORIG in tb: print_tuple(tb[nfnlct.CTA_TUPLE_ORIG])
+    if nfnlct.CTA_MARK in tb:       print("mark=%u " % socket.ntohl(tb[nfnlct.CTA_MARK].get_u32()), end='')
+    if nfnlct.CTA_SECMARK in tb:    print("secmark=%u " % socket.ntohl(tb[nfnlct.CTA_SECMARK].get_u32()), end='')
     print()
 
     return mnl.MNL_CB_OK
