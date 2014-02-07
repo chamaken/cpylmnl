@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from ctypes import *
+import ctypes
 
 import cpylmnl.linux.netlinkh as netlink
 import cpylmnl.linux.rtnetlinkh as rtnetlink
@@ -11,83 +11,83 @@ except ImportError:
 
 
 # This struct should be in sync with struct rtnl_link_stats64
-class RtnlLinkStats(Structure):
+class RtnlLinkStats(ctypes.Structure):
     """struct rtnl_link_stats
     """
-    _fields_ = [("rx_packets",		c_uint32), # __u32 rx_packets	 /* total packets received	 */
-                ("tx_packets",		c_uint32), # __u32 tx_packets	 /* total packets transmitted	 */
-                ("rx_bytes",		c_uint32), # __u32 rx_bytes	 /* total bytes received	 */
-                ("tx_bytes",		c_uint32), # __u32 tx_bytes	 /* total bytes transmitted	 */
-                ("rx_errors",		c_uint32), # __u32 rx_errors	 /* bad packets received	 */
-                ("tx_errors",		c_uint32), # __u32 tx_errors	 /* packet transmit problems	 */
-                ("rx_dropped",		c_uint32), # __u32 rx_dropped	 /* no space in linux buffers	 */
-                ("tx_dropped",		c_uint32), # __u32 tx_dropped	 /* no space available in linux	 */
-                ("multicast",		c_uint32), # __u32 multicast	 /* multicast packets received	 */
-                ("collisions",		c_uint32), # __u32 collisions
+    _fields_ = [("rx_packets",		ctypes.c_uint32), # __u32 rx_packets	 /* total packets received	 */
+                ("tx_packets",		ctypes.c_uint32), # __u32 tx_packets	 /* total packets transmitted	 */
+                ("rx_bytes",		ctypes.c_uint32), # __u32 rx_bytes	 /* total bytes received	 */
+                ("tx_bytes",		ctypes.c_uint32), # __u32 tx_bytes	 /* total bytes transmitted	 */
+                ("rx_errors",		ctypes.c_uint32), # __u32 rx_errors	 /* bad packets received	 */
+                ("tx_errors",		ctypes.c_uint32), # __u32 tx_errors	 /* packet transmit problems	 */
+                ("rx_dropped",		ctypes.c_uint32), # __u32 rx_dropped	 /* no space in linux buffers	 */
+                ("tx_dropped",		ctypes.c_uint32), # __u32 tx_dropped	 /* no space available in linux	 */
+                ("multicast",		ctypes.c_uint32), # __u32 multicast	 /* multicast packets received	 */
+                ("collisions",		ctypes.c_uint32), # __u32 collisions
 
                 ## detailed rx_errors:
-                ("rx_length_errors",	c_uint32), # __u32 rx_length_errors
-                ("rx_over_errors",	c_uint32), # __u32 rx_over_errors   /* receiver ring buff overflow  */
-                ("rx_crc_errors",	c_uint32), # __u32 rx_crc_errors    /* recved pkt with crc error    */
-                ("rx_frame_errors",	c_uint32), # __u32 rx_frame_errors  /* recv'd frame alignment error */
-                ("rx_fifo_errors",	c_uint32), # __u32 rx_fifo_errors   /* recv'r fifo overrun	    */
-                ("rx_missed_errors",	c_uint32), # __u32 rx_missed_errors /* receiver missed packet	    */
+                ("rx_length_errors",	ctypes.c_uint32), # __u32 rx_length_errors
+                ("rx_over_errors",	ctypes.c_uint32), # __u32 rx_over_errors   /* receiver ring buff overflow  */
+                ("rx_crc_errors",	ctypes.c_uint32), # __u32 rx_crc_errors    /* recved pkt with crc error    */
+                ("rx_frame_errors",	ctypes.c_uint32), # __u32 rx_frame_errors  /* recv'd frame alignment error */
+                ("rx_fifo_errors",	ctypes.c_uint32), # __u32 rx_fifo_errors   /* recv'r fifo overrun	    */
+                ("rx_missed_errors",	ctypes.c_uint32), # __u32 rx_missed_errors /* receiver missed packet	    */
 
                 ## detailed tx_errors
-                ("tx_aborted_errors",	c_uint32), # __u32 tx_aborted_errors
-                ("tx_carrier_errors",	c_uint32), # __u32 tx_carrier_errors
-                ("tx_fifo_errors",	c_uint32), # __u32 tx_fifo_errors
-                ("tx_heartbear_errors",	c_uint32), # __u32 tx_heartbeat_errors
-                ("tx_window_errors",	c_uint32), # __u32 tx_window_errors
+                ("tx_aborted_errors",	ctypes.c_uint32), # __u32 tx_aborted_errors
+                ("tx_carrier_errors",	ctypes.c_uint32), # __u32 tx_carrier_errors
+                ("tx_fifo_errors",	ctypes.c_uint32), # __u32 tx_fifo_errors
+                ("tx_heartbear_errors",	ctypes.c_uint32), # __u32 tx_heartbeat_errors
+                ("tx_window_errors",	ctypes.c_uint32), # __u32 tx_window_errors
 
                 ## for cslip etc
-                ("rx_compressed",	c_uint32), # __u32 rx_compressed
-                ("tx_compressed",	c_uint32)] # __u32 tx_compressed
+                ("rx_compressed",	ctypes.c_uint32), # __u32 rx_compressed
+                ("tx_compressed",	ctypes.c_uint32)] # __u32 tx_compressed
 
 # The main device statistics structure
-class RtnlLinkStats64(Structure):
+class RtnlLinkStats64(ctypes.Structure):
     """struct rtnl_link_stats64
     """
-    _fields_ = [("rx_packets",		c_uint64), # __u64 rx_packets	 /* total packets received	 */
-                ("tx_packets",		c_uint64), # __u64 tx_packets	 /* total packets transmitted	 */
-                ("rx_bytes",		c_uint64), # __u64 rx_bytes	 /* total bytes received	 */
-                ("tx_bytes",		c_uint64), # __u64 tx_bytes	 /* total bytes transmitted	 */
-                ("rx_errors",		c_uint64), # __u64 rx_errors	 /* bad packets received	 */
-                ("tx_errors",		c_uint64), # __u64 tx_errors	 /* packet transmit problems	 */
-                ("rx_dropped",		c_uint64), # __u64 rx_dropped	 /* no space in linux buffers	 */
-                ("tx_dropped",		c_uint64), # __u64 tx_dropped	 /* no space available in linux	 */
-                ("multicast",		c_uint64), # __u64 multicast	 /* multicast packets received	 */
-                ("collisions",		c_uint64), # __u64 collisions
+    _fields_ = [("rx_packets",		ctypes.c_uint64), # __u64 rx_packets	 /* total packets received	 */
+                ("tx_packets",		ctypes.c_uint64), # __u64 tx_packets	 /* total packets transmitted	 */
+                ("rx_bytes",		ctypes.c_uint64), # __u64 rx_bytes	 /* total bytes received	 */
+                ("tx_bytes",		ctypes.c_uint64), # __u64 tx_bytes	 /* total bytes transmitted	 */
+                ("rx_errors",		ctypes.c_uint64), # __u64 rx_errors	 /* bad packets received	 */
+                ("tx_errors",		ctypes.c_uint64), # __u64 tx_errors	 /* packet transmit problems	 */
+                ("rx_dropped",		ctypes.c_uint64), # __u64 rx_dropped	 /* no space in linux buffers	 */
+                ("tx_dropped",		ctypes.c_uint64), # __u64 tx_dropped	 /* no space available in linux	 */
+                ("multicast",		ctypes.c_uint64), # __u64 multicast	 /* multicast packets received	 */
+                ("collisions",		ctypes.c_uint64), # __u64 collisions
 
                 ## detailed rx_errors:
-                ("rx_length_errors",	c_uint64), # __u64 rx_length_errors
-                ("rx_over_errors",	c_uint64), # __u64 rx_over_errors   /* receiver ring buff overflow  */
-                ("rx_crc_errors",	c_uint64), # __u64 rx_crc_errors    /* recved pkt with crc error    */
-                ("rx_frame_errors",	c_uint64), # __u64 rx_frame_errors  /* recv'd frame alignment error */
-                ("rx_fifo_errors",	c_uint64), # __u64 rx_fifo_errors   /* recv'r fifo overrun	    */
-                ("rx_missed_errors",	c_uint64), # __u64 rx_missed_errors /* receiver missed packet	    */
+                ("rx_length_errors",	ctypes.c_uint64), # __u64 rx_length_errors
+                ("rx_over_errors",	ctypes.c_uint64), # __u64 rx_over_errors   /* receiver ring buff overflow  */
+                ("rx_crc_errors",	ctypes.c_uint64), # __u64 rx_crc_errors    /* recved pkt with crc error    */
+                ("rx_frame_errors",	ctypes.c_uint64), # __u64 rx_frame_errors  /* recv'd frame alignment error */
+                ("rx_fifo_errors",	ctypes.c_uint64), # __u64 rx_fifo_errors   /* recv'r fifo overrun	    */
+                ("rx_missed_errors",	ctypes.c_uint64), # __u64 rx_missed_errors /* receiver missed packet	    */
 
                 ## detailed tx_errors
-                ("tx_aborted_errors",	c_uint64), # __u64 tx_aborted_errors
-                ("tx_carrier_errors",	c_uint64), # __u64 tx_carrier_errors
-                ("tx_fifo_errors",	c_uint64), # __u64 tx_fifo_errors
-                ("tx_heartbear_errors",	c_uint64), # __u64 tx_heartbeat_errors
-                ("tx_window_errors",	c_uint64), # __u64 tx_window_errors
+                ("tx_aborted_errors",	ctypes.c_uint64), # __u64 tx_aborted_errors
+                ("tx_carrier_errors",	ctypes.c_uint64), # __u64 tx_carrier_errors
+                ("tx_fifo_errors",	ctypes.c_uint64), # __u64 tx_fifo_errors
+                ("tx_heartbear_errors",	ctypes.c_uint64), # __u64 tx_heartbeat_errors
+                ("tx_window_errors",	ctypes.c_uint64), # __u64 tx_window_errors
 
                 ## for cslip etc
-                ("rx_compressed",	c_uint64), # __u64 rx_compressed
-                ("tx_compressed",	c_uint64)] # __u64 tx_compressed
+                ("rx_compressed",	ctypes.c_uint64), # __u64 rx_compressed
+                ("tx_compressed",	ctypes.c_uint64)] # __u64 tx_compressed
 
 # The struct should be in sync with struct ifmap
-class RtnlLinkIfmap(Structure):
+class RtnlLinkIfmap(ctypes.Structure):
     """struct rtnl_link_ifmap
     """
-    _fields_ = [("mem_start",	c_uint64), # __u64	mem_start
-                ("mem_end",	c_uint64), # __u64	mem_end
-                ("base_addr",	c_uint64), # __u64	base_addr
-                ("irq",		c_uint16), # __u16	irq
-                ("dma",		c_uint8),  # __u8	dma
-                ("port",	c_uint8)]  # __u8	port
+    _fields_ = [("mem_start",	ctypes.c_uint64), # __u64	mem_start
+                ("mem_end",	ctypes.c_uint64), # __u64	mem_end
+                ("base_addr",	ctypes.c_uint64), # __u64	base_addr
+                ("irq",		ctypes.c_uint16), # __u16	irq
+                ("dma",		ctypes.c_uint8),  # __u8	dma
+                ("port",	ctypes.c_uint8)]  # __u8	port
 
 
 # IFLA_AF_SPEC
@@ -147,10 +147,10 @@ IFLA_MAX = (__IFLA_MAX - 1)
 
 
 # backwards compatibility for userspace
-#define IFLA_RTA(r)  ((struct rtattr*)(((char*)(r)) + NLMSG_ALIGN(sizeof(struct ifinfomsg))))
-def IFLA_RTA(r):	return rtnetlink.Rtattr.pointer(addressof(r) + netlink.NLMSG_ALIGN(sizeof(rtnetlink.Ifinfomsg)))
-#define IFLA_PAYLOAD(n) NLMSG_PAYLOAD(n,sizeof(struct ifinfomsg))
-def IFLA_PAYLOAD(n):	return netlink.NLMSG_PAYLOAD(n, sizeof(rtnetlink.Ifinfomsg))
+#define IFLA_RTA(r)  ((struct rtattr*)(((char*)(r)) + NLMSG_ALIGN(ctypes.sizeof(struct ifinfomsg))))
+def IFLA_RTA(r):	return rtnetlink.Rtattr.pointer(addressof(r) + netlink.NLMSG_ALIGN(ctypes.sizeof(rtnetlink.Ifinfomsg)))
+#define IFLA_PAYLOAD(n) NLMSG_PAYLOAD(n,ctypes.sizeof(struct ifinfomsg))
+def IFLA_PAYLOAD(n):	return netlink.NLMSG_PAYLOAD(n, ctypes.sizeof(rtnetlink.Ifinfomsg))
 
 
 # enum
@@ -218,13 +218,13 @@ IFLA_BRPORT_UNICAST_FLOOD	= 9  # flood unicast traffic
 __IFLA_BRPORT_MAX		= 10
 IFLA_BRPORT_MAX			= (__IFLA_BRPORT_MAX - 1)
 
-class IflaCacheinfo(Structure):
+class IflaCacheinfo(ctypes.Structure):
     """struct ifla_cacheinfo
     """
-    _fields_ = [("max_reasm_len",	c_uint32), # __u32 max_reasm_len;
-                ("tstamp",		c_uint32), # __u32 tstamp;         /* ipv6InterfaceTable updated timestamp */
-                ("reachable_time",	c_uint32), # __u32 reachable_time;
-                ("retrans_time",	c_uint32)] # __u32 retrans_time;
+    _fields_ = [("max_reasm_len",	ctypes.c_uint32), # __u32 max_reasm_len;
+                ("tstamp",		ctypes.c_uint32), # __u32 tstamp;         /* ipv6InterfaceTable updated timestamp */
+                ("reachable_time",	ctypes.c_uint32), # __u32 reachable_time;
+                ("retrans_time",	ctypes.c_uint32)] # __u32 retrans_time;
 
 # enum
 IFLA_INFO_UNSPEC	= 0
@@ -246,11 +246,11 @@ IFLA_VLAN_PROTOCOL	= 5
 __IFLA_VLAN_MAX		= 6
 IFLA_VLAN_MAX		= (__IFLA_VLAN_MAX - 1)
 
-class IflaVlanFlags(Structure):
+class IflaVlanFlags(ctypes.Structure):
     """struct ifla_vlan_flags
     """
-    _fields_ = [("flags",	c_uint32), # __u32 flags
-                ("mask",	c_uint32)] # __u32 mask
+    _fields_ = [("flags",	ctypes.c_uint32), # __u32 flags
+                ("mask",	ctypes.c_uint32)] # __u32 mask
 
 # enum
 IFLA_VLAN_QOS_UNSPEC	= 0
@@ -258,11 +258,11 @@ IFLA_VLAN_QOS_MAPPING	= 1
 __IFLA_VLAN_QOS_MAX	= 2
 IFLA_VLAN_QOS_MAX	= (__IFLA_VLAN_QOS_MAX - 1)
 
-class IflaVlanQosMapping(Structure):
+class IflaVlanQosMapping(ctypes.Structure):
     """struct ifla_vlan_qos_mapping
     """
-    _fields_ = [("from",	c_uint32), # __u32 from
-                ("to",		c_uint32)] # __u32 to
+    _fields_ = [("from",	ctypes.c_uint32), # __u32 from
+                ("to",		ctypes.c_uint32)] # __u32 to
 
 
 # MACVLAN section
@@ -308,11 +308,11 @@ IFLA_VXLAN_LOCAL6	= 17
 __IFLA_VXLAN_MAX	= 18
 IFLA_VXLAN_MAX		= (__IFLA_VXLAN_MAX - 1)
 
-class IflaVxlanPortRange(Structure):
+class IflaVxlanPortRange(ctypes.Structure):
     """struct ifla_vxlan_port_range
     """
-    _fields_ = [("low",		c_uint16), # __be16 low
-                ("high", 	c_uint16)] # __be16 high
+    _fields_ = [("low",		ctypes.c_uint16), # __be16 low
+                ("high", 	ctypes.c_uint16)] # __be16 high
 
 
 # Bonding section
@@ -341,30 +341,30 @@ IFLA_VF_LINK_STATE	= 5  # link state enable/disable/auto switch
 __IFLA_VF_MAX		= 6
 IFLA_VF_MAX		= (__IFLA_VF_MAX - 1)
 
-class IflaVfMac(Structure):
+class IflaVfMac(ctypes.Structure):
     """struct ifla_vf_mac
     """
-    _fields_ = [("vf",	c_uint32),     # __u32 vf
-                ("mac",	c_uint8 * 32)] # __u8 mac[32] /* MAX_ADDR_LEN */
+    _fields_ = [("vf",	ctypes.c_uint32),     # __u32 vf
+                ("mac",	ctypes.c_uint8 * 32)] # __u8 mac[32] /* MAX_ADDR_LEN */
 
-class IflaVfVlan(Structure):
+class IflaVfVlan(ctypes.Structure):
     """struct ifla_vf_vlan
     """
-    _fields_ = [("vf",		c_uint32), # __u32 vf
-                ("vlan",	c_uint32), # __u32 vlan; /* 0 - 4095, 0 disables VLAN filter */
-                ("qos", 	c_uint32)] # __u32 qos
+    _fields_ = [("vf",		ctypes.c_uint32), # __u32 vf
+                ("vlan",	ctypes.c_uint32), # __u32 vlan; /* 0 - 4095, 0 disables VLAN filter */
+                ("qos", 	ctypes.c_uint32)] # __u32 qos
 
-class IflaVfTxRate(Structure):
+class IflaVfTxRate(ctypes.Structure):
     """struct ifla_vf_tx_rate
     """
-    _fields_ = [("vf", 		c_uint32), # __u32 vf
-                ("rate", 	c_uint32)] # __u32 rate; /* Max TX bandwidth in Mbps, 0 disables throttling */
+    _fields_ = [("vf", 		ctypes.c_uint32), # __u32 vf
+                ("rate", 	ctypes.c_uint32)] # __u32 rate; /* Max TX bandwidth in Mbps, 0 disables throttling */
 
-class IflaVfSpoofchk(Structure):
+class IflaVfSpoofchk(ctypes.Structure):
     """struct ifla_vf_spoofchk
     """
-    _fields_ = [("vf", 		c_uint32), # __u32 vf
-                ("setting", 	c_uint32)] # __u32 setting
+    _fields_ = [("vf", 		ctypes.c_uint32), # __u32 vf
+                ("setting", 	ctypes.c_uint32)] # __u32 setting
 
 # enum
 IFLA_VF_LINK_STATE_AUTO		= 0  # link state of the uplink
@@ -372,11 +372,11 @@ IFLA_VF_LINK_STATE_ENABLE	= 1  # link always up
 IFLA_VF_LINK_STATE_DISABLE	= 2  # link always down
 __IFLA_VF_LINK_STATE_MAX	= 3
 
-class IflaVfLinkState(Structure):
+class IflaVfLinkState(ctypes.Structure):
     """struct ifla_vf_link_state
     """
-    _fields_ = [("vf",		c_uint32), # __u32 vf
-                ("link_state",	c_uint32)] # __u32 link_state
+    _fields_ = [("vf",		ctypes.c_uint32), # __u32 vf
+                ("link_state",	ctypes.c_uint32)] # __u32 link_state
 
 
 # VF ports management section
@@ -437,13 +437,13 @@ PORT_PROFILE_RESPONSE_BADSTATE			= 259
 PORT_PROFILE_RESPONSE_INSUFFICIENT_RESOURCES	= 260
 PORT_PROFILE_RESPONSE_ERROR			= 261
 
-class IflaPortVsi(Structure):
+class IflaPortVsi(ctypes.Structure):
     """struct ifla_port_vsi
     """
-    _fields_ = [("mgr_id", 		c_uint8),	# __u8 vsi_mgr_id
-                ("type_id",		(c_uint8 * 3)), # __u8 vsi_type_id[3]
-                ("type_version",	c_uint8),	# __u8 vsi_type_version
-                ("pad",			(c_uint8 * 3))] # __u8 pad[3]
+    _fields_ = [("mgr_id", 		ctypes.c_uint8),	# __u8 vsi_mgr_id
+                ("type_id",		(ctypes.c_uint8 * 3)), # __u8 vsi_type_id[3]
+                ("type_version",	ctypes.c_uint8),	# __u8 vsi_type_version
+                ("pad",			(ctypes.c_uint8 * 3))] # __u8 pad[3]
 
 
 # IPoIB section

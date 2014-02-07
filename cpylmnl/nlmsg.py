@@ -2,8 +2,7 @@
 
 from __future__ import absolute_import, print_function
 
-import sys, os, errno
-from ctypes import *
+import sys, os, errno, ctypes
 
 from .linux import netlinkh as netlink
 from .cproto import *
@@ -27,7 +26,7 @@ nlmsg_get_payload_len	= c_nlmsg_get_payload_len
 def nlmsg_put_header(buf, cls=None):
     # share the buffer
     # returned nlmsghdr will be invalid if param buf is GCed - set to new value, None
-    c_buf = (c_ubyte * len(buf)).from_buffer(buf)
+    c_buf = (ctypes.c_ubyte * len(buf)).from_buffer(buf)
     ret = c_nlmsg_put_header(c_buf)
     if cls is None:
         return ret.contents
@@ -41,31 +40,31 @@ def nlmsg_put_header(buf, cls=None):
 # mnl_nlmsg_put_extra_header(struct nlmsghdr *nlh, size_t size)
 nlmsg_put_extra_header	= c_nlmsg_put_extra_header
 def nlmsg_put_extra_header_v(nlh, size):
-    return cast(c_nlmsg_put_extra_header(nlh, size),
-                POINTER(c_ubyte * MNL_ALIGN(size))).contents
+    return ctypes.cast(c_nlmsg_put_extra_header(nlh, size),
+                ctypes.POINTER(ctypes.c_ubyte * MNL_ALIGN(size))).contents
 def nlmsg_put_extra_header_as(nlh, cls, size=None):
     if size is None:
-        size = sizeof(cls)
-    return cast(c_nlmsg_put_extra_header(nlh, size), POINTER(cls)).contents
+        size = ctypes.sizeof(cls)
+    return ctypes.cast(c_nlmsg_put_extra_header(nlh, size), ctypes.POINTER(cls)).contents
 
 ### get a pointer to the payload of the netlink message
 # void *mnl_nlmsg_get_payload(const struct nlmsghdr *nlh)
 nlmsg_get_payload	= c_nlmsg_get_payload
 def nlmsg_get_payload_v(nlh):
-    return cast(c_nlmsg_get_payload(nlh),
-                POINTER(c_ubyte * c_nlmsg_get_payload_len(nlh))).contents
+    return ctypes.cast(c_nlmsg_get_payload(nlh),
+                ctypes.POINTER(ctypes.c_ubyte * c_nlmsg_get_payload_len(nlh))).contents
 def nlmsg_get_payload_as(nlh, cls):
-    return cast(c_nlmsg_get_payload(nlh), POINTER(cls)).contents
+    return ctypes.cast(c_nlmsg_get_payload(nlh), ctypes.POINTER(cls)).contents
 
 ### get a pointer to the payload of the message
 # void *
 # mnl_nlmsg_get_payload_offset(const struct nlmsghdr *nlh, size_t offset)
 nlmsg_get_payload_offset= c_nlmsg_get_payload_offset
 def nlmsg_get_payload_offset_v(nlh, offset):
-    return cast(c_nlmsg_get_payload_offset(nlh, offset),
-                POINTER(c_ubyte * (c_nlmsg_get_payload_len(nlh) - MNL_ALIGN(offset)))).contents
+    return ctypes.cast(c_nlmsg_get_payload_offset(nlh, offset),
+                ctypes.POINTER(ctypes.c_ubyte * (c_nlmsg_get_payload_len(nlh) - MNL_ALIGN(offset)))).contents
 def nlmsg_get_payload_offset_as(nlh, offset, cls):
-    return cast(c_nlmsg_get_payload_offset(nlh, offset), POINTER(cls)).contents
+    return ctypes.cast(c_nlmsg_get_payload_offset(nlh, offset), ctypes.POINTER(cls)).contents
 
 ### check a there is room for netlink message
 # bool mnl_nlmsg_ok(const struct nlmsghdr *nlh, int len)
@@ -75,8 +74,8 @@ nlmsg_ok		= c_nlmsg_ok
 # struct nlmsghdr *
 # mnl_nlmsg_next(const struct nlmsghdr *nlh, int *len)
 def nlmsg_next(nlh, size):
-    csize = c_int(size)
-    return c_nlmsg_next(nlh, byref(csize)).contents, csize.value
+    csize = ctypes.c_int(size)
+    return c_nlmsg_next(nlh, ctypes.byref(csize)).contents, csize.value
 
 ### get the ending of the netlink message
 # void *mnl_nlmsg_get_payload_tail(const struct nlmsghdr *nlh)
@@ -98,7 +97,7 @@ nlmsg_portid_ok		= c_nlmsg_portid_ok
 #                   size_t extra_header_size)
 def nlmsg_fprint(buf, extra_header_size, out=None):
     if out is None: out = sys.__stdout__
-    c_buf = (c_ubyte * len(buf)).from_buffer(buf)
+    c_buf = (ctypes.c_ubyte * len(buf)).from_buffer(buf)
     f = c_fdopen(out.fileno(), out.mode)
     c_nlmsg_fprintf(f, c_buf, len(buf), extra_header_size)
 
@@ -109,7 +108,7 @@ def nlmsg_fprint(buf, extra_header_size, out=None):
 ### initialize a batch
 # struct mnl_nlmsg_batch *mnl_nlmsg_batch_start(void *buf, size_t limit)
 def nlmsg_batch_start(buf, limit):
-    c_buf = (c_ubyte * len(buf)).from_buffer(buf)
+    c_buf = (ctypes.c_ubyte * len(buf)).from_buffer(buf)
     return c_nlmsg_batch_start(c_buf, limit)
 
 ### release a batch
@@ -132,7 +131,7 @@ nlmsg_batch_size	= c_nlmsg_batch_size
 # void *mnl_nlmsg_batch_head(struct mnl_nlmsg_batch *b)
 nlmsg_batch_head	= c_nlmsg_batch_head
 def nlmsg_batch_head_v(b):
-    return cast(c_nlmsg_batch_head(b), POINTER(c_ubyte * nlmsg_batch_size(b))).contents
+    return ctypes.cast(c_nlmsg_batch_head(b), ctypes.POINTER(ctypes.c_ubyte * nlmsg_batch_size(b))).contents
 
 ### returns current position in the batch
 # void *mnl_nlmsg_batch_current(struct mnl_nlmsg_batch *b)

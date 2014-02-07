@@ -2,8 +2,7 @@
 
 from __future__ import absolute_import, print_function
 
-import sys, os, errno
-from ctypes import *
+import sys, os, errno, ctypes
 
 from .linux import netlinkh as netlink
 from .cproto import *
@@ -30,10 +29,10 @@ attr_get_payload_len	= c_attr_get_payload_len
 # void *mnl_attr_get_payload(const struct nlattr *attr)
 attr_get_payload	= c_attr_get_payload
 def attr_get_payload_v(attr):
-    return cast(c_attr_get_payload(attr),
-                POINTER(c_ubyte * (attr.len - MNL_ATTR_HDRLEN))).contents
+    return ctypes.cast(c_attr_get_payload(attr),
+                ctypes.POINTER(ctypes.c_ubyte * (attr.len - MNL_ATTR_HDRLEN))).contents
 def attr_get_payload_as(attr, cls):
-    return cast(c_attr_get_payload(attr), POINTER(cls)).contents
+    return ctypes.cast(c_attr_get_payload(attr), ctypes.POINTER(cls)).contents
 
 ### check if there is room for an attribute in a buffer
 # bool mnl_attr_ok(const struct nlattr *attr, int len)
@@ -86,7 +85,7 @@ def attr_parse_nested(attr, cb, data):
 # int mnl_attr_parse_payload(const void *payload, size_t payload_len,
 # 	                     mnl_attr_cb_t cb, void *data)
 def attr_parse_payload(payload, cb, data):
-    b = (c_ubyte * len(payload)).from_buffer(payload)
+    b = (ctypes.c_ubyte * len(payload)).from_buffer(payload)
     ret = c_attr_parse_payload(b, len(payload), cb, data)
     if ret < 0: raise os_error()
     return ret
@@ -118,7 +117,7 @@ def attr_put(nlh, attr_type, data):
     if hasattr(data, "sizeof"): size = data.sizeof() # netlink.UStructure
     else: size = len(data)
     
-    c_attr_put(nlh, attr_type, size, (c_ubyte * size).from_buffer(data))
+    c_attr_put(nlh, attr_type, size, (ctypes.c_ubyte * size).from_buffer(data))
 
 ### add 8-bit unsigned integer attribute to netlink message
 # void mnl_attr_put_u8(struct nlmsghdr *nlh, uint16_t type, uint8_t data)
@@ -153,7 +152,7 @@ def attr_nest_start(nlh, attr_type):
 # bool mnl_attr_put_check(struct nlmsghdr *nlh, size_t buflen,
 #                         uint16_t type, size_t len, const void *data)
 def attr_put_check(nlh, buflen, attr_type, data):
-    cbuf = (c_ubyte * len(data)).from_buffer(data)
+    cbuf = (ctypes.c_ubyte * len(data)).from_buffer(data)
     return c_attr_put_check(nlh, buflen, attr_type, len(data), cbuf)
 
 ### add 8-bit unsigned int attribute to netlink message

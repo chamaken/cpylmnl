@@ -1,16 +1,17 @@
 # -*- coding: utf-8 -*-
 
-from ctypes import *
+import ctypes
+
 import cpylmnl.linux.netlinkh as netlink
 import cpylmnl.linux.rtnetlinkh as rtnetlink
 from cpylmnl.nlstruct import NLStructure
 
 class Ifaddrmsg(NLStructure):
-    _fields_ = [("family",	c_uint8),  # __u8 ifa_family
-                ("prefixlen",	c_uint8),  # __u8 ifa_prefixlen /* The prefix length            */
-                ("flags",	c_uint8),  # __u8 ifa_flags     /* Flags                        */
-                ("scope",	c_uint8),  # __u8 ifa_scope     /* Address scope                */
-                ("index",	c_uint32)] # __u32 ifa_index    /* Link index                   */
+    _fields_ = [("family",	ctypes.c_uint8),  # __u8 ifa_family
+                ("prefixlen",	ctypes.c_uint8),  # __u8 ifa_prefixlen /* The prefix length            */
+                ("flags",	ctypes.c_uint8),  # __u8 ifa_flags     /* Flags                        */
+                ("scope",	ctypes.c_uint8),  # __u8 ifa_scope     /* Address scope                */
+                ("index",	ctypes.c_uint32)] # __u32 ifa_index    /* Link index                   */
 
 # Important comment:
 # IFA_ADDRESS is prefix address, rather than local interface address.
@@ -40,17 +41,17 @@ IFA_F_DEPRECATED	= 0x20
 IFA_F_TENTATIVE		= 0x40
 IFA_F_PERMANENT		= 0x80
 
-class IfaCacheinfo(Structure):
+class IfaCacheinfo(ctypes.Structure):
     """struct ifa_cacheinfo
     """
-    _fields_ = [("prefered",	c_uint32), # __u32 ifa_prefered
-                ("valid",	c_uint32), # __u32 ifa_valid
-                ("cstamp",	c_uint32), # __u32 cstamp /* created timestamp, hundredths of seconds */
-                ("tstamp",	c_uint32)] # __u32 tstamp /* updated timestamp, hundredths of seconds */
+    _fields_ = [("prefered",	ctypes.c_uint32), # __u32 ifa_prefered
+                ("valid",	ctypes.c_uint32), # __u32 ifa_valid
+                ("cstamp",	ctypes.c_uint32), # __u32 cstamp /* created timestamp, hundredths of seconds */
+                ("tstamp",	ctypes.c_uint32)] # __u32 tstamp /* updated timestamp, hundredths of seconds */
 
 
 # backwards compatibility for userspace
-#define IFA_RTA(r)  ((struct rtattr*)(((char*)(r)) + NLMSG_ALIGN(sizeof(struct ifaddrmsg))))
-def IFA_RTA(r):	    	return rtnetlink.Rtattr.pointer(addressof(r) + netlink.NLMSG_ALIGN(sizeof(Ifaddrmsg)))
-#define IFA_PAYLOAD(n) NLMSG_PAYLOAD(n,sizeof(struct ifaddrmsg))
-def IFA_PAYLOAD(n):	return netlink.NLMSG_PAYLOAD(n, sizeof(Ifaddrmsg))
+#define IFA_RTA(r)  ((struct rtattr*)(((char*)(r)) + NLMSG_ALIGN(ctypes.sizeof(struct ifaddrmsg))))
+def IFA_RTA(r):	    	return rtnetlink.Rtattr.pointer(addressof(r) + netlink.NLMSG_ALIGN(ctypes.sizeof(Ifaddrmsg)))
+#define IFA_PAYLOAD(n) NLMSG_PAYLOAD(n,ctypes.sizeof(struct ifaddrmsg))
+def IFA_PAYLOAD(n):	return netlink.NLMSG_PAYLOAD(n, ctypes.sizeof(Ifaddrmsg))

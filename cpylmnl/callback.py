@@ -2,11 +2,11 @@
 
 from __future__ import absolute_import, print_function
 
-import sys, os, errno
+import sys, os, errno, ctypes
 
 from .linux import netlinkh as netlink
 from .cproto import *
-from ctypes import *
+
 
 def cb_run2(buf, seq, portid, cb_data, data, cb_ctls=None):
     if cb_ctls is not None:
@@ -18,7 +18,7 @@ def cb_run2(buf, seq, portid, cb_data, data, cb_ctls=None):
         cb_ctls_len = 0
         c_cb_ctls = None
 
-    c_buf = (c_ubyte * len(buf)).from_buffer(buf)
+    c_buf = (ctypes.c_ubyte * len(buf)).from_buffer(buf)
     if cb_data is None: cb_data = MNL_CB_T()
 
     ret = c_cb_run2(c_buf, len(c_buf), seq, portid, cb_data, data, c_cb_ctls, cb_ctls_len)
@@ -27,7 +27,7 @@ def cb_run2(buf, seq, portid, cb_data, data, cb_ctls=None):
 
 
 def cb_run(buf, seq, portid, cb_data, data):
-    c_buf = (c_ubyte * len(buf)).from_buffer(buf)
+    c_buf = (ctypes.c_ubyte * len(buf)).from_buffer(buf)
     if cb_data is None: cb_data = MNL_CB_T()
 
     ret = c_cb_run(c_buf, len(c_buf), seq, portid, cb_data, data)
@@ -38,7 +38,7 @@ def cb_run(buf, seq, portid, cb_data, data):
 def _cb_factory(argcls, cftype):
     def _decorator(cbfunc):
         def _inner(ptr, data):
-            o = cast(ptr, POINTER(argcls)).contents
+            o = ctypes.cast(ptr, ctypes.POINTER(argcls)).contents
             ret = cbfunc(o, data)
             return ret
         return cftype(_inner)

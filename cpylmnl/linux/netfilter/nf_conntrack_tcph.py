@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from ctypes import *
+import ctypes
+
 try:
     from enum import Enum
 except ImportError:
@@ -63,8 +64,8 @@ IP_CT_TCP_FLAG_DATA_UNACKNOWLEDGED	= 0x10
 #The field td_maxack has been set
 IP_CT_TCP_FLAG_MAXACK_SET		= 0x20
 
-class NfCtTcpFlags(Structure):
+class NfCtTcpFlags(ctypes.Structure):
     """struct nf_ct_tcp_flags
     """
-    _fields_ = [("flags",	c_uint8), # __u8 flags
-                ("mask",	c_uint8)] # __u8 mask
+    _fields_ = [("flags",	ctypes.c_uint8), # __u8 flags
+                ("mask",	ctypes.c_uint8)] # __u8 mask

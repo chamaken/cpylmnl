@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from ctypes import *
+import ctypes
+
 from cpylmnl.nlstruct import NLStructure
 import cpylmnl.linux.netlinkh as netlink
 try:
@@ -80,8 +81,8 @@ def RTM_FAM(cmd):	return (cmd - RTM_BASE) >> 2
 class Rtattr(NLStructure):
     """struct rtattr
     """
-    _fields_ = [("len", 	c_ushort),  # unsigned short	rta_len
-                ("type", 	c_ushort)]  # unsigned short	rta_type
+    _fields_ = [("len", 	ctypes.c_ushort),  # unsigned short	rta_len
+                ("type", 	ctypes.c_ushort)]  # unsigned short	rta_type
 
 ### Macros to handle rtattributes
 RTA_ALIGNTO	= 4
@@ -90,18 +91,18 @@ def RTA_ALIGN(sz):	return ((sz)+RTA_ALIGNTO-1) & ~(RTA_ALIGNTO-1)
 #define RTA_OK(rta,len) ((len) >= (int)sizeof(struct rtattr) && \
 #			 (rta)->rta_len >= sizeof(struct rtattr) && \
 #			 (rta)->rta_len <= (len))
-def RTA_OK(rta, sz):	return (sz >= sizeof(Rtattr) and
-                                rta.len >= sizeof(Rtattr) and
+def RTA_OK(rta, sz):	return (sz >= ctypes.sizeof(Rtattr) and
+                                rta.len >= ctypes.sizeof(Rtattr) and
                                 rta.len <= sz)
 #define RTA_NEXT(rta,attrlen)	((attrlen) -= RTA_ALIGN((rta)->rta_len), \
 #				 (struct rtattr*)(((char*)(rta)) + RTA_ALIGN((rta)->rta_len)))
-def RTA_NEXT(rta, attrlen): return Rtattr.pointer(addressof(rta) + RTA_ALIGN(rta.len)), attrlen - RTA_ALIGN(rta.len)
+def RTA_NEXT(rta, attrlen): return Rtattr.pointer(ctypes.addressof(rta) + RTA_ALIGN(rta.len)), attrlen - RTA_ALIGN(rta.len)
 #define RTA_LENGTH(len)	(RTA_ALIGN(sizeof(struct rtattr)) + (len))
-def RTA_LENGTH(len):	return RTA_ALIGN(sizeof(Rtattr) + len)
+def RTA_LENGTH(len):	return RTA_ALIGN(ctypes.sizeof(Rtattr) + len)
 #define RTA_SPACE(len)	RTA_ALIGN(RTA_LENGTH(len))
 def RTA_SPACE(len):	return RTA_ALIGN(RTA_LENGTH(len))
 #define RTA_DATA(rta)   ((void*)(((char*)(rta)) + RTA_LENGTH(0)))
-def RTA_DATA(rta):	return cast(addressof(rta) + RTA_LENGTH(0), POINTER(c_ubyte * (rta.len - RTA_LENGTH))).contents
+def RTA_DATA(rta):	return cast(ctypes.addressof(rta) + RTA_LENGTH(0), POINTER(ctypes.c_ubyte * (rta.len - RTA_LENGTH))).contents
 #define RTA_PAYLOAD(rta) ((int)((rta)->rta_len) - RTA_LENGTH(0))
 def RTA_PAYLOAD(rta):	return rta.len - RTA_LENGTH(0)
 
@@ -110,15 +111,15 @@ def RTA_PAYLOAD(rta):	return rta.len - RTA_LENGTH(0)
 class Rtmsg(NLStructure):
     """struct rtmsg
     """
-    _fields_ = [("family", 	c_ubyte), # unsigned char rtm_family                                   
-                ("dst_len", 	c_ubyte), # unsigned char rtm_dst_len                                  
-                ("src_len", 	c_ubyte), # unsigned char rtm_src_len                                  
-                ("tos", 	c_ubyte), # unsigned char rtm_tos                                      
-                ("table", 	c_ubyte), # unsigned char rtm_table - Routing table id                 
-                ("protocol", 	c_ubyte), # unsigned char rtm_protocol - Routing protocol; see below   
-                ("scope", 	c_ubyte), # unsigned char rtm_scope - See below                        
-                ("type", 	c_ubyte), # unsigned char rtm_type - See below                         
-                ("flags", 	c_uint)]  # unsigned	  rtm_flags
+    _fields_ = [("family", 	ctypes.c_ubyte), # unsigned char rtm_family                                   
+                ("dst_len", 	ctypes.c_ubyte), # unsigned char rtm_dst_len                                  
+                ("src_len", 	ctypes.c_ubyte), # unsigned char rtm_src_len                                  
+                ("tos", 	ctypes.c_ubyte), # unsigned char rtm_tos                                      
+                ("table", 	ctypes.c_ubyte), # unsigned char rtm_table - Routing table id                 
+                ("protocol", 	ctypes.c_ubyte), # unsigned char rtm_protocol - Routing protocol; see below   
+                ("scope", 	ctypes.c_ubyte), # unsigned char rtm_scope - See below                        
+                ("type", 	ctypes.c_ubyte), # unsigned char rtm_type - See below                         
+                ("flags", 	ctypes.c_uint)]  # unsigned	  rtm_flags
 
 # rtm_type
 # enum
@@ -254,9 +255,9 @@ __RTA_MAX	= 18
 RTA_MAX		= (__RTA_MAX - 1)
 
 #define RTM_RTA(r)  ((struct rtattr*)(((char*)(r)) + NLMSG_ALIGN(sizeof(struct rtmsg))))
-def RTM_RTA(r):		return Rtattr.pointer(addressof(r) + netlink.NLMSG_ALIGN(sizeof(Rtmsg)))
+def RTM_RTA(r):		return Rtattr.pointer(ctypes.addressof(r) + netlink.NLMSG_ALIGN(ctypes.sizeof(Rtmsg)))
 #define RTM_PAYLOAD(n) NLMSG_PAYLOAD(n,sizeof(struct rtmsg))
-def RTM_PAYLOAD(n):	return netlink.NLMSG_PAYLOAD(n, sizeof(Rtmsg))
+def RTM_PAYLOAD(n):	return netlink.NLMSG_PAYLOAD(n, ctypes.sizeof(Rtmsg))
 
 
 # RTM_MULTIPATH --- array of struct rtnexthop.
@@ -269,10 +270,10 @@ def RTM_PAYLOAD(n):	return netlink.NLMSG_PAYLOAD(n, sizeof(Rtmsg))
 class Rtnexthop(NLStructure):
     """struct rtnexthop
     """
-    _fields_ = [("len",		c_ushort), # unsigned short		rtnh_len
-                ("flags", 	c_ubyte),  # unsigned char		rtnh_flags
-                ("hops", 	c_ubyte),  # unsigned char		rtnh_hops
-                ("ifindex", 	c_int)]    # int			rtnh_ifindex
+    _fields_ = [("len",		ctypes.c_ushort), # unsigned short		rtnh_len
+                ("flags", 	ctypes.c_ubyte),  # unsigned char		rtnh_flags
+                ("hops", 	ctypes.c_ubyte),  # unsigned char		rtnh_hops
+                ("ifindex", 	ctypes.c_int)]    # int			rtnh_ifindex
  
 # rtnh_flags 
 RTNH_F_DEAD		= 1	# Nexthop is dead (used by multipath)	
@@ -285,31 +286,31 @@ RTNLH_ALIGNTO	= 4
 def RTNL_ALIGN(len):	return (len + RTNH_ALIGNTO - 1) & ~(RTNH_ALIGNTO - 1)
 #define RTNH_OK(rtnh,len) ((rtnh)->rtnh_len >= sizeof(struct rtnexthop) && \
 #			   ((int)(rtnh)->rtnh_len) <= (len))
-def RTNH_OK(rtnh, len):	return (rtnh.len >= sizeof(Rtnexthop) and
+def RTNH_OK(rtnh, len):	return (rtnh.len >= ctypes.sizeof(Rtnexthop) and
                                 rtnh.len <= len)
 #define RTNH_NEXT(rtnh)	((struct rtnexthop*)(((char*)(rtnh)) + RTNH_ALIGN((rtnh)->rtnh_len)))
-def RTNH_NEXT(rtnh):	return Rtnexthop.pointer(addressof(rtnh) + RTNL_ALIGN(rtnh.len))
+def RTNH_NEXT(rtnh):	return Rtnexthop.pointer(ctypes.addressof(rtnh) + RTNL_ALIGN(rtnh.len))
 #define RTNH_LENGTH(len) (RTNH_ALIGN(sizeof(struct rtnexthop)) + (len))
-def RTNH_LENGTH(len):	return RTNL_ALIGN(sizeof(Rtnexthop)) + len
+def RTNH_LENGTH(len):	return RTNL_ALIGN(ctypes.sizeof(Rtnexthop)) + len
 #define RTNH_SPACE(len)	RTNH_ALIGN(RTNH_LENGTH(len))
 def RTNH_SPACE(len):	return RTNH_ALIGN(RTNH_LENGTH(len))
 #define RTNH_DATA(rtnh)   ((struct rtattr*)(((char*)(rtnh)) + RTNH_LENGTH(0)))
-def RTNH_DATA(rtnh):	return Rtattr(addressof(rtnh) + RTNH_LENGTH(0))
+def RTNH_DATA(rtnh):	return Rtattr(ctypes.addressof(rtnh) + RTNH_LENGTH(0))
 
 
 # RTM_CACHEINFO
-class RtaCacheinfo(Structure):
+class RtaCacheinfo(ctypes.Structure):
     """struct rta_cacheinfo
     """
-    _fields_ = [("clntref",	c_uint32), # __u32	rta_clntref
-                ("lastuse",	c_uint32), # __u32	rta_lastuse
-                ("expires",	c_uint32), # __s32	rta_expires
-                ("error", 	c_uint32), # __u32	rta_error
-                ("used",	c_uint32), # __u32	rta_used
+    _fields_ = [("clntref",	ctypes.c_uint32), # __u32	rta_clntref
+                ("lastuse",	ctypes.c_uint32), # __u32	rta_lastuse
+                ("expires",	ctypes.c_uint32), # __s32	rta_expires
+                ("error", 	ctypes.c_uint32), # __u32	rta_error
+                ("used",	ctypes.c_uint32), # __u32	rta_used
                 #? define RTNETLINK_HAVE_PEERINFO 1
-                ("id",		c_uint32), # __u32	rta_id
-                ("ts",		c_uint32), # __u32	rta_ts
-                ("tsage",	c_uint32)] # __u32	rta_tsage
+                ("id",		ctypes.c_uint32), # __u32	rta_id
+                ("ts",		ctypes.c_uint32), # __u32	rta_ts
+                ("tsage",	ctypes.c_uint32)] # __u32	rta_tsage
 
 RTNETLINK_HAVE_PEERINFO = 1
 
@@ -371,7 +372,7 @@ struct rta_mfc_stats
 class Rtgenmsg(NLStructure):
     """struct rtgenmsg
     """
-    _fields_ = [("family",	c_ubyte)] # unsigned char		rtgen_family
+    _fields_ = [("family",	ctypes.c_ubyte)] # unsigned char		rtgen_family
 
 
 # Link layer specific messages.
@@ -382,26 +383,26 @@ class Rtgenmsg(NLStructure):
 class Ifinfomsg(NLStructure):
     """struct ifinfomsg
     """
-    _fields_ = [("family",	c_ubyte),  # unsigned char  ifi_family
-                ("_pad",	c_ubyte),  # unsigned char   __ifi_pad
-                ("type",	c_ushort), # unsigned short ifi_type   /* ARPHRD_* */
-                ("index",	c_int),    # int            ifi_index  /* Link index	*/
-                ("flags",	c_uint),   # unsigned	    ifi_flags  /* IFF_* flags	*/
-                ("change",	c_uint)]   # unsigned	    ifi_change /* IFF_* change mask */
+    _fields_ = [("family",	ctypes.c_ubyte),  # unsigned char  ifi_family
+                ("_pad",	ctypes.c_ubyte),  # unsigned char   __ifi_pad
+                ("type",	ctypes.c_ushort), # unsigned short ifi_type   /* ARPHRD_* */
+                ("index",	ctypes.c_int),    # int            ifi_index  /* Link index	*/
+                ("flags",	ctypes.c_uint),   # unsigned	    ifi_flags  /* IFF_* flags	*/
+                ("change",	ctypes.c_uint)]   # unsigned	    ifi_change /* IFF_* change mask */
 
 
 # prefix information 
-class Prefixmsg(Structure):
+class Prefixmsg(ctypes.Structure):
     """struct prefixmsg
     """
-    _fields_ = [("family", 	c_ubyte),  # unsigned char	prefix_family
-                ("pad1",	c_ubyte),  # unsigned char	prefix_pad1
-                ("pad2", 	c_ushort), # unsigned short	prefix_pad2
-                ("ifindex", 	c_int),	   # int		prefix_ifindex
-                ("type", 	c_ubyte),  # unsigned char	prefix_type
-                ("len",		c_ubyte),  # unsigned char	prefix_len
-                ("flags", 	c_ubyte),  # unsigned char	prefix_flags
-                ("pad3", 	c_ubyte)]  # unsigned char	prefix_pad3
+    _fields_ = [("family", 	ctypes.c_ubyte),  # unsigned char	prefix_family
+                ("pad1",	ctypes.c_ubyte),  # unsigned char	prefix_pad1
+                ("pad2", 	ctypes.c_ushort), # unsigned short	prefix_pad2
+                ("ifindex", 	ctypes.c_int),	   # int		prefix_ifindex
+                ("type", 	ctypes.c_ubyte),  # unsigned char	prefix_type
+                ("len",		ctypes.c_ubyte),  # unsigned char	prefix_len
+                ("flags", 	ctypes.c_ubyte),  # unsigned char	prefix_flags
+                ("pad3", 	ctypes.c_ubyte)]  # unsigned char	prefix_pad3
 
 # enum 
 PREFIX_UNSPEC		= 0
@@ -410,24 +411,24 @@ PREFIX_CACHEINFO	= 2
 __PREFIX_MAX		= 3
 PREFIX_MAX		= (__PREFIX_MAX - 1)
 
-class PrefixCacheinfo(Structure):
+class PrefixCacheinfo(ctypes.Structure):
     """struct prefix_cacheinfo
     """
-    _fields_ = [("preferred_time",	c_uint32), # __u32	preferred_time
-                ("valid_time", 		c_uint32)] # __u32	valid_time
+    _fields_ = [("preferred_time",	ctypes.c_uint32), # __u32	preferred_time
+                ("valid_time", 		ctypes.c_uint32)] # __u32	valid_time
 
 
 # Traffic control messages.
-class Tcmsg(Structure):
+class Tcmsg(ctypes.Structure):
     """struct tcmsg
     """
-    _fields_ = [("family",	c_ubyte),  # unsigned char	tcm_family
-                ("__pad1",	c_ubyte),  # unsigned char	tcm__pad1
-                ("__pad2", 	c_ushort), # unsigned short	tcm__pad2
-                ("ifindex",	c_int),    # int		tcm_ifindex
-                ("handle", 	c_uint32), # __u32		tcm_handle
-                ("parent", 	c_uint32), # __u32		tcm_parent
-                ("info",	c_uint32)] # __u32		tcm_info
+    _fields_ = [("family",	ctypes.c_ubyte),  # unsigned char	tcm_family
+                ("__pad1",	ctypes.c_ubyte),  # unsigned char	tcm__pad1
+                ("__pad2", 	ctypes.c_ushort), # unsigned short	tcm__pad2
+                ("ifindex",	ctypes.c_int),    # int		tcm_ifindex
+                ("handle", 	ctypes.c_uint32), # __u32		tcm_handle
+                ("parent", 	ctypes.c_uint32), # __u32		tcm_parent
+                ("info",	ctypes.c_uint32)] # __u32		tcm_info
 
 # enum
 TCA_UNSPEC	= 0
@@ -443,24 +444,24 @@ __TCA_MAX	= 9
 TCA_MAX		= (__TCA_MAX - 1)
 
 #define TCA_RTA(r)  ((struct rtattr*)(((char*)(r)) + NLMSG_ALIGN(sizeof(struct tcmsg))))
-def TCA_RTA(r):		return Rtattr.pointer(addressof(r) + netlink.NLMSG_ALIGN(sizeof(Tcmsg)))
+def TCA_RTA(r):		return Rtattr.pointer(ctypes.addressof(r) + netlink.NLMSG_ALIGN(ctypes.sizeof(Tcmsg)))
 #define TCA_PAYLOAD(n) NLMSG_PAYLOAD(n,sizeof(struct tcmsg))
-def TCA_PAYLOAD(n):	return netlink.NLMSG_PAYLOAD(n, sizeof(Tcmsg))
+def TCA_PAYLOAD(n):	return netlink.NLMSG_PAYLOAD(n, ctypes.sizeof(Tcmsg))
 
 
 # Neighbor Discovery userland options
-class Nduseroptmsg(Structure):
+class Nduseroptmsg(ctypes.Structure):
     """Neighbor Discovery userland options
     struct nduseroptmsg
     """
-    _fields_ = [("family",	c_ubyte),  # unsigned char	nduseropt_family
-                ("pad1",	c_ubyte),  # unsigned char	nduseropt_pad1
-                ("opts_len",	c_ushort), # unsigned short	nduseropt_opts_len	# Total length of options
-                ("ifindex",	c_int),    # int		nduseropt_ifindex
-                ("icmp_type",	c_uint8),  # __u8		nduseropt_icmp_type
-                ("icmp_code",	c_uint8),  # __u8		nduseropt_icmp_code
-                ("pad2",	c_ushort), # unsigned short	nduseropt_pad2
-                ("pad3",	c_uint)]   # unsigned int	nduseropt_pad3
+    _fields_ = [("family",	ctypes.c_ubyte),  # unsigned char	nduseropt_family
+                ("pad1",	ctypes.c_ubyte),  # unsigned char	nduseropt_pad1
+                ("opts_len",	ctypes.c_ushort), # unsigned short	nduseropt_opts_len	# Total length of options
+                ("ifindex",	ctypes.c_int),    # int		nduseropt_ifindex
+                ("icmp_type",	ctypes.c_uint8),  # __u8		nduseropt_icmp_type
+                ("icmp_code",	ctypes.c_uint8),  # __u8		nduseropt_icmp_code
+                ("pad2",	ctypes.c_ushort), # unsigned short	nduseropt_pad2
+                ("pad3",	ctypes.c_uint)]   # unsigned int	nduseropt_pad3
     # Followed by one or more ND options 
 
 # enum
@@ -556,17 +557,17 @@ RTNLGRP_MAX		= (__RTNLGRP_MAX - 1)
 
 
 # TC action piece
-class Tcamsg(Structure):
+class Tcamsg(ctypes.Structure):
     """struct tcamsg
     """
-    _fields_ = [("family",	c_ubyte),  # unsigned char	tca_family
-                ("_pad1",	c_ubyte),  # unsigned char	tca__pad1
-                ("_pad2",	c_ushort)] # unsigned short	tca__pad2
+    _fields_ = [("family",	ctypes.c_ubyte),  # unsigned char	tca_family
+                ("_pad1",	ctypes.c_ubyte),  # unsigned char	tca__pad1
+                ("_pad2",	ctypes.c_ushort)] # unsigned short	tca__pad2
 
 #define TA_RTA(r)  ((struct rtattr*)(((char*)(r)) + NLMSG_ALIGN(sizeof(struct tcamsg))))
-def TA_RTA(r):		return Rtattr.pointer(addressof(r) + netlink.NLMSG_ALIGN(sizeof(Tcamsg)))
+def TA_RTA(r):		return Rtattr.pointer(ctypes.addressof(r) + netlink.NLMSG_ALIGN(ctypes.sizeof(Tcamsg)))
 #define TA_PAYLOAD(n) NLMSG_PAYLOAD(n,sizeof(struct tcamsg))
-def TA_PAYLOAD(n):	return netlink.NLMSG_PAYLOAD(n, sizeof(Tcamsg))
+def TA_PAYLOAD(n):	return netlink.NLMSG_PAYLOAD(n, ctypes.sizeof(Tcamsg))
 
 TCA_ACT_TAB 	= 1 # attr type must be >=1 	
 TCAA_MAX	= 1

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from ctypes import *
+import ctypes
+
 import cpylmnl.linux.netlinkh as netlink
 from cpylmnl.nlstruct import NLStructure
 try:
@@ -25,22 +26,22 @@ NFQNL_MSG_MAX		= 4
 class NfqnlMsgPacketHdr(NLStructure):
     """struct nfqnl_msg_packet_hdr
     """
-    _fields_ = [("packet_id",	c_uint32), # unique ID of packet in queue
-                ("hw_protocol", c_uint16), # hw protocol (network order)
-                ("hook",        c_uint8)]  # netfilter hook
+    _fields_ = [("packet_id",	ctypes.c_uint32), # unique ID of packet in queue
+                ("hw_protocol", ctypes.c_uint16), # hw protocol (network order)
+                ("hook",        ctypes.c_uint8)]  # netfilter hook
 
 class NfqnlMsgPacketHw(NLStructure):
     """struct nfqnl_msg_packet_hw
     """
-    _fields_ = [("hw_addrlen",  c_uint16),
-                ("_pad",        c_uint16),
-                ("hw_addr",     (c_ubyte * 8))]
+    _fields_ = [("hw_addrlen",  ctypes.c_uint16),
+                ("_pad",        ctypes.c_uint16),
+                ("hw_addr",     (ctypes.c_ubyte * 8))]
 
 class NfqnlMsgPacketTimestamp(NLStructure):
     """struct nfqnl_msg_packet_timestamp
     """
-    _fields_ = [("sec",         c_uint64),
-                ("usec",	c_uint64)]
+    _fields_ = [("sec",         ctypes.c_uint64),
+                ("usec",	ctypes.c_uint64)]
 
 # enum nfqnl_attr_type
 class NfqnlAttrType(Enum):
@@ -84,8 +85,8 @@ NFQA_MAX		= (__NFQA_MAX - 1)
 class NfqnlMsgVerdictHdr(NLStructure):
     """struct nfqnl_msg_verdict_hdr
     """
-    _fields_ = [("verdict",     c_uint32),
-                ("id",          c_uint32)]
+    _fields_ = [("verdict",     ctypes.c_uint32),
+                ("id",          ctypes.c_uint32)]
 
 # enum nfqnl_msg_config_cmds
 class NfqnlMsgConfigCmds(Enum):
@@ -103,9 +104,9 @@ NFQNL_CFG_CMD_PF_UNBIND	= 4
 class NfqnlMsgConfigCmd(NLStructure):
     """struct nfqnl_msg_config_cmd
     """
-    _fields_ = [("command",     c_uint8),  # nfqnl_msg_config_cmds
-                ("_pad",        c_uint8),
-                ("pf",          c_uint16)] # AF_xxx for PF_[UN]BIND
+    _fields_ = [("command",     ctypes.c_uint8),  # nfqnl_msg_config_cmds
+                ("_pad",        ctypes.c_uint8),
+                ("pf",          ctypes.c_uint16)] # AF_xxx for PF_[UN]BIND
 
 # enum nfqnl_config_mode
 class NfqnlConfigMode(Enum):
@@ -119,8 +120,8 @@ NFQNL_COPY_PACKET	= 2
 class NfqnlMsgConfigParams(NLStructure):
     """struct nfqnl_msg_config_params
     """
-    _fields_ = [("copy_range",  c_uint32),
-                ("copy_mode",   c_uint8)]  # enum nfqnl_config_mode
+    _fields_ = [("copy_range",  ctypes.c_uint32),
+                ("copy_mode",   ctypes.c_uint8)]  # enum nfqnl_config_mode
 
 # enum nfqnl_attr_config
 class NfqnlAttrConfig(Enum):

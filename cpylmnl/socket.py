@@ -2,7 +2,7 @@
 
 from __future__ import print_function, absolute_import
 
-from ctypes import *
+import ctypes
 
 from .linux import netlinkh as netlink
 from .cproto import *
@@ -75,13 +75,13 @@ def socket_sendto(nl, buf):
         ret = c_socket_sendto(nl, None, 0)
     else:
         # require mutable buffer
-        c_buf = (c_ubyte * len(buf)).from_buffer(buf)
+        c_buf = (ctypes.c_ubyte * len(buf)).from_buffer(buf)
         ret = c_socket_sendto(nl, c_buf, len(buf))
     if ret < 0: raise os_error()
     return ret
 
 def socket_send_nlmsg(nl, nlh):
-    c_buf = (c_ubyte * nlh.len).from_address(addressof(nlh))
+    c_buf = (ctypes.c_ubyte * nlh.len).from_address(ctypes.addressof(nlh))
     ret = c_socket_sendto(nl, c_buf, len(c_buf))
     if ret < 0: raise os_error()
     return ret
@@ -99,7 +99,7 @@ def socket_recv(nl, size):
     return buf[:ret]
 
 def socket_recv_into(nl, buf):
-    c_buf = (c_char * len(buf)).from_buffer(buf)
+    c_buf = (ctypes.c_char * len(buf)).from_buffer(buf)
     ret = c_socket_recvfrom(nl, c_buf, len(c_buf))
     if ret < 0: raise os_error()
     return ret
@@ -115,7 +115,7 @@ def socket_close(nl):
 # int mnl_socket_setsockopt(const struct mnl_socket *nl, int type,
 #                           void *buf, socklen_t len)
 def socket_setsockopt(nl, optype, buf):
-    c_buf = (c_ubyte * len(buf)).from_buffer_copy(buf)
+    c_buf = (ctypes.c_ubyte * len(buf)).from_buffer_copy(buf)
     ret = c_socket_setsockopt(nl, optype, c_buf, len(buf))
     if ret < 0: raise os_error()
     return ret
@@ -125,20 +125,20 @@ def socket_setsockopt(nl, optype, buf):
 #                           void *buf, socklen_t *len)
 def socket_getsockopt(nl, optype, size):
     buf = bytearray(size)
-    c_size = c_int(size)
-    c_buf = (c_char * size).from_buffer(buf)
-    ret = c_socket_getsockopt(nl, optype, c_buf, byref(c_size))
+    c_size = ctypes.c_int(size)
+    c_buf = (ctypes.c_char * size).from_buffer(buf)
+    ret = c_socket_getsockopt(nl, optype, c_buf, ctypes.byref(c_size))
     if ret < 0: raise os_error()
     return c_buf.raw
 
 def socket_getsockopt_ctype(nl, optype, cls):
     optval = cls.__new__(cls)
     try:
-        size = sizeof(optval)
+        size = ctypes.sizeof(optval)
     except TypeError:
         raise OSError(errno.EINVAL, "value must be ctypes type")
-    c_size = c_int(size)
-    ret = c_socket_getsockopt(nl, optype, byref(optval), byref(c_size))
+    c_size = ctypes.c_int(size)
+    ret = c_socket_getsockopt(nl, optype, ctypes.byref(optval), ctypes.byref(c_size))
     if ret < 0: raise os_error()
     # return optval
     return optval.value

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from ctypes import *
+import ctypes
+
 import cpylmnl.linux.netlinkh as netlink
 from cpylmnl.nlstruct import NLStructure
 try:
@@ -21,22 +22,22 @@ NFULNL_MSG_MAX		= 2
 class NfulnlMsgPacketHdr(NLStructure):
     """struct nfulnl_msg_packet_hdr
     """
-    _fields_ = [("hw_protocol",	c_uint16), # __be16 hw_protocol /* hw protocol (network order) */
-                ("hook",	c_uint8),  # __u8   hook        /* netfilter hook */
-                ("_pad",	c_uint8)]  # __u8   _pad
+    _fields_ = [("hw_protocol",	ctypes.c_uint16), # __be16 hw_protocol /* hw protocol (network order) */
+                ("hook",	ctypes.c_uint8),  # __u8   hook        /* netfilter hook */
+                ("_pad",	ctypes.c_uint8)]  # __u8   _pad
 
 class NfulnlMsgPacketHw(NLStructure):
     """struct nfulnl_msg_packet_hw
     """
-    _fields_ = [("hw_addrlen",	c_uint16),    # __be16 hw_addrlen;
-                ("_pad",	c_uint16),    # __u16  _pad;
-                ("hw_addr",	c_uint8 * 8)] # __u8   hw_addr[8];
+    _fields_ = [("hw_addrlen",	ctypes.c_uint16),    # __be16 hw_addrlen;
+                ("_pad",	ctypes.c_uint16),    # __u16  _pad;
+                ("hw_addr",	ctypes.c_uint8 * 8)] # __u8   hw_addr[8];
 
 class NfulnlMsgPacketTimestamp(NLStructure):
     """struct nfulnl_msg_packet_timestamp
     """
-    _fields_ = [("sec",		c_uint64), # __aligned_be64 sec;
-                ("usec",	c_uint64)] # __aligned_be64 usec;
+    _fields_ = [("sec",		ctypes.c_uint64), # __aligned_be64 sec;
+                ("usec",	ctypes.c_uint64)] # __aligned_be64 usec;
 
 # enum nfulnl_attr_type
 class NfulnlAttrType(Enum):
@@ -97,15 +98,15 @@ NFULNL_CFG_CMD_PF_UNBIND	= 4
 class NfulnlMsgConfigCmd(NLStructure):
     """struct nfulnl_msg_config_cmd
     """
-    _fields_ = [("command",	c_uint8)] # __u8 command; /* nfulnl_msg_config_cmds */
+    _fields_ = [("command",	ctypes.c_uint8)] # __u8 command; /* nfulnl_msg_config_cmds */
 
 class NfulnlMsgConfigMode(NLStructure):
     """struct nfulnl_msg_config_mode
     """
 
-    _fields_ = [("copy_range",	c_uint32), # __be32 copy_range;
-                ("copy_mode",	c_uint8),  # __u8   copy_mode;
-                ("_pad",	c_uint8)]  # __u8   _pad;
+    _fields_ = [("copy_range",	ctypes.c_uint32), # __be32 copy_range;
+                ("copy_mode",	ctypes.c_uint8),  # __u8   copy_mode;
+                ("_pad",	ctypes.c_uint8)]  # __u8   _pad;
 
 # enum nfulnl_attr_config
 class NfulnlAttrConfig(Enum):

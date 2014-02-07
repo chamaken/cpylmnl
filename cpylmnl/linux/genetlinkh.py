@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from ctypes import *
+import ctypes
 from cpylmnl.nlstruct import NLStructure
 import cpylmnl.linux.netlinkh as netlink
 
@@ -12,11 +12,11 @@ GENL_MAX_ID		= 1023
 class Genlmsghdr(NLStructure):
     """struct genlmsghdr
     """
-    _fields_ = [("cmd",		c_uint8),   # __u8	cmd
-                ("version",	c_uint8),   # __u8	version
-                ("reserved",	c_uint16)]  # __u16	reserved
+    _fields_ = [("cmd",		ctypes.c_uint8),   # __u8	cmd
+                ("version",	ctypes.c_uint8),   # __u8	version
+                ("reserved",	ctypes.c_uint16)]  # __u16	reserved
 
-GENL_HDR_LEN		= netlink.NLMSG_ALIGN(sizeof(Genlmsghdr))
+GENL_HDR_LEN		= netlink.NLMSG_ALIGN(ctypes.sizeof(Genlmsghdr))
 
 GENL_ADMIN_PERM		= 0x01
 GENL_CMD_CAP_DO		= 0x02

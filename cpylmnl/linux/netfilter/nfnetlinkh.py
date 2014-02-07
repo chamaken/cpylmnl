@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from ctypes import *
+import ctypes
+
 import cpylmnl.linux.netlinkh as netlink
 from cpylmnl.nlstruct import NLStructure
 try:
@@ -35,9 +36,9 @@ NFNLGRP_MAX			= (__NFNLGRP_MAX - 1)
 class Nfgenmsg(NLStructure):
     """struct nfgenmsg
     """
-    _fields_ = [("family",	c_uint8),  # __u8   nfgen_family /* AF_xxx */
-                ("version",	c_uint8),  # __u8   version      /* nfnetlink version */
-                ("res_id",	c_uint16)] # __be16 res_id       /* resource id */
+    _fields_ = [("family",	ctypes.c_uint8),  # __u8   nfgen_family /* AF_xxx */
+                ("version",	ctypes.c_uint8),  # __u8   version      /* nfnetlink version */
+                ("res_id",	ctypes.c_uint16)] # __be16 res_id       /* resource id */
 
 NFNETLINK_V0 = 0
 

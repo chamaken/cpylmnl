@@ -27,7 +27,7 @@ class Attribute(netlink.Nlattr):
     def get_u64(self):			return attr_get_u64(self)
     def get_str(self):			return attr_get_str(self)
     def next_attribute(self):
-        return cast(addressof(attr_next(self)), POINTER(self.__class__)).contents
+        return ctypes.cast(ctypes.addressof(attr_next(self)), ctypes.POINTER(self.__class__)).contents
 
     # mnl_attr_for_each_nested macron in libmnl.h
     def nesteds(self):
@@ -47,7 +47,7 @@ class Header(netlink.Nlmsghdr):
     def put_str(self, t, d):		attr_put_str(self, t, d)
     def put_strz(self, t, d):		attr_put_strz(self, t, d)
     def nest_start(self, t):
-        return cast(addressof(attr_nest_start(self, t)), POINTER(Attribute)).contents
+        return ctypes.cast(ctypes.addressof(attr_nest_start(self, t)), ctypes.POINTER(Attribute)).contents
     def put_check(self, l, t, d):	return attr_put_check(self, l, t, d)
     def put_u8_check(self, l, t, d):	return attr_put_u8_check(self, l, t, d)
     def put_u16_check(self, l, t, d):	return attr_put_u16_check(self, l, t, d)
@@ -56,7 +56,7 @@ class Header(netlink.Nlmsghdr):
     def put_str_check(self, l, t, d):	return attr_put_str_check(self, l, t, d)
     def put_strz_check(self, l, t, d):	return attr_put_strz_check(self, l, t, d)
     def nest_start_check(self, l, t):
-        return cast(addressof(attr_nest_start_check(self, l, t)), POINTER(Attribute)).contents
+        return ctypes.cast(ctypes.addressof(attr_nest_start_check(self, l, t)), ctypes.POINTER(Attribute)).contents
     def nest_end(self, a):		return attr_nest_end(self, a)
     def nest_cancel(self, a):		return attr_nest_cancel(self, a)
 
@@ -80,18 +80,18 @@ class Header(netlink.Nlmsghdr):
 
     def next_header(self, size):
         nlh, size = nlmsg_next(self, size)
-        return cast(addressof(nlh), POINTER(self.__class__)).contents, size
+        return ctypes.cast(ctypes.addressof(nlh), ctypes.POINTER(self.__class__)).contents, size
 
     def put_header(self):
         c_nlmsg_put_header(ctypes.addressof(self))
 
     def fprint(self, elen, out=None):
-        nlmsg_fprint(ctypes.cast(ctypes.addressof(self), POINTER(ctypes.c_ubyte * self.len)).contents, elen, out)
+        nlmsg_fprint(ctypes.ctypes.cast(ctypes.addressof(self), ctypes.POINTER(ctypes.c_ubyte * self.len)).contents, elen, out)
 
     # mnl_attr_for_each macro in libmnl.h
     def attributes(self, offset):
         attr = self.get_payload_offset_as(offset, Attribute)
-        while attr.ok(self.get_payload_tail() - addressof(attr)):
+        while attr.ok(self.get_payload_tail() - ctypes.addressof(attr)):
             yield attr
             attr = attr.next_attribute()
 
@@ -120,7 +120,7 @@ class NlmsgBatch(object):
     def current_v(self):
         current = nlmsg_batch_current(self._batch)
         size =  nlmsg_batch_head(self._batch) + len(self._buf) - current
-        return cast(current, POINTER(c_ubyte * size)).contents
+        return ctypes.cast(current, ctypes.POINTER(ctypes.c_ubyte * size)).contents
 
     def __enter__(self): return self
     def __exit__(self, t, v, tb):
@@ -160,7 +160,7 @@ class Ring(object):
 
 # C macro: #define mnl_attr_for_each_payload(payload, payload_size)
 def payload_attributes(payload): # buffer
-    p = addressof((ctypes.c_ubyte * len(payload)).from_buffer(payload))
+    p = ctypes.addressof((ctypes.c_ubyte * len(payload)).from_buffer(payload))
     attr = Attribute(payload)
     while attr.ok(p + len(payload) - ctypes.addressof(attr)):
         yield attr

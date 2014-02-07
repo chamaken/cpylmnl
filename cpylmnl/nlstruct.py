@@ -2,8 +2,7 @@
 
 from __future__ import absolute_import, print_function
 
-import sys, os
-from ctypes import *
+import sys, os, ctypes
 
 '''http://stackoverflow.com/questions/15377338/convert-ctype-byte-array-to-bytes
 Convert ctype byte array to bytes
@@ -48,20 +47,20 @@ objects are immutable; you can get weird bugs if you modify their buffer. I
 recently answered a question on that topic.
 '''
 
-class NLStructure(Structure):
+class NLStructure(ctypes.Structure):
     def __new__(cls, buf=None, offset=0):
         # share the buf
         # but hold it even if the buf has changed? - set to new value, None
         if buf == None:
-            buf = bytearray(sizeof(cls))
-        elif len(buf) < sizeof(cls):
+            buf = bytearray(ctypes.sizeof(cls))
+        elif len(buf) < ctypes.sizeof(cls):
             raise ValueError("too short buf size")
 
         v = cls.from_buffer(buf, offset)
         if hasattr(v, "len") and v.len > len(buf):
             raise ValueError("too long len attribute")
 
-        # v._ubuf = (c_char * (len(buf) - offset)).from_buffer(buf, offset)
+        # v._ubuf = (ctypes.c_char * (len(buf) - offset)).from_buffer(buf, offset)
         return v
 
 
@@ -71,12 +70,12 @@ class NLStructure(Structure):
 
     @classmethod
     def sizeof(cls):
-        return sizeof(cls)
+        return ctypes.sizeof(cls)
 
 
     @classmethod
     def pointer(cls, ptr):
-        return cast(ptr, POINTER(cls)).contents
+        return ctypes.cast(ptr, ctypes.POINTER(cls)).contents
 
 
     @classmethod
@@ -86,13 +85,13 @@ class NLStructure(Structure):
 
 
     def marshal_binary(self):
-        if hasattr(self, "len") and self.len > sizeof(self): # XXX: fixed name
+        if hasattr(self, "len") and self.len > ctypes.sizeof(self): # XXX: fixed name
             size = self.len
         else:
-            size = sizeof(self)
+            size = ctypes.sizeof(self)
 
         # not share, return copy
-        return bytearray(cast(addressof(self), POINTER((c_ubyte * size))).contents)
+        return bytearray(ctypes.cast(ctypes.addressof(self), ctypes.POINTER((ctypes.c_ubyte * size))).contents)
 
 
     def marshal_bytes(self):
