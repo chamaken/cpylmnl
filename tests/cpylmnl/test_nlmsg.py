@@ -209,7 +209,7 @@ class TestSuite(unittest.TestCase):
         for i in range(1, 11):
             nlh = mnl.Header.pointer(b.current())
             nlh.put_header()
-            self.assertTrue(b.next() == True)
+            self.assertTrue(b.next_batch() == True)
             self.assertTrue(b.size() == mnl.MNL_NLMSG_HDRLEN * i,)
             self.assertTrue(len(b.current_v()) == (301 - mnl.MNL_NLMSG_HDRLEN * i))
             self.assertTrue(len(b.head()) == mnl.MNL_NLMSG_HDRLEN * i)
@@ -218,7 +218,7 @@ class TestSuite(unittest.TestCase):
         # after full
         nlh = mnl.Header.pointer(b.current())
         nlh.put_header()
-        self.assertTrue(b.next() == False)
+        self.assertTrue(b.next_batch() == False)
         self.assertTrue(b.size() == mnl.MNL_NLMSG_HDRLEN * i)
         self.assertTrue(len(b.current_v()) == (301 - mnl.MNL_NLMSG_HDRLEN * i))
         self.assertTrue(len(b.head()) == mnl.MNL_NLMSG_HDRLEN * i)
@@ -232,7 +232,7 @@ class TestSuite(unittest.TestCase):
         self.assertTrue(b.is_empty() == False)
 
         # reset again, buf will empty after next
-        b.next()
+        b.next_batch()
         b.reset()
         self.assertTrue(b.is_empty() == True)
 
