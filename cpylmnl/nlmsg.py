@@ -24,8 +24,21 @@ nlmsg_get_payload_len	= cproto.c_nlmsg_get_payload_len
 ### reserve and prepare room for Netlink header
 # struct nlmsghdr *mnl_nlmsg_put_header(void *buf)
 def nlmsg_put_header(buf, cls=None):
-    # share the buffer
-    # returned nlmsghdr will be invalid if param buf is GCed - set to new value, None
+    """reserve and prepare room for Netlink header
+
+    This function sets to zero the room that is required to put the Netlink
+    header in the memory buffer passed as parameter. This function also
+    initializes the nlmsg_len field to the size of the Netlink header. This
+    function returns Netlink header object.
+
+    @type buf: buffer
+    @param buf: memory already allocated to store the Netlink header
+    @type cls: class of Nlmsghdr subclass
+    @param cls: type of return class
+
+    @rtype: Nlmsghdr or its subclass
+    @return: Netlink header object
+    """
     c_buf = (ctypes.c_ubyte * len(buf)).from_buffer(buf)
     ret = cproto.c_nlmsg_put_header(c_buf)
     if cls is None:

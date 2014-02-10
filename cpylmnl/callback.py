@@ -9,6 +9,38 @@ from . import cproto
 
 
 def cb_run2(buf, seq, portid, cb_data, data, cb_ctls=None):
+    """callback runqueue for netlink messages
+
+    You can set the cb_ctl_array to None if you want to use the default control
+    callback handlers.
+
+    Your callback may return three possible values:
+	- MNL_CB_ERROR (<=-1): an error has occurred. Stop callback runqueue.
+	- MNL_CB_STOP (=0): stop callback runqueue.
+	- MNL_CB_OK (>=1): no problem has occurred.
+
+    This function propagates the callback return value. On error, it returns
+    -1 and errno is explicitly set. If the portID is not the expected, errno
+    is set to ESRCH. If the sequence number is not the expected, errno is set
+    to EPROTO. If the dump was interrupted, errno is set to EINTR and you should
+    request a new fresh dump again.
+
+    @type buf: buffer (bytearray)
+    @param buf: buffer that contains the netlink messages 
+    @type seq: number
+    @param seq: sequence number that we expect to receive
+    @type portid: number
+    @param portid: Netlink PortID that we expect to receive
+    @type cb_data: can be used mnl_cb_t or header header_cb decorator
+    @param cb_data: callback handler for data messages
+    @type data: any
+    @param data: data that will be passed to the data callback handler
+    @type cb_ctls: map
+    @param cb_ctls: dict of custom callback handlers from control messages
+
+    @rtype: numner
+    @return: callback return value - MNL_CB_ERROR, MNL_CB_STOP or MNL_CB_OK
+    """
     if cb_ctls is not None:
         cb_ctls_len = netlink.NLMSG_MIN_TYPE
         c_cb_ctls = (cproto.MNL_CB_T * cb_ctls_len)()
@@ -27,6 +59,32 @@ def cb_run2(buf, seq, portid, cb_data, data, cb_ctls=None):
 
 
 def cb_run(buf, seq, portid, cb_data, data):
+    """callback runqueue for netlink messages (simplified version)
+
+    This function is like mnl_cb_run2() but it does not allow you to set
+    the control callback handlers.
+
+    Your callback may return three possible values:
+	- MNL_CB_ERROR (<=-1): an error has occurred. Stop callback runqueue.
+	- MNL_CB_STOP (=0): stop callback runqueue.
+	- MNL_CB_OK (>=1): no problems has occurred.
+
+    This function propagates the callback return value.
+
+    @type buf: buffer (bytearray)
+    @param buf: buffer that contains the netlink messages 
+    @type seq: number
+    @param seq: sequence number that we expect to receive
+    @type portid: number
+    @param portid: Netlink PortID that we expect to receive
+    @type cb_data: can be used mnl_cb_t or header header_cb decorator
+    @param cb_data: callback handler for data messages
+    @type data: any
+    @param data: data that will be passed to the data callback handler
+
+    @rtype: numner
+    @return: callback return value - MNL_CB_ERROR, MNL_CB_STOP or MNL_CB_OK
+    """
     c_buf = (ctypes.c_ubyte * len(buf)).from_buffer(buf)
     if cb_data is None: cb_data = cproto.MNL_CB_T()
 

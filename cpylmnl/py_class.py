@@ -11,8 +11,37 @@ from . import socket
 
 
 class Attribute(netlink.Nlattr):
-    def get_type(self):			return attr.attr_get_type(self)
-    def get_len(self):			return attr.attr_get_len(self)
+    """Netlink attribute helpers
+    Netlink Type-Length-Value (TLV) attribute:
+
+	|<-- 2 bytes -->|<-- 2 bytes -->|<-- variable -->|
+	-------------------------------------------------
+	|     length    |      type     |      value     |
+	-------------------------------------------------
+	|<--------- header ------------>|<-- payload --->|
+
+    The payload of the Netlink message contains sequences of attributes that are
+    expressed in TLV format.
+    """
+
+    def get_type(self):
+        """
+        get type of netlink attribute
+
+        @rtype: number
+        @return: the attribute type 
+        """
+        return attr.attr_get_type(self)
+
+    def get_len(self):
+        """
+        get length of netlink attribute
+
+        @type: number
+        @return: the attribute length that is the attribute header plus the
+        attribute payload.
+        """
+        return attr.attr_get_len(self)
     def get_payload_len(self):		return attr.attr_get_payload_len(self)
     def get_payload(self):		return attr.attr_get_payload(self)
     def get_payload_v(self):		return attr.attr_get_payload_v(self)

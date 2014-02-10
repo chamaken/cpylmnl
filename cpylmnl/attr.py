@@ -86,6 +86,30 @@ def attr_parse_nested(attr, cb, data):
 # int mnl_attr_parse_payload(const void *payload, size_t payload_len,
 # 	                     mnl_attr_cb_t cb, void *data)
 def attr_parse_payload(payload, cb, data):
+    """parse attributes in payload of Netlink message
+
+    This function takes a pointer to the area that contains the attributes,
+    commonly known as the payload of the Netlink message. Thus, you have to
+    pass a buffer to the Netlink message payload, instead of the entire
+    message.
+
+    This function allows you to iterate over the sequence of attributes that are
+    located at some payload offset. You can then put the attributes in one array
+    as usual, or you can use any other data structure (such as lists or trees).
+
+    This function propagates the return value of the callback, which can be
+    MNL_CB_ERROR, MNL_CB_OK or MNL_CB_STOP.
+
+    @type payload: buffer
+    @param payload: payload of the Netlink message
+    @type cb: mnl_attr_cb_t or attribute_cb decorator can be used
+    @param cb: callback function that is called for each attribute
+    @type data: any
+    @param data: python object that is passed to the callback function
+
+    @rtype: number
+    @return MNL_CB_ERROR, MNL_CB_OK or MNL_CB_STOP
+    """
     b = (ctypes.c_ubyte * len(payload)).from_buffer(payload)
     ret = cproto.c_attr_parse_payload(b, len(payload), cb, data)
     if ret < 0: raise cproto.os_error()
