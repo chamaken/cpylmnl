@@ -37,13 +37,13 @@ def parse_attr_cb(attr, tb):
             return mnl.MNL_CB_ERROR
     elif attr_type == nfqnl.NFQA_TIMESTAMP:
         try:
-            attr.validate2(mnl.MNL_TYPE_UNSPEC, nfqnl.NfqnlMsgPacketTimestamp.sizeof())
+            attr.validate2(mnl.MNL_TYPE_UNSPEC, nfqnl.NfqnlMsgPacketTimestamp.csize())
         except OSError as e:
             print("mnl_attr_validate2: %s" % e, file=sys.stderr)
             return mnl.MNL_CB_ERROR
     elif attr_type == nfqnl.NFQA_HWADDR:
         try:
-            attr.validate2(mnl.MNL_TYPE_UNSPEC, nfqnl.NfqnlMsgPacketHw.sizeof())
+            attr.validate2(mnl.MNL_TYPE_UNSPEC, nfqnl.NfqnlMsgPacketHw.csize())
         except OSError as e:
             print("mnl_attr_validate2: %s" % e, file=sys.stderr)
             return mnl.MNL_CB_ERROR
@@ -59,7 +59,7 @@ def queue_cb(nlh, tb):
     tb = dict()
     packet_id = 0
 
-    nlh.parse(nfnl.Nfgenmsg.sizeof(), parse_attr_cb, tb)
+    nlh.parse(nfnl.Nfgenmsg.csize(), parse_attr_cb, tb)
     if nfqnl.NFQA_PACKET_HDR in tb:
         ph = tb[nfqnl.NFQA_PACKET_HDR].get_payload_as(nfqnl.NfqnlMsgPacketHdr)
         packet_id = socket.ntohl(ph.packet_id)

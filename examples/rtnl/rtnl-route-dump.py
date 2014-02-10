@@ -178,10 +178,10 @@ def data_cb(nlh, tb):
     print("flags=%x " % rm.flags,		end='')
 
     if rm.family == socket.AF_INET:
-        nlh.parse(rtnl.Rtmsg.sizeof(), data_ipv4_attr_cb, tb)
+        nlh.parse(rtnl.Rtmsg.csize(), data_ipv4_attr_cb, tb)
         attributes_show_ipv4(tb)
     elif rm.family == socket.AF_INET6:
-        nlh.parse(rtnl.Rtmsg.sizeof(), data_ipv6_attr_cb, tb)
+        nlh.parse(rtnl.Rtmsg.csize(), data_ipv6_attr_cb, tb)
         attributes_show_ipv6(tb)
 
     print()

@@ -78,7 +78,7 @@ def parse_attr_cb(attr, tb):
 
     if attr_type == nfulnl.NFULA_PACKET_HDR:
         try:
-            attr.validate2(mnl.MNL_TYPE_UNSPEC, nfulnl.NfulnlMsgPacketHdr.sizeof())
+            attr.validate2(mnl.MNL_TYPE_UNSPEC, nfulnl.NfulnlMsgPacketHdr.csize())
         except OSError as e:
             log.warn("invalid NFULA_PACKET_HDR: %s" % e)
         else:
@@ -113,7 +113,7 @@ def make_tuple(ethtype, pktbuf):
 def log_cb(nlh, data):
     tb = dict()
 
-    nlh.parse(nfnl.Nfgenmsg.sizeof(), parse_attr_cb, tb)
+    nlh.parse(nfnl.Nfgenmsg.csize(), parse_attr_cb, tb)
     if not nfulnl.NFULA_PACKET_HDR in tb:
         log.warn("no NFULA_PACKET_HDR")
         return mnl.MNL_CB_OK

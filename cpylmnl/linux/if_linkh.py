@@ -148,7 +148,7 @@ IFLA_MAX = (__IFLA_MAX - 1)
 
 # backwards compatibility for userspace
 #define IFLA_RTA(r)  ((struct rtattr*)(((char*)(r)) + NLMSG_ALIGN(ctypes.sizeof(struct ifinfomsg))))
-def IFLA_RTA(r):	return rtnetlink.Rtattr.pointer(addressof(r) + netlink.NLMSG_ALIGN(ctypes.sizeof(rtnetlink.Ifinfomsg)))
+def IFLA_RTA(r):	return rtnetlink.Rtattr.from_pointer(addressof(r) + netlink.NLMSG_ALIGN(ctypes.sizeof(rtnetlink.Ifinfomsg)))
 #define IFLA_PAYLOAD(n) NLMSG_PAYLOAD(n,ctypes.sizeof(struct ifinfomsg))
 def IFLA_PAYLOAD(n):	return netlink.NLMSG_PAYLOAD(n, ctypes.sizeof(rtnetlink.Ifinfomsg))
 

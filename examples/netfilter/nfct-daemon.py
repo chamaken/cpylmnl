@@ -155,7 +155,7 @@ def data_cb(nlh, data):
     nfg = nlh.get_payload_as(nfnl.Nfgenmsg)
     ns = Nstat()
 
-    nlh.parse(nfnl.Nfgenmsg.sizeof(), data_attr_cb, tb)
+    nlh.parse(nfnl.Nfgenmsg.csize(), data_attr_cb, tb)
     if nfnlct.CTA_TUPLE_ORIG in tb:
         parse_tuple(tb[nfnlct.CTA_TUPLE_ORIG], ns)
 

@@ -96,13 +96,13 @@ def RTA_OK(rta, sz):	return (sz >= ctypes.sizeof(Rtattr) and
                                 rta.len <= sz)
 #define RTA_NEXT(rta,attrlen)	((attrlen) -= RTA_ALIGN((rta)->rta_len), \
 #				 (struct rtattr*)(((char*)(rta)) + RTA_ALIGN((rta)->rta_len)))
-def RTA_NEXT(rta, attrlen): return Rtattr.pointer(ctypes.addressof(rta) + RTA_ALIGN(rta.len)), attrlen - RTA_ALIGN(rta.len)
+def RTA_NEXT(rta, attrlen): return Rtattr.from_pointer(ctypes.addressof(rta) + RTA_ALIGN(rta.len)), attrlen - RTA_ALIGN(rta.len)
 #define RTA_LENGTH(len)	(RTA_ALIGN(sizeof(struct rtattr)) + (len))
 def RTA_LENGTH(len):	return RTA_ALIGN(ctypes.sizeof(Rtattr) + len)
 #define RTA_SPACE(len)	RTA_ALIGN(RTA_LENGTH(len))
 def RTA_SPACE(len):	return RTA_ALIGN(RTA_LENGTH(len))
 #define RTA_DATA(rta)   ((void*)(((char*)(rta)) + RTA_LENGTH(0)))
-def RTA_DATA(rta):	return cast(ctypes.addressof(rta) + RTA_LENGTH(0), POINTER(ctypes.c_ubyte * (rta.len - RTA_LENGTH))).contents
+def RTA_DATA(rta):	return cast(ctypes.addressof(rta) + RTA_LENGTH(0),.FROM_POINTER(ctypes.c_ubyte * (rta.len - RTA_LENGTH))).contents
 #define RTA_PAYLOAD(rta) ((int)((rta)->rta_len) - RTA_LENGTH(0))
 def RTA_PAYLOAD(rta):	return rta.len - RTA_LENGTH(0)
 
@@ -255,7 +255,7 @@ __RTA_MAX	= 18
 RTA_MAX		= (__RTA_MAX - 1)
 
 #define RTM_RTA(r)  ((struct rtattr*)(((char*)(r)) + NLMSG_ALIGN(sizeof(struct rtmsg))))
-def RTM_RTA(r):		return Rtattr.pointer(ctypes.addressof(r) + netlink.NLMSG_ALIGN(ctypes.sizeof(Rtmsg)))
+def RTM_RTA(r):		return Rtattr.from_pointer(ctypes.addressof(r) + netlink.NLMSG_ALIGN(ctypes.sizeof(Rtmsg)))
 #define RTM_PAYLOAD(n) NLMSG_PAYLOAD(n,sizeof(struct rtmsg))
 def RTM_PAYLOAD(n):	return netlink.NLMSG_PAYLOAD(n, ctypes.sizeof(Rtmsg))
 
@@ -289,7 +289,7 @@ def RTNL_ALIGN(len):	return (len + RTNH_ALIGNTO - 1) & ~(RTNH_ALIGNTO - 1)
 def RTNH_OK(rtnh, len):	return (rtnh.len >= ctypes.sizeof(Rtnexthop) and
                                 rtnh.len <= len)
 #define RTNH_NEXT(rtnh)	((struct rtnexthop*)(((char*)(rtnh)) + RTNH_ALIGN((rtnh)->rtnh_len)))
-def RTNH_NEXT(rtnh):	return Rtnexthop.pointer(ctypes.addressof(rtnh) + RTNL_ALIGN(rtnh.len))
+def RTNH_NEXT(rtnh):	return Rtnexthop.from_pointer(ctypes.addressof(rtnh) + RTNL_ALIGN(rtnh.len))
 #define RTNH_LENGTH(len) (RTNH_ALIGN(sizeof(struct rtnexthop)) + (len))
 def RTNH_LENGTH(len):	return RTNL_ALIGN(ctypes.sizeof(Rtnexthop)) + len
 #define RTNH_SPACE(len)	RTNH_ALIGN(RTNH_LENGTH(len))
@@ -444,7 +444,7 @@ __TCA_MAX	= 9
 TCA_MAX		= (__TCA_MAX - 1)
 
 #define TCA_RTA(r)  ((struct rtattr*)(((char*)(r)) + NLMSG_ALIGN(sizeof(struct tcmsg))))
-def TCA_RTA(r):		return Rtattr.pointer(ctypes.addressof(r) + netlink.NLMSG_ALIGN(ctypes.sizeof(Tcmsg)))
+def TCA_RTA(r):		return Rtattr.from_pointer(ctypes.addressof(r) + netlink.NLMSG_ALIGN(ctypes.sizeof(Tcmsg)))
 #define TCA_PAYLOAD(n) NLMSG_PAYLOAD(n,sizeof(struct tcmsg))
 def TCA_PAYLOAD(n):	return netlink.NLMSG_PAYLOAD(n, ctypes.sizeof(Tcmsg))
 
@@ -565,7 +565,7 @@ class Tcamsg(ctypes.Structure):
                 ("_pad2",	ctypes.c_ushort)] # unsigned short	tca__pad2
 
 #define TA_RTA(r)  ((struct rtattr*)(((char*)(r)) + NLMSG_ALIGN(sizeof(struct tcamsg))))
-def TA_RTA(r):		return Rtattr.pointer(ctypes.addressof(r) + netlink.NLMSG_ALIGN(ctypes.sizeof(Tcamsg)))
+def TA_RTA(r):		return Rtattr.from_pointer(ctypes.addressof(r) + netlink.NLMSG_ALIGN(ctypes.sizeof(Tcamsg)))
 #define TA_PAYLOAD(n) NLMSG_PAYLOAD(n,sizeof(struct tcamsg))
 def TA_PAYLOAD(n):	return netlink.NLMSG_PAYLOAD(n, ctypes.sizeof(Tcamsg))
 

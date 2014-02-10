@@ -167,7 +167,7 @@ def data_cb(nlh, tb):
     elif nlh.type & 0xff == nfnlct.IPCTNL_MSG_CT_DELETE:
         print("%9s " % "[DESTROY] ", end='')
 
-    nlh.parse(nfnl.Nfgenmsg.sizeof(), data_attr_cb, tb)
+    nlh.parse(nfnl.Nfgenmsg.csize(), data_attr_cb, tb)
     if nfnlct.CTA_TUPLE_ORIG in tb: print_tuple(tb[nfnlct.CTA_TUPLE_ORIG])
     if nfnlct.CTA_MARK in tb:       print("mark=%u " % socket.ntohl(tb[nfnlct.CTA_MARK].get_u32()), end='')
     if nfnlct.CTA_SECMARK in tb:    print("secmark=%u " % socket.ntohl(tb[nfnlct.CTA_SECMARK].get_u32()), end='')

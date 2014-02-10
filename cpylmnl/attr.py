@@ -139,9 +139,11 @@ attr_get_str		= cproto.c_attr_get_str
 # void
 # mnl_attr_put(struct nlmsghdr *nlh, uint16_t type, size_t len, const void *data)
 def attr_put(nlh, attr_type, data):
-    if hasattr(data, "sizeof"): size = data.sizeof() # netlink.UStructure
-    else: size = len(data)
-    cproto.c_attr_put(nlh, attr_type, size, (ctypes.c_ubyte * size).from_buffer(data))
+    try:
+        size = ctypes.sizeof(data)
+    except TypeError:
+        raise OSError(errno.EINVAL, "data must be ctypes type")
+    cproto.c_attr_put(nlh, attr_type, size, ctypes.byref(data))
 
 ### add 8-bit unsigned integer attribute to netlink message
 # void mnl_attr_put_u8(struct nlmsghdr *nlh, uint16_t type, uint8_t data)

@@ -49,7 +49,7 @@ def data_cb(nlh, tb):
         print("[NOT RUNNING] ", end='')
 
     tb = dict()
-    nlh.parse(rtnl.Ifinfomsg.sizeof(), data_attr_cb, tb)
+    nlh.parse(rtnl.Ifinfomsg.csize(), data_attr_cb, tb)
 
     if if_linkh.IFLA_MTU in tb:
         print("mtu=%d " % tb[if_linkh.IFLA_MTU].get_u32(), end='')

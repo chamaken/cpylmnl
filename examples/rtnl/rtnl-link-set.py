@@ -48,7 +48,7 @@ def main():
         nl.bind(0, mnl.MNL_SOCKET_AUTOPID)
         portid = nl.get_portid()
 
-        nlh.fprint(rtnl.Ifinfomsg.sizeof(), out=sys.stdout)
+        nlh.fprint(rtnl.Ifinfomsg.csize(), out=sys.stdout)
 
         try:
             nl.send_nlmsg(nlh)

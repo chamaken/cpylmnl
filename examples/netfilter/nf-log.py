@@ -36,13 +36,13 @@ def parse_attr_cb(attr, tb):
             return mnl.MNL_CB_ERROR
     elif attr_type == nfulnl.NFULA_TIMESTAMP:
         try:
-            attr.validate2(mnl.MNL_TYPE_UNSPEC, nfulnl.NfulnlMsgPacketTimestamp.sizeof())
+            attr.validate2(mnl.MNL_TYPE_UNSPEC, nfulnl.NfulnlMsgPacketTimestamp.csize())
         except OSError as e:
             print("mnl_attr_validate: %s" % e, file=sys.stderr)
             return mnl.MNL_CB_ERROR
     elif attr_type == nfulnl.NFULA_HWADDR:
         try:
-            attr.validate2(mnl.MNL_TYPE_UNSPEC, nfulnl.NfulnlMsgPacketHw.sizeof())
+            attr.validate2(mnl.MNL_TYPE_UNSPEC, nfulnl.NfulnlMsgPacketHw.csize())
         except OSError as e:
             print("mnl_attr_validate: %s" % e, file=sys.stderr)
             return mnl.MNL_CB_ERROR
@@ -66,7 +66,7 @@ def log_cb(nlh, data):
     mark = 0
     payload_len = 0
 
-    nlh.parse(nfnl.Nfgenmsg.sizeof(), parse_attr_cb, tb)
+    nlh.parse(nfnl.Nfgenmsg.csize(), parse_attr_cb, tb)
     if nfulnl.NFULA_PACKET_HDR in tb:
         ph = tb[nfulnl.NFULA_PACKET_HDR].get_payload_as(nfulnl.NfulnlMsgPacketHdr)
     if nfulnl.NFULA_PREFIX in tb:

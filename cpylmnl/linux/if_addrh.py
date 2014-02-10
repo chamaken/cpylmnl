@@ -52,6 +52,6 @@ class IfaCacheinfo(ctypes.Structure):
 
 # backwards compatibility for userspace
 #define IFA_RTA(r)  ((struct rtattr*)(((char*)(r)) + NLMSG_ALIGN(ctypes.sizeof(struct ifaddrmsg))))
-def IFA_RTA(r):	    	return rtnetlink.Rtattr.pointer(addressof(r) + netlink.NLMSG_ALIGN(ctypes.sizeof(Ifaddrmsg)))
+def IFA_RTA(r):	    	return rtnetlink.Rtattr.from_pointer(addressof(r) + netlink.NLMSG_ALIGN(ctypes.sizeof(Ifaddrmsg)))
 #define IFA_PAYLOAD(n) NLMSG_PAYLOAD(n,ctypes.sizeof(struct ifaddrmsg))
 def IFA_PAYLOAD(n):	return netlink.NLMSG_PAYLOAD(n, ctypes.sizeof(Ifaddrmsg))

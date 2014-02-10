@@ -49,7 +49,7 @@ def data_cb(nlh, tb):
         print("[NOT RUNNING] ", end='')
 
     tb = dict()
-    mnl.attr_parse(nlh, ifm.sizeof(), data_attr_cb, tb)
+    mnl.attr_parse(nlh, ifm.csize(), data_attr_cb, tb)
     if if_link.IFLA_MTU in tb:
         print("mtu=%d " % mnl.attr_get_u32(tb[if_link.IFLA_MTU]), end='')
     if if_link.IFLA_IFNAME in tb:

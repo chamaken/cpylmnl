@@ -86,7 +86,7 @@ class TestSuite(unittest.TestCase):
     def test_put_extra_header_as(self):
         self.rand_hbuf.len = mnl.MNL_ALIGN(256)
         exhdr = self.rand_nlh.put_extra_header_as(nfnl.Nfgenmsg)
-        self.assertTrue(self.rand_nlh.len == mnl.MNL_ALIGN(256) + mnl.MNL_ALIGN(nfnl.Nfgenmsg.sizeof()))
+        self.assertTrue(self.rand_nlh.len == mnl.MNL_ALIGN(256) + mnl.MNL_ALIGN(nfnl.Nfgenmsg.csize()))
         self.assertTrue(isinstance(exhdr, nfnl.Nfgenmsg))
         self.assertTrue(exhdr.family == 0)
         self.assertTrue(exhdr.version == 0)
@@ -207,7 +207,7 @@ class TestSuite(unittest.TestCase):
 
         # make buf full
         for i in range(1, 11):
-            nlh = mnl.Header.pointer(b.current())
+            nlh = mnl.Header.from_pointer(b.current())
             nlh.put_header()
             self.assertTrue(b.next_batch() == True)
             self.assertTrue(b.size() == mnl.MNL_NLMSG_HDRLEN * i,)
@@ -216,7 +216,7 @@ class TestSuite(unittest.TestCase):
             self.assertTrue(b.is_empty() == False)
 
         # after full
-        nlh = mnl.Header.pointer(b.current())
+        nlh = mnl.Header.from_pointer(b.current())
         nlh.put_header()
         self.assertTrue(b.next_batch() == False)
         self.assertTrue(b.size() == mnl.MNL_NLMSG_HDRLEN * i)

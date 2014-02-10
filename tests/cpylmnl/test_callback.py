@@ -173,7 +173,7 @@ class TestSuite(unittest.TestCase):
         @mnl.header_cb
         def cb_err(nlh, d):
             err = nlh.get_payload_as(netlink.Nlmsgerr)
-            if nlh.len < nlh.size(netlink.Nlmsgerr.sizeof()):
+            if nlh.len < nlh.size(netlink.Nlmsgerr.csize()):
                 set_errno(errno.EBADMSG)
                 return mnl.MNL_CB_ERROR
             if err.error < 0:

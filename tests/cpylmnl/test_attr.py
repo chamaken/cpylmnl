@@ -343,7 +343,7 @@ class TestSuite(unittest.TestCase):
 
 
     def test_put(self):
-        b = bytearray([1, 2, 3])
+        b = (ctypes.c_ubyte * 3).from_buffer(bytearray([1, 2, 3]))
         self.nlh.put_header()
         self.nlh.put(1, b)
         self.assertTrue(self.hbuf.len == self.msg_attr_hlen + mnl.MNL_ALIGN(len(b)))

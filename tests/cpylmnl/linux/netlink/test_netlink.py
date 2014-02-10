@@ -18,7 +18,7 @@ class TestSuite(unittest.TestCase):
     def test___new__(self):
         # empty header only
         nlh = Nlmsghdr()
-        self.assertEquals(nlh.sizeof(), sizeof(Nlmsghdr))
+        self.assertEquals(nlh.csize(), sizeof(Nlmsghdr))
         self.assertEquals(nlh.marshal_binary(), bytearray(sizeof(Nlmsghdr)))
 
         # short buf len
