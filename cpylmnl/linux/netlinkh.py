@@ -36,16 +36,6 @@ NETLINK_INET_DIAG	= NETLINK_SOCK_DIAG
 
 MAX_LINKS = 32		
 
-'''
-class SockaddrNl(ctypes.Structure):
-    """struct sockaddr_nl
-    """
-    _fields_ = [("family", 	c_ushort), # __kernel_sa_family_t	nl_family;	/* AF_NETLINK	*/
-                ("pad",		c_short),  # unsigned short		nl_pad;		/* zero		*/
-                ("pid",		ctypes.c_uint32), # __u32			nl_pid;		/* port ID	*/
-                ("groups", 	ctypes.c_uint32)] # __u32			nl_groups;	/* multicast groups mask */
-'''
-
 class Nlmsghdr(NLStructure):
     """struct nlmsghdr
     """
