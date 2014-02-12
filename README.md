@@ -1,7 +1,7 @@
 cpylmnl
 ========
 
-python wrapper of libmnl using ctypes, under heavy development
+Python wrapper of libmnl using ctypes, under heavy development
 
 sample
 ------
@@ -34,10 +34,10 @@ from C to Python
 ----------------
 
 * "nlstruct.py" is helper for representing netlink structs by ctypes.
-* symbols are defined in "libmnlh.py". 
-* binding functions in "cproto.py".
-* tweaking for Python in each "nlmsg.py", "attr.py", "socket.py", "callback.py"
-* letting be Python class in "py_class.py"
+* symbols are defined in "_libmnlh.py". 
+* binding functions in "_cproto.py".
+* tweaking for Python in each "_nlmsg.py", "_attr.py", "_socket.py", "_callback.py"
+* letting those be Python class in "__init__.py"
 
 
 comparison
@@ -64,7 +64,7 @@ comparison
 | mnl_attr_get_u32			| Attribute.get_u32		|				|
 | mnl_attr_get_u64			| Attribute.get_u64		|				|
 | mnl_attr_get_str			| Attribute.get_str		|				|
-| mnl_attr_put				| Header.put			| data must be mutable		|
+| mnl_attr_put				| Header.put			| require ctypes data type	|
 | mnl_attr_put_u8			| Header.put_u8			|				|
 | mnl_attr_put_u16			| Header.put_u16		|				|
 | mnl_attr_put_u32			| Header.put_u32		|				|
@@ -72,7 +72,7 @@ comparison
 | mnl_attr_put_str			| Header.putstr			|				|
 | mnl_attr_put_strz			| Header.putstrz		|				|
 | mnl_attr_nest_start			| Header.nest_start		| returns contents		|
-| mnl_attr_put_check			| Header.put_check		| data must be mutable		|
+| mnl_attr_put_check			| Header.put_check		| require ctypes data type	|
 | mnl_attr_put_u8_check			| Header.put_u8_check		|				|
 | mnl_attr_put_u16_check		| Header.put_u16_check		|				|
 | mnl_attr_put_u32_check		| Header.put_u32_check		|				|
@@ -130,9 +130,9 @@ comparison
 |					|				| mutable buffer not bytes	|
 | mnl_socket_close			| Socket.close			|				|
 | mnl_socket_setsockopt			| Socket.setsockopt		| require mutable buffer	|
-| mnl_socket_getsockopt			| Socket.getsockopt		| require buflen returns bytes	|
+| mnl_socket_getsockopt			| Socket.getsockopt		| require buflen, returns bytes	|
 | (add)					| Socket.getsockopt_as		| 				|
 | ------------------------------------- | ----------------------------- | ----------------------------- |
-| mnl_attr_for_each_nested		| Attribute.nedteds		| reprerent by iterator		|
+| mnl_attr_for_each_nested		| Attribute.nesteds		| reprerent by iterator		|
 | mnl_attr_for_each			| Header.attributes		|				|
 | mnl_attr_for_each_payload		| payload_attributes		|				|
