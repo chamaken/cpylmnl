@@ -224,7 +224,9 @@ attr_put_strz_check	= _cproto.c_attr_put_strz_check
 # struct nlattr *
 # mnl_attr_nest_start_check(struct nlmsghdr *nlh, size_t buflen, uint16_t type)
 def attr_nest_start_check(nlh, buflen, attr_type):
-    return _cproto.c_attr_nest_start_check(nlh, buflen, attr_type).contents
+    ret = _cproto.c_attr_nest_start_check(nlh, buflen, attr_type)
+    if ret is None: return None
+    return ctypes.cast(ret, ctypes.POINTER(netlink.Nlattr)).contents
 
 ### start an attribute nest
 # void

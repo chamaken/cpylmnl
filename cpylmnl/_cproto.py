@@ -406,7 +406,7 @@ c_attr_nest_start_check = LIBMNL.mnl_attr_nest_start_check
 c_attr_nest_start_check.__doc__ = """\
 struct nlattr *mnl_attr_nest_start_check(struct nlmsghdr *nlh, size_t buflen, uint16_t type)"""
 c_attr_nest_start_check.argtypes = [ctypes.POINTER(netlink.Nlmsghdr), ctypes.c_size_t, ctypes.c_uint16]
-c_attr_nest_start_check.restype = ctypes.POINTER(netlink.Nlattr)
+c_attr_nest_start_check.restype = ctypes.c_void_p
 
 c_attr_nest_end = LIBMNL.mnl_attr_nest_end
 c_attr_nest_end.__doc__ = """\
