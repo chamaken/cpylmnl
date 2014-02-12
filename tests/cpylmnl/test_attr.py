@@ -353,6 +353,13 @@ class TestSuite(unittest.TestCase):
         self.assertTrue(_tbuf.len == mnl.MNL_ATTR_HDRLEN + len(b))
         self.assertTrue(_tbuf[mnl.MNL_ATTR_HDRLEN:mnl.MNL_ATTR_HDRLEN + len(b)] == b)
 
+        try:
+            self.nlh.put(1, bytearray([1, 2, 3]))
+        except OSError as e:
+            self.assertEqual(e.errno, errno.EINVAL)
+        else:
+            self.fail("not raise OSError")
+
 
     def test_put_u8(self):
         self.nlh.put_header()
@@ -459,6 +466,13 @@ class TestSuite(unittest.TestCase):
         pb = _hbuf[:]
         self.assertFalse(_nlh.put_check(self.msg_attr_hlen, 1, b))
         self.assertTrue(_hbuf == pb)
+
+        try:
+            self.nlh.put_check(3, 1, bytearray([1, 2, 3]))
+        except OSError as e:
+            self.assertEqual(e.errno, errno.EINVAL)
+        else:
+            self.fail("not raise OSError")
 
 
     def test_put_u8_check(self):
@@ -595,6 +609,18 @@ class TestSuite(unittest.TestCase):
         pb = _hbuf[:]
         self.assertFalse(_nlh.put_strz_check(self.msg_attr_hlen, mnl.MNL_TYPE_NUL_STRING, s))
         self.assertTrue(_hbuf == pb)
+
+
+    def test_nest_start_check(self):
+        self.nlh.put_header()
+        attr = self.nlh.nest_start_check(16, 1)
+        self.assertEqual(attr, None)
+        attr = self.nlh.nest_start_check(20, 1)
+        self.assertTrue(self.hbuf.len == mnl.MNL_NLMSG_HDRLEN + mnl.MNL_ATTR_HDRLEN)
+
+        _tbuf = NlattrBuf(self.hbuf[mnl.MNL_NLMSG_HDRLEN:])
+        self.assertTrue(_tbuf.type & netlink.NLA_F_NESTED == netlink.NLA_F_NESTED)
+        self.assertTrue(_tbuf.type & 1 == 1)
 
 
     def test_nest_end(self):

@@ -100,7 +100,6 @@ class TestSuite(unittest.TestCase):
         self.nlmsghdr_intr = self.nlmsghdr_mintype + intr_msg
 
 
-
     def test_cb_run2(self):
         self.assertEqual(mnl.cb_run2(self.nlmsghdr_noop, 1, 1, None, None), mnl.MNL_CB_OK)
         self.assertEqual(mnl.cb_run2(self.nlmsghdr_mintype, 1, 1, None, None), mnl.MNL_CB_OK)
@@ -203,6 +202,66 @@ class TestSuite(unittest.TestCase):
             self.assertEqual(e.errno, errno.EPERM)
         else:
             self.fail("not raise OSError")
+
+
+    def test_cb_run(self):
+        self.assertEqual(mnl.cb_run(self.nlmsghdr_noop, 1, 1, None, None), mnl.MNL_CB_OK)
+        self.assertEqual(mnl.cb_run(self.nlmsghdr_mintype, 1, 1, None, None), mnl.MNL_CB_OK)
+        try:
+            mnl.cb_run(self.nlmsghdr_error, 1, 1, None, None)
+        except OSError as e:
+            self.assertEquals(e.errno, errno.EPERM)
+        else:
+            self.fail("not raise OSError")
+
+        @mnl.mnl_cb_t
+        def cb_data(h, d):
+            d is not None and d.append(h.type)
+            if h.type == 0xff:
+                ctypes.set_errno(errno.ENOBUFS)
+                return mnl.MNL_CB_ERROR
+            elif h.type == 0x7f: return mnl.MNL_CB_STOP
+            else: return mnl.MNL_CB_OK
+
+        l = []
+        try:
+            mnl.cb_run(self.nlmsghdr_typeFF, 1, 1, cb_data, l)
+        except OSError as e:
+            self.assertEquals(e.errno, errno.ENOBUFS)
+        else:
+            self.fail("not raise OSError")
+
+        l = []
+        ret = mnl.cb_run(self.nlmsghdr_type7F, 1, 1, cb_data, l)
+        self.assertEqual(ret, mnl.MNL_CB_STOP)
+        self.assertEqual(l[0], netlink.NLMSG_MIN_TYPE)
+        self.assertEqual(l[1], 0x7f)
+
+        try:
+            mnl.cb_run(self.nlmsghdr_pid2, 1, 1, cb_data, None)
+        except OSError as e:
+            self.assertEqual(e.errno, errno.ESRCH)
+        else:
+            self.fail("not raise OSError")
+
+        try:
+            mnl.cb_run(self.nlmsghdr_seq2, 1, 1, cb_data, None)
+        except OSError as e:
+            self.assertEqual(e.errno, errno.EPROTO)
+        else:
+            self.fail("not raise OSError")
+
+        # Python2.6 returns -1 but could not get EINTR?
+        if sys.version_info < (2, 7):
+            ret = mnl.cb_run(self.nlmsghdr_intr, 1, 1, cb_data, None)
+            self.assertEquals(ret, mnl.MNL_CB_ERROR)
+        else:
+            try:
+                mnl.cb_run2(self.nlmsghdr_intr, 1, 1, cb_data, None)
+            except OSError as e:
+                self.assertEqual(e.errno, errno.EINTR)
+            else:
+                self.fail("not raise OSError")
 
 
 if __name__ == '__main__':

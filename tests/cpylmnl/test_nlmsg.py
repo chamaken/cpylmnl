@@ -66,6 +66,9 @@ class TestSuite(unittest.TestCase):
     def test_nlmsg_put_header(self):
         nlh = mnl.nlmsg_put_header(self.hbuf)
         self.assertTrue(nlh.len == mnl.MNL_NLMSG_HDRLEN)
+        h = mnl.nlmsg_put_header(self.hbuf, mnl.Header)
+        self.assertTrue(h.len == mnl.MNL_NLMSG_HDRLEN)
+        self.assertRaises(TypeError, mnl.nlmsg_put_header, self.hbuf, list)
 
 
     def test_put_new_header(self):
@@ -93,11 +96,25 @@ class TestSuite(unittest.TestCase):
         self.assertTrue(exhdr.res_id == 0)
 
 
+    def test_get_payload(self):
+        self.rand_nlh.len = mnl.MNL_ALIGN(384)
+        p = self.rand_nlh.get_payload()
+        b = ctypes.cast(p, ctypes.POINTER((ctypes.c_ubyte * (384 - mnl.MNL_NLMSG_HDRLEN)))).contents
+        self.assertTrue(b == self.rand_hbuf[mnl.MNL_NLMSG_HDRLEN:mnl.MNL_ALIGN(384)])
+
+
     def test_get_payload_v(self):
         self.rand_nlh.len = mnl.MNL_ALIGN(384)
         b = self.rand_nlh.get_payload_v()
         self.assertTrue(len(b) == 384 - mnl.MNL_NLMSG_HDRLEN)
         self.assertTrue(b == self.rand_hbuf[mnl.MNL_NLMSG_HDRLEN:mnl.MNL_ALIGN(384)])
+
+
+    def test_get_payload_offset(self):
+        p = self.rand_nlh.get_payload_offset(191)
+        buflen = self.buflen - mnl.MNL_NLMSG_HDRLEN - mnl.MNL_ALIGN(191)
+        b = ctypes.cast(p, ctypes.POINTER((ctypes.c_ubyte * buflen))).contents
+        self.assertTrue(b == self.rand_hbuf[mnl.MNL_NLMSG_HDRLEN + mnl.MNL_ALIGN(191):])
 
 
     def test_get_payload_offset_v(self):
@@ -235,6 +252,9 @@ class TestSuite(unittest.TestCase):
         b.next_batch()
         b.reset()
         self.assertTrue(b.is_empty() == True)
+
+        # just call stop
+        b.stop()
 
 
 if __name__ == '__main__':
