@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import resource, ctypes
-from . import cproto
+from . import _cproto
 from .linux import netlinkh as netlink
 try:
     from enum import Enum
@@ -68,7 +68,7 @@ SOL_NETLINK		= 270
 def MNL_ARRAY_SIZE(a):	return (ctypes.sizeof(a)/ctypes.sizeof((a)[0]))
 
 
-if cproto.HAS_MNL_RING:
+if _cproto.HAS_MNL_RING:
     def MNL_FRAME_PAYLOAD(frame):
         return ctypes.cast(ctypes.addressof(frame) + netlink.NL_MMAP_HDRLEN,
                            ctypes.POINTER(ctypes.c_ubyte * frame.len)).contents

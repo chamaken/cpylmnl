@@ -5,7 +5,7 @@ from __future__ import absolute_import, print_function
 import sys, os, errno, ctypes
 
 from .linux import netlinkh as netlink
-from . import cproto
+from . import _cproto
 
 
 def cb_run2(buf, seq, portid, cb_data, data, cb_ctls=None):
@@ -19,11 +19,11 @@ def cb_run2(buf, seq, portid, cb_data, data, cb_ctls=None):
 	- MNL_CB_STOP (=0): stop callback runqueue.
 	- MNL_CB_OK (>=1): no problem has occurred.
 
-    This function propagates the callback return value. On error, it returns
-    -1 and errno is explicitly set. If the portID is not the expected, errno
-    is set to ESRCH. If the sequence number is not the expected, errno is set
-    to EPROTO. If the dump was interrupted, errno is set to EINTR and you should
-    request a new fresh dump again.
+    This function propagates the callback return value. On error, it raises
+    OSError. If the portID is not the expected, errno is set to ESRCH. If the
+    sequence number is not the expected, errno is set to EPROTO. If the dump was
+    interrupted, errno is set to EINTR and you should request a new fresh dump
+    again.
 
     @type buf: buffer (bytearray)
     @param buf: buffer that contains the netlink messages 
@@ -43,18 +43,18 @@ def cb_run2(buf, seq, portid, cb_data, data, cb_ctls=None):
     """
     if cb_ctls is not None:
         cb_ctls_len = netlink.NLMSG_MIN_TYPE
-        c_cb_ctls = (cproto.MNL_CB_T * cb_ctls_len)()
+        c_cb_ctls = (_cproto.MNL_CB_T * cb_ctls_len)()
         for i in range(cb_ctls_len):
-            c_cb_ctls[i] = cb_ctls.get(i, cproto.MNL_CB_T())
+            c_cb_ctls[i] = cb_ctls.get(i, _cproto.MNL_CB_T())
     else:
         cb_ctls_len = 0
         c_cb_ctls = None
 
     c_buf = (ctypes.c_ubyte * len(buf)).from_buffer(buf)
-    if cb_data is None: cb_data = cproto.MNL_CB_T()
+    if cb_data is None: cb_data = _cproto.MNL_CB_T()
 
-    ret = cproto.c_cb_run2(c_buf, len(c_buf), seq, portid, cb_data, data, c_cb_ctls, cb_ctls_len)
-    if ret < 0: raise cproto.os_error()
+    ret = _cproto.c_cb_run2(c_buf, len(c_buf), seq, portid, cb_data, data, c_cb_ctls, cb_ctls_len)
+    if ret < 0: raise _cproto.os_error()
     return ret
 
 
@@ -69,7 +69,8 @@ def cb_run(buf, seq, portid, cb_data, data):
 	- MNL_CB_STOP (=0): stop callback runqueue.
 	- MNL_CB_OK (>=1): no problems has occurred.
 
-    This function propagates the callback return value.
+    This function propagates the callback return value or raise OSError in case
+    of MNL_CB_ERROR.
 
     @type buf: buffer (bytearray)
     @param buf: buffer that contains the netlink messages 
@@ -86,10 +87,10 @@ def cb_run(buf, seq, portid, cb_data, data):
     @return: callback return value - MNL_CB_ERROR, MNL_CB_STOP or MNL_CB_OK
     """
     c_buf = (ctypes.c_ubyte * len(buf)).from_buffer(buf)
-    if cb_data is None: cb_data = cproto.MNL_CB_T()
+    if cb_data is None: cb_data = _cproto.MNL_CB_T()
 
-    ret = cproto.c_cb_run(c_buf, len(c_buf), seq, portid, cb_data, data)
-    if ret < 0: raise cproto.os_error()
+    ret = _cproto.c_cb_run(c_buf, len(c_buf), seq, portid, cb_data, data)
+    if ret < 0: raise _cproto.os_error()
     return ret
 
 
@@ -102,12 +103,5 @@ def _cb_factory(argcls, cftype):
         return cftype(_inner)
     return _decorator
 
-mnl_cb_t	= _cb_factory(netlink.Nlmsghdr, cproto.MNL_CB_T)
-mnl_attr_cb_t	= _cb_factory(netlink.Nlattr, cproto.MNL_ATTR_CB_T)
-
-from .py_class import Attribute, Header
-attribute_cb	= _cb_factory(Attribute, cproto.MNL_ATTR_CB_T)
-header_cb	= _cb_factory(Header, cproto.MNL_CB_T)
-
-
-__all__ = ["cb_run", "cb_run2", "mnl_cb_t", "mnl_attr_cb_t", "attribute_cb", "header_cb"]
+mnl_cb_t	= _cb_factory(netlink.Nlmsghdr, _cproto.MNL_CB_T)
+mnl_attr_cb_t	= _cb_factory(netlink.Nlattr, _cproto.MNL_ATTR_CB_T)
