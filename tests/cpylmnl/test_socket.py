@@ -51,7 +51,7 @@ class TestSuite(unittest.TestCase):
     def test_send_recv(self):
         self.nl.bind(0, mnl.MNL_SOCKET_AUTOPID)
 
-        nlh = mnl.put_new_header(mnl.MNL_NLMSG_HDRLEN)
+        nlh = mnl.Header.put_new_header(mnl.MNL_NLMSG_HDRLEN)
         nlh.type = netlink.NLMSG_NOOP
         nlh.flags = netlink.NLM_F_ECHO|netlink.NLM_F_ACK
         nlh.pid = self.nl.get_portid()
@@ -90,7 +90,7 @@ class TestSuite(unittest.TestCase):
 
     def test_opt(self):
         on = struct.pack("i", 1)
-        self.assertEquals(self.nl.setsockopt(netlink.NETLINK_BROADCAST_ERROR, on), 0)
+        self.nl.setsockopt(netlink.NETLINK_BROADCAST_ERROR, on)
         opt = self.nl.getsockopt(netlink.NETLINK_BROADCAST_ERROR, 4)
         self.assertEquals(struct.unpack("i", bytes(opt))[0], 1)
         self.assertEquals(self.nl.getsockopt_as(netlink.NETLINK_BROADCAST_ERROR, ctypes.c_int), 1)
