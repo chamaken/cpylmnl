@@ -233,7 +233,7 @@ class TestSuite(unittest.TestCase):
         cb = mnl.attribute_cb(_cb())
 
         # XXX: using functions defined here
-        nlh = mnl.put_new_header(512)
+        nlh = mnl.Header.put_new_header(512)
         nlh.put_u8(mnl.MNL_TYPE_U8, 0x10)
         nlh.put_u8(mnl.MNL_TYPE_U8, 0x11)
         nlh.put_u8(mnl.MNL_TYPE_U8, 0x12)
@@ -241,21 +241,21 @@ class TestSuite(unittest.TestCase):
         self.assertTrue(nlh.parse(0, cb, None) == mnl.MNL_CB_OK)
 
         # just testing closure
-        nlh = mnl.put_new_header(512)
+        nlh = mnl.Header.put_new_header(512)
         nlh.put_u8(mnl.MNL_TYPE_U8, 0x14)
         nlh.put_u8(mnl.MNL_TYPE_U8, 0x15)
         nlh.put_u8(mnl.MNL_TYPE_U8, 0x16)
         nlh.put_u8(mnl.MNL_TYPE_U8, 0x17)
         self.assertTrue(nlh.parse(0, cb, None) == mnl.MNL_CB_OK)
 
-        nlh = mnl.put_new_header(512)
+        nlh = mnl.Header.put_new_header(512)
         nlh.put_u8(mnl.MNL_TYPE_U8, 0x18)
         nlh.put_u8(mnl.MNL_TYPE_U8, 0x19)
         nlh.put_u8(mnl.MNL_TYPE_U8, 0x1a)
         nlh.put_u8(mnl.MNL_TYPE_U8, 0x10)
         self.assertTrue(nlh.parse(0, cb, None) == mnl.MNL_CB_STOP)
 
-        nlh = mnl.put_new_header(512)
+        nlh = mnl.Header.put_new_header(512)
         nlh.put_u8(mnl.MNL_TYPE_U8, 0x00)
         self.assertRaises(OSError, nlh.parse, 0, cb, 1)
 
@@ -285,7 +285,7 @@ class TestSuite(unittest.TestCase):
 
     def test_attr_parse_payload(self):
         # XXX: using functions defined here
-        nlh = mnl.put_new_header(512)
+        nlh = mnl.Header.put_new_header(512)
         nlh.put_u8(2, 10)
         nlh.put_u8(3, 10)
         nlh.put_u8(4, 10)
@@ -440,7 +440,7 @@ class TestSuite(unittest.TestCase):
 
 
     def test_put_check(self):
-        b = bytearray([1, 2, 3])
+        b = (ctypes.c_ubyte * 3).from_buffer(bytearray([1, 2, 3]))
         self.nlh.put_header()
         self.assertTrue(self.nlh.put_check(len(self.hbuf), 1, b))
 

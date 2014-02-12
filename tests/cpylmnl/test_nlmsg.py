@@ -69,7 +69,7 @@ class TestSuite(unittest.TestCase):
 
 
     def test_put_new_header(self):
-        nlh = mnl.put_new_header(128)
+        nlh = mnl.Header.put_new_header(128)
         self.assertTrue(nlh.len == mnl.MNL_NLMSG_HDRLEN)
 
 
