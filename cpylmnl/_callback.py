@@ -26,7 +26,7 @@ def cb_run2(buf, seq, portid, cb_data, data, cb_ctls=None):
     again.
 
     @type buf: buffer (bytearray)
-    @param buf: buffer that contains the netlink messages 
+    @param buf: buffer that contains the netlink messages
     @type seq: number
     @param seq: sequence number that we expect to receive
     @type portid: number
@@ -73,7 +73,7 @@ def cb_run(buf, seq, portid, cb_data, data):
     of MNL_CB_ERROR.
 
     @type buf: buffer (bytearray)
-    @param buf: buffer that contains the netlink messages 
+    @param buf: buffer that contains the netlink messages
     @type seq: number
     @param seq: sequence number that we expect to receive
     @type portid: number

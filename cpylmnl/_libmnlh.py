@@ -78,5 +78,5 @@ if _cproto.HAS_MNL_RING:
 
 
 import re
-export_symbol_exp = re.compile("^[A-Z]")
+export_symbol_exp = re.compile("^[A-Z][A-Z]")
 __all__ = [s for s in globals().keys() if export_symbol_exp.search(s) is not None]
