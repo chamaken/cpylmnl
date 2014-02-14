@@ -20,7 +20,7 @@ requires
 
 * libmnl
 * Python >= 2.6
-* test reqs (optional): **python-coverage**, **python-nose**
+* test reqs (optional): python-coverage, python-nose
 
 
 links
@@ -34,10 +34,10 @@ from C to Python
 ----------------
 
 * "nlstruct.py" is helper for representing netlink structs by ctypes.
-* symbols are defined in "_libmnlh.py". 
-* binding functions in "_cproto.py".
-* tweaking for Python in each "_nlmsg.py", "_attr.py", "_socket.py", "_callback.py"
-* letting those be Python class in "__init__.py"
+* symbols are defined in "\_libmnlh.py". 
+* binding functions in "\_cproto.py".
+* tweaking for Python in each "\_nlmsg.py", "\_attr.py", "\_socket.py", "\_callback.py"
+* letting those be Python class in "\__init__.py"
 
 
 comparison
