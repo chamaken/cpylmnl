@@ -99,7 +99,7 @@ nlmsg_portid_ok		= _cproto.c_nlmsg_portid_ok
 def nlmsg_fprint(buf, extra_header_size, out=None):
     if out is None: out = sys.__stdout__
     c_buf = (ctypes.c_ubyte * len(buf)).from_buffer(buf)
-    f = c_fdopen(out.fileno(), out.mode)
+    f = _cproto.c_fdopen(out.fileno(), out.mode)
     _cproto.c_nlmsg_fprintf(f, c_buf, len(buf), extra_header_size)
 
 # struct mnl_nlmsg_batch *mnl_nlmsg_batch_start(void *buf, size_t limit)
