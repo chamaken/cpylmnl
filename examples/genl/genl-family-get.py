@@ -155,7 +155,7 @@ def main():
         print("%s [family name]" % sys.argv[0])
         sys.exit(-1)
 
-    nlh = mnl.put_new_header(mnl.MNL_SOCKET_BUFFER_SIZE)
+    nlh = mnl.Header.put_new_header(mnl.MNL_SOCKET_BUFFER_SIZE)
     nlh.type = genl.GENL_ID_CTRL
     nlh.flags = netlink.NLM_F_REQUEST | netlink.NLM_F_ACK
     seq = int(time.time())

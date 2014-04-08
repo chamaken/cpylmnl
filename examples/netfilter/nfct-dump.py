@@ -214,7 +214,7 @@ def data_cb(nlh, data):
 
 
 def main():
-    nlh = mnl.put_new_header(mnl.MNL_SOCKET_BUFFER_SIZE)
+    nlh = mnl.Header.put_new_header(mnl.MNL_SOCKET_BUFFER_SIZE)
     nlh.type = (nfnl.NFNL_SUBSYS_CTNETLINK << 8) | nfnlct.IPCTNL_MSG_CT_GET
     nlh.flags = netlink.NLM_F_REQUEST|netlink.NLM_F_DUMP
     seq = int(time.time())

@@ -49,7 +49,7 @@ def main():
     if len(sys.argv) == 5:
         gw = bytearray(socket.inet_pton(family, sys.argv[4]))
 
-    nlh = mnl.put_new_header(mnl.MNL_SOCKET_BUFFER_SIZE)
+    nlh = mnl.Header.put_new_header(mnl.MNL_SOCKET_BUFFER_SIZE)
     nlh.type = rtnl.RTM_NEWROUTE
     nlh.flags = netlink.NLM_F_REQUEST | netlink.NLM_F_CREATE | netlink.NLM_F_ACK
     seq = int(time.time())

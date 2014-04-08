@@ -193,7 +193,7 @@ def main():
         print("Usage: %s <inet|inet6>" % sys.argv[0])
         sys.exit(-1)
 
-    nlh = mnl.put_new_header(mnl.MNL_SOCKET_BUFFER_SIZE)
+    nlh = mnl.Header.put_new_header(mnl.MNL_SOCKET_BUFFER_SIZE)
     nlh.type = rtnl.RTM_GETROUTE
     nlh.flags = netlink.NLM_F_REQUEST | netlink.NLM_F_DUMP
     seq = int(time.time())
