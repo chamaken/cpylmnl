@@ -18,6 +18,9 @@ class Ifaddrmsg(NLStructure):
 # It makes no difference for normally configured broadcast interfaces,
 # but for point-to-point IFA_ADDRESS is DESTINATION address,
 # local address is supplied in IFA_LOCAL attribute.
+#
+# IFA_FLAGS is a u32 attribute that extends the u8 field ifa_flags.
+# If present, the value from struct ifaddrmsg will be ignored.
 # enum
 IFA_UNSPEC	= 0
 IFA_ADDRESS	= 1
@@ -27,7 +30,8 @@ IFA_BROADCAST	= 4
 IFA_ANYCAST	= 5
 IFA_CACHEINFO	= 6
 IFA_MULTICAST	= 7
-__IFA_MAX	= 8
+IFA_FLAGS	= 8
+__IFA_MAX	= 9
 IFA_MAX		= (__IFA_MAX - 1)
 
 # ifa_flags
@@ -40,6 +44,8 @@ IFA_F_HOMEADDRESS	= 0x10
 IFA_F_DEPRECATED	= 0x20
 IFA_F_TENTATIVE		= 0x40
 IFA_F_PERMANENT		= 0x80
+IFA_F_MANAGETEMPADDR	= 0x100
+IFA_F_NOPREFIXROUTE	= 0x200
 
 class IfaCacheinfo(ctypes.Structure):
     """struct ifa_cacheinfo

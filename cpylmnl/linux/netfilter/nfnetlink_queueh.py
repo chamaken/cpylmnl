@@ -61,7 +61,9 @@ class NfqnlAttrType(Enum):
     NFQA_CAP_LEN		= 13 # enum ip_conntrack_info
     NFQA_SKB_INFO		= 14 # __u32 length of captured packet
     NFQA_EXP			= 15 # __u32 skb meta information
-    __NFQA_MAX			= 16 # nf_conntrack_netlink.h
+    NFQA_UID			= 16 # __u32 sk uid
+    NFQA_GID			= 17 # __u32 sk gid
+    __NFQA_MAX			= 18 # nf_conntrack_netlink.h
     NFQA_MAX			= (__NFQA_MAX - 1)
 NFQA_UNSPEC		= 0
 NFQA_PACKET_HDR		= 1
@@ -79,7 +81,9 @@ NFQA_CT_INFO		= 12
 NFQA_CAP_LEN		= 13
 NFQA_SKB_INFO		= 14
 NFQA_EXP		= 15
-__NFQA_MAX		= 16
+NFQA_UID		= 16
+NFQA_GID		= 17
+__NFQA_MAX		= 18
 NFQA_MAX		= (__NFQA_MAX - 1)
 
 class NfqnlMsgVerdictHdr(NLStructure):
@@ -146,7 +150,8 @@ NFQA_CFG_MAX		= (__NFQA_CFG_MAX-1)
 NFQA_CFG_F_FAIL_OPEN	= (1 << 0)
 NFQA_CFG_F_CONNTRACK	= (1 << 1)
 NFQA_CFG_F_GSO		= (1 << 2)
-NFQA_CFG_F_MAX		= (1 << 3)
+NFQA_CFG_F_UID_GID	= (1 << 3)
+NFQA_CFG_F_MAX		= (1 << 4)
 
 # flags for NFQA_SKB_INFO
 # packet appears to have wrong checksums, but they are ok
