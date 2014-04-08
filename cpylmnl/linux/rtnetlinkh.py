@@ -102,7 +102,7 @@ def RTA_LENGTH(len):	return RTA_ALIGN(ctypes.sizeof(Rtattr) + len)
 #define RTA_SPACE(len)	RTA_ALIGN(RTA_LENGTH(len))
 def RTA_SPACE(len):	return RTA_ALIGN(RTA_LENGTH(len))
 #define RTA_DATA(rta)   ((void*)(((char*)(rta)) + RTA_LENGTH(0)))
-def RTA_DATA(rta):	return cast(ctypes.addressof(rta) + RTA_LENGTH(0),.FROM_POINTER(ctypes.c_ubyte * (rta.len - RTA_LENGTH))).contents
+def RTA_DATA(rta):	return cast(ctypes.addressof(rta) + RTA_LENGTH(0), ctypes.FROM_POINTER(ctypes.c_ubyte * (rta.len - RTA_LENGTH))).contents
 #define RTA_PAYLOAD(rta) ((int)((rta)->rta_len) - RTA_LENGTH(0))
 def RTA_PAYLOAD(rta):	return rta.len - RTA_LENGTH(0)
 
