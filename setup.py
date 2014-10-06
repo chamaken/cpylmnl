@@ -20,4 +20,6 @@ setup(name='cpylmnl',
                    'Operating System :: Linux',
                    'Intended Audience :: Developers',
                    'Development Status :: 3 - Alpha Development Status'],
-      long_description=readme.read())
+      long_description=readme.read(),
+      test_suite = 'nose.collector',
+)
