@@ -121,7 +121,8 @@ comparison
 | ------------------------------------- | ----------------------------- | ----------------------------- |
 | mnl_socket_get_fd			| Socket.get_fd			|				|
 | mnl_socket_get_portid			| Socket.get_portid		|				|
-| mnl_socket_open			| Socket			|				|
+| mnl_socket_open			| Socket			| pass int as bus		|
+| mnl_socket_fdopen			| Socket			| pass socket.socket as fd	|
 | mnl_socket_bind			| Socket.bind			|				|
 | mnl_socket_sendto			| Socket.sendto			| require mutable buffer	|
 | (add)					| Socket.send_nlmsg		| pass nlmsghdr instead of buf	|

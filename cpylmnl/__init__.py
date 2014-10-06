@@ -1079,15 +1079,26 @@ class NlmsgBatch(object):
 class Socket(object):
     """Netlink socket helpers
     """
-    def __init__(self, bus):
+    def __init__(self, bus_or_socket):
         """open a netlink socket
+
+        The socket object is not dup'ed, and will be closed when the socket
+        object created by this is closed.
 
         raises OSError on error.
 
-        @type bus: number
-        @param bus: the netlink socket bus ID (see NETLINK_* constants)
+        @type bus_or_socket: number
+        @param bus_or_socket: the netlink socket bus ID (see NETLINK_* constants)
+                              or pre-existig socket object
         """
-        self._nls = _socket.socket_open(bus)
+        import socket
+        if isinstance(bus_or_socket, socket.socket):
+            # hold original socket here since socket will be invalid if caller
+            # drops socket reference
+            self._sock = bus_or_socket
+            self._nls = _socket.socket_fdopen(bus_or_socket.fileno())
+        else:
+            self._nls = _socket.socket_open(bus_or_socket)
 
     def get_fd(self):
         """obtain file descriptor from netlink socket
@@ -1208,6 +1219,9 @@ class Socket(object):
 
         On error, this function raises OSError.
         """
+        if hasattr(self, "_sock"):
+            self._sock.close()
+            return 0
         return _socket.socket_close(self._nls)
 
     def setsockopt(self, t, b):

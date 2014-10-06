@@ -4,7 +4,7 @@
 from __future__ import print_function
 
 import sys, os, unittest, stat, errno
-import struct, fcntl
+import struct, fcntl, socket
 import ctypes
 
 import cpylmnl.linux.netlinkh as netlink
@@ -94,6 +94,14 @@ class TestSuite(unittest.TestCase):
         opt = self.nl.getsockopt(netlink.NETLINK_BROADCAST_ERROR, 4)
         self.assertEquals(struct.unpack("i", bytes(opt))[0], 1)
         self.assertEquals(self.nl.getsockopt_as(netlink.NETLINK_BROADCAST_ERROR, ctypes.c_int), 1)
+
+
+class TestSuiteFd(TestSuite):
+    """Same as TestSuite except creating base Socket by mnl_socket_fdopen()
+    """
+    def setUp(self):
+        sock = socket.socket(socket.AF_NETLINK, socket.SOCK_RAW, netlink.NETLINK_NETFILTER)
+        self.nl = mnl.Socket(sock)
 
 
 if __name__ == '__main__':

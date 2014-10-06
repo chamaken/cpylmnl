@@ -27,6 +27,12 @@ struct mnl_socket *mnl_socket_open(int type)"""
 c_socket_open.argtypes = [ctypes.c_int]
 c_socket_open.restype = ctypes.c_void_p
 
+c_socket_fdopen = LIBMNL.mnl_socket_fdopen
+c_socket_fdopen.__doc__ = """\
+struct mnl_socket *mnl_socket_fdopen(int fd)"""
+c_socket_fdopen.argtypes = [ctypes.c_int]
+c_socket_fdopen.restype = ctypes.c_void_p
+
 c_socket_bind = LIBMNL.mnl_socket_bind
 c_socket_bind.__doc__ = """\
 int mnl_socket_bind(struct mnl_socket *nl, unsigned int groups, pid_t pid)"""
