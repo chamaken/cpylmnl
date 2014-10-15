@@ -31,7 +31,7 @@ def socket_bind(nl, groups, pid):
     if ret < 0: raise _cproto.os_error()
 
 if _cproto.HAS_MNL_RING:
-    # int mnl_socket_set_ringopt(struct mnl_socket *nl, struct nl_mmap_req *req, enum mnl_ring_types type);
+    # int mnl_socket_set_ringopt(struct mnl_socket *nl, struct nl_mmap_req *req, enum mnl_ring_type type);
     def socket_set_ringopt(nl, rtype, block_size, block_nr, frame_size, frame_nr):
         ret = _cproto.c_socket_set_ringopt(nl, rtype, block_size, block_nr, frame_size, frame_nr)
         if ret < 0: raise _cproto.os_error()
@@ -45,7 +45,7 @@ if _cproto.HAS_MNL_RING:
         ret = _cproto.c_socket_unmap_ring(nl)
         if ret < 0: raise _cproto.os_error()
 
-    # struct mnl_ring *mnl_socket_get_ring(const struct mnl_socket *nl, enum mnl_ring_types type)
+    # struct mnl_ring *mnl_socket_get_ring(const struct mnl_socket *nl, enum mnl_ring_type type)
     def socket_get_ring(nl, rtype):
         ret = _cproto.c_socket_get_ring(nl, rtype)
         if ret is None: raise _cproto.os_error()
@@ -56,7 +56,7 @@ if _cproto.HAS_MNL_RING:
         return _cproto.c_ring_get_frame(ring).contents
 
 
-    # int mnl_socket_advance_ring(const struct mnl_socket *nl, enum mnl_ring_types type)
+    # int mnl_socket_advance_ring(const struct mnl_socket *nl, enum mnl_ring_type type)
     ring_advance = _cproto.c_ring_advance
 #### END HAS_MNL_RING
 

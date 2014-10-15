@@ -44,7 +44,7 @@ HAS_MNL_RING = False # whether libmnl has mmap extention or not
 try: # ring functions
     c_socket_set_ringopt = LIBMNL.mnl_socket_set_ringopt
     c_socket_set_ringopt.__doc__ = """\
-int mnl_socket_set_ringopt(struct mnl_socket *nl, enum mnl_ring_types type,
+int mnl_socket_set_ringopt(struct mnl_socket *nl, enum mnl_ring_type type,
 			   unsigned int block_size, unsigned int block_nf,
 			   unsigned int frame_size, unsigned int frame_nr)"""
     c_socket_set_ringopt.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_uint, ctypes.c_uint, ctypes.c_uint, ctypes.c_uint]
@@ -64,7 +64,7 @@ extern int mnl_socket_unmap_ring(struct mnl_socket *nl)"""
 
     c_socket_get_ring = LIBMNL.mnl_socket_get_ring
     c_socket_get_ring.__doc__ = """\
-struct mnl_ring *mnl_socket_get_ring(const struct mnl_socket *nl, enum mnl_ring_types type)"""
+struct mnl_ring *mnl_socket_get_ring(const struct mnl_socket *nl, enum mnl_ring_type type)"""
     c_socket_get_ring.argtypes = [ctypes.c_void_p, ctypes.c_int]
     c_socket_get_ring.restype = ctypes.c_void_p
 
