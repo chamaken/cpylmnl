@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import resource, ctypes
+import os, ctypes
 from . import _cproto
 from .linux import netlinkh as netlink
 try:
@@ -11,8 +11,8 @@ except ImportError:
 
 # Netlink socket API
 MNL_SOCKET_AUTOPID = 0
-#define MNL_SOCKET_BUFFER_SIZE (getpagesize() < 8192L ? getpagesize() : 8192L)
-MNL_SOCKET_BUFFER_SIZE		= resource.getpagesize() < 8192 and resource.getpagesize() or 8192
+#define MNL_SOCKET_BUFFER_SIZE (sysconf(_SC_PAGESIZE) < 8192L ? sysconf(_SC_PAGESIZE) : 8192L)
+MNL_SOCKET_BUFFER_SIZE		= os.sysconf("SC_PAGESIZE") < 8192 and os.sysconf("SC_PAGESIZE") or 8192
 
 
 # Netlink message API
