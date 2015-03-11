@@ -69,9 +69,15 @@ def MNL_ARRAY_SIZE(a):	return (ctypes.sizeof(a)/ctypes.sizeof((a)[0]))
 
 
 if _cproto.HAS_MNL_RING:
-    def MNL_FRAME_PAYLOAD(frame):
+    def MNL_FRAME_PAYLOAD(frame, size=None):
+        """if size is not specified, this returns buffer and its length
+        is struct nl_mmap_hdr.nm_len. You will need to specify size because
+        it will be 0 in case of TX"""
+        if size is None:
+            return ctypes.cast(ctypes.addressof(frame) + netlink.NL_MMAP_HDRLEN,
+                               ctypes.POINTER(ctypes.c_ubyte * frame.len)).contents
         return ctypes.cast(ctypes.addressof(frame) + netlink.NL_MMAP_HDRLEN,
-                           ctypes.POINTER(ctypes.c_ubyte * frame.len)).contents
+                           ctypes.POINTER(ctypes.c_ubyte * size)).contents
 
     MNL_RING_RX = 0
     MNL_RING_TX = 1
