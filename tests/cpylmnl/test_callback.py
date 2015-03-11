@@ -147,8 +147,8 @@ class TestSuite(unittest.TestCase):
         else:
             self.fail("not raise OSError")
 
-        # Python2.6 returns -1 but could not get EINTR?
-        if sys.version_info < (2, 7):
+        # Python2.5 returns -1 but could not get EINTR?
+        if sys.version_info < (2, 6):
             ret = mnl.cb_run2(self.nlmsghdr_intr, 1, 1, cb_data, None)
             self.assertEquals(ret, mnl.MNL_CB_ERROR)
         else:
@@ -251,9 +251,9 @@ class TestSuite(unittest.TestCase):
         else:
             self.fail("not raise OSError")
 
-        # Python2.6 returns -1 but could not get EINTR?
-        if sys.version_info < (2, 7):
-            ret = mnl.cb_run(self.nlmsghdr_intr, 1, 1, cb_data, None)
+        # Python2.5 returns -1 but could not get EINTR?
+        if sys.version_info < (2, 6):
+            ret = mnl.cb_run2(self.nlmsghdr_intr, 1, 1, cb_data, None)
             self.assertEquals(ret, mnl.MNL_CB_ERROR)
         else:
             try:
