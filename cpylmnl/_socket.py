@@ -56,7 +56,7 @@ if _cproto.HAS_MNL_RING:
         return _cproto.c_ring_get_frame(ring).contents
 
 
-    # int mnl_socket_advance_ring(const struct mnl_socket *nl, enum mnl_ring_type type)
+    # void mnl_ring_advance(struct mnl_ring *ring)
     ring_advance = _cproto.c_ring_advance
 #### END HAS_MNL_RING
 
