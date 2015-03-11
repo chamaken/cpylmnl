@@ -13,7 +13,7 @@ c_pid_t = ctypes.c_int
 try:
     from ctypes import c_ssize_t
 except ImportError:
-    c_ssize_t = c_longlong
+    c_ssize_t = ctypes.c_longlong
 
 """handle inner struct - mnl_socket, mnl_nlmsg_batch, mnl_ring as opaque, ctypes.c_void_p"""
 
