@@ -6,6 +6,7 @@ from __future__ import print_function
 import sys, os, unittest, stat, errno
 import struct, fcntl, socket
 import ctypes
+import re, platform
 
 import cpylmnl.linux.netlinkh as netlink
 import cpylmnl as mnl
@@ -16,7 +17,9 @@ class TestSuite(unittest.TestCase):
     """
     def setUp(self):
         self.nl = mnl.Socket(netlink.NETLINK_NETFILTER)
-
+        m = re.search('([0-9]+)\.([0-9]+)\.([0-9]+)', platform.release())
+        if not m: self.fail("sorry, could not get kernel version")
+        self.kernel_version = tuple([int(i) for i in m.groups()])
 
     def tearDown(self):
         if self.nl: self.nl.close()
@@ -59,12 +62,17 @@ class TestSuite(unittest.TestCase):
 
         # sendto & recv
         self.assertEqual(self.nl.sendto(nlh.marshal_binary()), mnl.MNL_NLMSG_HDRLEN)
-        nlr = mnl.Header(self.nl.recv(256))
+        rbuf = self.nl.recv(256)
+        nlr = mnl.Header(rbuf)
 
         self.assertEqual(nlr.len, 36)
         self.assertEqual(nlr.type, netlink.NLMSG_ERROR)
         nle = netlink.Nlmsgerr(nlr.get_payload_v())
-        self.assertEquals(abs(nle.error), errno.EPERM)
+
+        # commit 20e1db19db5d6b9e4e83021595eab0dc8f107bef
+        # netlink: fix possible spoofing from non-root processes
+        if self.kernel_version > (3, 6):
+            self.assertEquals(abs(nle.error), errno.EPERM)
         self.assertEquals(nle.msg.len, mnl.MNL_NLMSG_HDRLEN)
         self.assertEquals(nle.msg.type, netlink.NLMSG_NOOP)
         self.assertEquals(nle.msg.flags, netlink.NLM_F_ECHO|netlink.NLM_F_ACK)
@@ -80,7 +88,8 @@ class TestSuite(unittest.TestCase):
         self.assertEqual(nlr.len, 36)
         self.assertEqual(nlr.type, netlink.NLMSG_ERROR)
         nle = netlink.Nlmsgerr(nlr.get_payload_v())
-        self.assertEquals(abs(nle.error), errno.EPERM)
+        if self.kernel_version > (3, 6):
+            self.assertEquals(abs(nle.error), errno.EPERM)
         self.assertEquals(nle.msg.len, mnl.MNL_NLMSG_HDRLEN)
         self.assertEquals(nle.msg.type, netlink.NLMSG_NOOP)
         self.assertEquals(nle.msg.flags, netlink.NLM_F_ECHO|netlink.NLM_F_ACK)
@@ -102,6 +111,9 @@ class TestSuiteFd(TestSuite):
     def setUp(self):
         sock = socket.socket(socket.AF_NETLINK, socket.SOCK_RAW, netlink.NETLINK_NETFILTER)
         self.nl = mnl.Socket(sock)
+        m = re.search('([0-9]+)\.([0-9]+)\.([0-9]+)', platform.release())
+        if not m: self.fail("sorry, could not get kernel version")
+        self.kernel_version = tuple([int(i) for i in m.groups()])
 
 
 if __name__ == '__main__':
