@@ -3,7 +3,7 @@
 
 from __future__ import print_function, absolute_import
 
-import sys, logging, socket, time
+import sys, logging, socket, time, struct
 
 import cpylmnl.linux.netlinkh as netlink
 import cpylmnl.linux.netfilter.nfnetlinkh as nfnl
@@ -23,7 +23,7 @@ def parse_counters_cb(attr, tb):
     except OSError as e:
         return mnl.MNL_CB_OK
 
-    if attr_type in (nfnlct.CTA_COUTERS_PACKETS, nfnlct.CTA_COUNTERS.BYTES):
+    if attr_type in (nfnlct.CTA_COUNTERS_PACKETS, nfnlct.CTA_COUNTERS_BYTES):
         try:
             attr.validate(mnl.MNL_TYPE_U64)
         except OSError as e:
@@ -34,14 +34,14 @@ def parse_counters_cb(attr, tb):
     return mnl.MNL_CB_OK
 
 
-def print_counters(nest):
+def print_counters(prefix, nest):
     tb = dict()
-
     nest.parse_nested(parse_counters_cb, tb)
+    print("%s " % prefix, end='')
     if nfnlct.CTA_COUNTERS_PACKETS in tb:
-        print("packets=%u " % struct.unpack("Q", struct.pack(">Q", tb[nfnlct.CTA_COUNTERS.PACKETS].get_u64())), end='')
+        print("packets=%u " % struct.unpack("Q", struct.pack(">Q", tb[nfnlct.CTA_COUNTERS_PACKETS].get_u64())), end='')
     if nfnlct.CTA_COUNTERS_BYTES in tb:
-        print("bytes=%u " % struct.unpack("Q", struct.pack(">Q", tb[nfnlct.CTA_COUNTERS.BYTES].get_u64())), end='')
+        print("bytes=%u " % struct.unpack("Q", struct.pack(">Q", tb[nfnlct.CTA_COUNTERS_BYTES].get_u64())), end='')
 
 
 @mnl.attribute_cb
@@ -206,8 +206,8 @@ def data_cb(nlh, data):
     nfnlct.CTA_TUPLE_ORIG in tb     and print_tuple(tb[nfnlct.CTA_TUPLE_ORIG])
     nfnlct.CTA_MARK in tb           and print("mark=%u " % socket.ntohl(tb[nfnlct.CTA_MARK].get_u32()), end='')
     nfnlct.CTA_SECMARK in tb        and print("secmark=%u " % socket.ntohl(tb[nfnlct.CTA_SECMARK].get_u32()), end='')
-    nfnlct.CTA_COUNTERS_ORIG in tb  and print("original ", end='') and print_counters(tb[nfnlct.CTA_COUNTERS_ORIG])
-    nfnlct.CTA_COUNTERS_REPLY in tb and print("reply ", end='') and print_counters(tb[nfnlct.CTA_COUNTERS_REPLY])
+    nfnlct.CTA_COUNTERS_ORIG in tb  and print_counters("original", tb[nfnlct.CTA_COUNTERS_ORIG])
+    nfnlct.CTA_COUNTERS_REPLY in tb and print_counters("reply", tb[nfnlct.CTA_COUNTERS_REPLY])
     print()
 
     return mnl.MNL_CB_OK
