@@ -66,7 +66,9 @@ RTM_GETNETCONF		= 82
 RTM_NEWMDB		= 84
 RTM_DELMDB		= 85
 RTM_GETMDB		= 86
-__RTM_MAX		= 87
+RTM_NEWNSID		= 88
+RTM_GETNSID		= 90
+__RTM_MAX		= 91
 RTM_MAX			= (((__RTM_MAX + 3) & ~3) - 1)
 
 RTM_NR_MSGTYPES = (RTM_MAX + 1 - RTM_BASE)
@@ -163,6 +165,7 @@ RTPROT_XORP	= 14	# XORP
 RTPROT_NTK	= 15	# Netsukuku 
 RTPROT_DHCP	= 16	# DHCP client 
 RTPROT_MROUTED	= 17	# Multicast daemon 
+RTPROT_BABEL	= 42	# Babel daemon
 
 # rtm_scope
 # Really it is not scope, but sort of distance to the destination.
@@ -332,7 +335,8 @@ RTAX_FEATURES	= 12
 RTAX_RTO_MIN	= 13
 RTAX_INITRWND	= 14
 RTAX_QUICKACK	= 15
-__RTAX_MAX	= 16
+RTAX_CC_ALGO	= 16
+__RTAX_MAX	= 17
 RTAX_MAX	= (__RTAX_MAX - 1)
 
 RTAX_FEATURE_ECN	= 0x00000001
@@ -573,5 +577,6 @@ TCA_ACT_TAB 	= 1 # attr type must be >=1
 TCAA_MAX	= 1
 
 # New extended info filters for IFLA_EXT_MASK 
-RTEXT_FILTER_VF		= (1 << 0)
-RTEXT_FILTER_BRVLAN	= (1 << 1)
+RTEXT_FILTER_VF			= (1 << 0)
+RTEXT_FILTER_BRVLAN		= (1 << 1)
+RTEXT_FILTER_BRVLAN_COMPRESSED	= (1 << 2)

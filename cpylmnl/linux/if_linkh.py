@@ -143,7 +143,9 @@ IFLA_NUM_RX_QUEUES	= 32
 IFLA_CARRIER		= 33
 IFLA_PHYS_PORT_ID	= 34
 IFLA_CARRIER_CHANGES	= 35
-__IFLA_MAX = 36
+IFLA_PHYS_SWITCH_ID	= 36
+IFLA_LINK_NETNSID	= 37
+__IFLA_MAX		= 38
 IFLA_MAX = (__IFLA_MAX - 1)
 
 
@@ -190,16 +192,34 @@ IFLA_INET_MAX		= (__IFLA_INET_MAX - 1)
 
 # Subtype attributes for IFLA_PROTINFO */
 # enum
-IFLA_INET6_UNSPEC	= 0
-IFLA_INET6_FLAGS	= 1 # link flags
-IFLA_INET6_CONF		= 2 # sysctl parameters
-IFLA_INET6_STATS	= 3 # statistics
-IFLA_INET6_MCAST	= 4 # MC things. What of them?
-IFLA_INET6_CACHEINFO	= 5 # time values and max reasm size      
-IFLA_INET6_ICMP6STATS	= 6 # statistics (icmpv6)
-IFLA_INET6_TOKEN	= 7 # device token
-__IFLA_INET6_MAX	= 8
+IFLA_INET6_UNSPEC		= 0
+IFLA_INET6_FLAGS		= 1 # link flags
+IFLA_INET6_CONF			= 2 # sysctl parameters
+IFLA_INET6_STATS		= 3 # statistics
+IFLA_INET6_MCAST		= 4 # MC things. What of them?
+IFLA_INET6_CACHEINFO		= 5 # time values and max reasm size      
+IFLA_INET6_ICMP6STATS		= 6 # statistics (icmpv6)
+IFLA_INET6_TOKEN		= 7 # device token
+IFLA_INET6_ADDR_GEN_MODE	= 8 # implicit address generator mode
+__IFLA_INET6_MAX		= 9
+
 IFLA_INET6_MAX		= (__IFLA_INET6_MAX - 1)
+
+class In6AddrGenMode(Enum):
+    IN6_ADDR_GEN_MODE_EUI64	= 0
+    IN6_ADDR_GEN_MODE_NONE	= 1
+IN6_ADDR_GEN_MODE_EUI64	= 0
+IN6_ADDR_GEN_MODE_NONE	= 1
+
+
+# Bridge section
+# enum
+IFLA_BR_UNSPEC		= 0
+IFLA_BR_FORWARD_DELAY	= 1
+IFLA_BR_HELLO_TIME	= 2
+IFLA_BR_MAX_AGE		= 3
+__IFLA_BR_MAX		= 4
+IFLA_BR_MAX		= (__IFLA_BR_MAX - 1)
 
 # enum
 BRIDGE_MODE_UNSPEC	= 0
@@ -269,47 +289,86 @@ class IflaVlanQosMapping(ctypes.Structure):
 
 
 # MACVLAN section
-IFLA_MACVLAN_UNSPEC	= 0
-IFLA_MACVLAN_MODE	= 1
-IFLA_MACVLAN_FLAGS	= 2
-__IFLA_MACVLAN_MAX	= 3
-IFLA_MACVLAN_MAX	= (__IFLA_MACVLAN_MAX - 1)
+IFLA_MACVLAN_UNSPEC		= 0
+IFLA_MACVLAN_MODE		= 1
+IFLA_MACVLAN_FLAGS		= 2
+IFLA_MACVLAN_MACADDR_MODE	= 3
+IFLA_MACVLAN_MACADDR		= 4
+IFLA_MACVLAN_MACADDR_DATA	= 5
+IFLA_MACVLAN_MACADDR_COUNT	= 6
+__IFLA_MACVLAN_MAX		= 7
+IFLA_MACVLAN_MAX		= (__IFLA_MACVLAN_MAX - 1)
 
 class MacvlanMode(Enum):
     MACVLAN_MODE_PRIVATE	= 1
     MACVLAN_MODE_VEPA		= 2
     MACVLAN_MODE_BRIDGE		= 4
     MACVLAN_MODE_PASSTHRU	= 8
+    MACVLAN_MODE_SOURCE		= 16
 MACVLAN_MODE_PRIVATE	= 1
 MACVLAN_MODE_VEPA	= 2
 MACVLAN_MODE_BRIDGE	= 4
 MACVLAN_MODE_PASSTHRU	= 8
+MACVLAN_MODE_SOURCE	= 16
+
+class MacvlanMacaddrMode(Enum):
+    MACVLAN_MACADDR_ADD		= 0
+    MACVLAN_MACADDR_DEL		= 1
+    MACVLAN_MACADDR_FLUSH	= 2
+    MACVLAN_MACADDR_SET		= 3
+MACVLAN_MACADDR_ADD	= 0
+MACVLAN_MACADDR_DEL	= 1
+MACVLAN_MACADDR_FLUSH	= 2
+MACVLAN_MACADDR_SET	= 3
 
 MACVLAN_FLAG_NOPROMISC = 1
 
 
+# IPVLAN section
+# enum
+IFLA_IPVLAN_UNSPEC	= 0
+IFLA_IPVLAN_MODE	= 1
+__IFLA_IPVLAN_MAX	= 2
+IFLA_IPVLAN_MAX		= (__IFLA_IPVLAN_MAX - 1)
+
+class IpvlanMode(Enum):
+    IPVLAN_MODE_L2	= 0
+    IPVLAN_MODE_L3	= 1
+    IPVLAN_MODE_MAX	= 2
+IPVLAN_MODE_L2	= 0
+IPVLAN_MODE_L3	= 1
+IPVLAN_MODE_MAX	= 2
+    
+
 # VXLAN section
 # enum
-IFLA_VXLAN_UNSPEC	= 0
-IFLA_VXLAN_ID		= 1
-IFLA_VXLAN_GROUP	= 2  # group or remote address
-IFLA_VXLAN_LINK		= 3
-IFLA_VXLAN_LOCAL	= 4
-IFLA_VXLAN_TTL		= 5
-IFLA_VXLAN_TOS		= 6
-IFLA_VXLAN_LEARNING	= 7
-IFLA_VXLAN_AGEING	= 8
-IFLA_VXLAN_LIMIT	= 9
-IFLA_VXLAN_PORT_RANGE	= 10 # source port
-IFLA_VXLAN_PROXY	= 11
-IFLA_VXLAN_RSC		= 12
-IFLA_VXLAN_L2MISS	= 13
-IFLA_VXLAN_L3MISS	= 14
-IFLA_VXLAN_PORT		= 15 # destination port
-IFLA_VXLAN_GROUP6	= 16
-IFLA_VXLAN_LOCAL6	= 17
-__IFLA_VXLAN_MAX	= 18
-IFLA_VXLAN_MAX		= (__IFLA_VXLAN_MAX - 1)
+IFLA_VXLAN_UNSPEC		= 0
+IFLA_VXLAN_ID			= 1
+IFLA_VXLAN_GROUP		= 2  # group or remote address
+IFLA_VXLAN_LINK			= 3
+IFLA_VXLAN_LOCAL		= 4
+IFLA_VXLAN_TTL			= 5
+IFLA_VXLAN_TOS			= 6
+IFLA_VXLAN_LEARNING		= 7
+IFLA_VXLAN_AGEING		= 8
+IFLA_VXLAN_LIMIT		= 9
+IFLA_VXLAN_PORT_RANGE		= 10 # source port
+IFLA_VXLAN_PROXY		= 11
+IFLA_VXLAN_RSC			= 12
+IFLA_VXLAN_L2MISS		= 13
+IFLA_VXLAN_L3MISS		= 14
+IFLA_VXLAN_PORT			= 15 # destination port
+IFLA_VXLAN_GROUP6		= 16
+IFLA_VXLAN_LOCAL6		= 17
+IFLA_VXLAN_UDP_CSUM		= 18
+IFLA_VXLAN_UDP_ZERO_CSUM6_TX	= 19
+IFLA_VXLAN_UDP_ZERO_CSUM6_RX	= 20
+IFLA_VXLAN_REMCSUM_TX		= 21
+IFLA_VXLAN_REMCSUM_RX		= 22
+IFLA_VXLAN_GBP			= 23
+IFLA_VXLAN_REMCSUM_NOPARTIAL	= 24
+__IFLA_VXLAN_MAX		= 25
+IFLA_VXLAN_MAX			= (__IFLA_VXLAN_MAX - 1)
 
 class IflaVxlanPortRange(ctypes.Structure):
     """struct ifla_vxlan_port_range
@@ -379,10 +438,11 @@ IFLA_VF_INFO_MAX	= (__IFLA_VF_INFO_MAX - 1)
 IFLA_VF_UNSPEC		= 0
 IFLA_VF_MAC		= 1  # Hardware queue specific attributes
 IFLA_VF_VLAN		= 2
-IFLA_VF_TX_RATE		= 3  # TX Bandwidth Allocation
+IFLA_VF_TX_RATE		= 3  # Max TX Bandwidth Allocation
 IFLA_VF_SPOOFCHK	= 4  # Spoof Checking on/off switch
 IFLA_VF_LINK_STATE	= 5  # link state enable/disable/auto switch
-__IFLA_VF_MAX		= 6
+IFLA_VF_RATE		= 6  # Min and Max TX Bandwidth Allocation
+__IFLA_VF_MAX		= 7
 IFLA_VF_MAX		= (__IFLA_VF_MAX - 1)
 
 class IflaVfMac(ctypes.Structure):
@@ -403,6 +463,13 @@ class IflaVfTxRate(ctypes.Structure):
     """
     _fields_ = [("vf", 		ctypes.c_uint32), # __u32 vf
                 ("rate", 	ctypes.c_uint32)] # __u32 rate; /* Max TX bandwidth in Mbps, 0 disables throttling */
+
+class IflaVfRate(ctypes.Structure):
+    """struct ifla_vf_rate
+    """
+    _fields_ = [("vf",		ctypes.c_uint32), # __u32 vf;
+                ("min_tx_rate", ctypes.c_uint32), # __u32 min_tx_rate; /* Min Bandwidth in Mbps */
+                ("max_tx_rate", ctypes.c_uint32)] # __u32 max_tx_rate; /* Max Bandwidth in Mbps */
 
 class IflaVfSpoofchk(ctypes.Structure):
     """struct ifla_vf_spoofchk
