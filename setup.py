@@ -1,8 +1,11 @@
 #!/usr/bin/env python
+# http://stackoverflow.com/questions/6344076/differences-between-distribute-distutils-setuptools-and-distutils2
 
-from distutils.core import setup
+import os
+from setuptools import setup
 
-readme = open("README.md", "r")
+def read(fname):
+    return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 setup(name='cpylmnl',
       version='0.1',
@@ -20,6 +23,6 @@ setup(name='cpylmnl',
                    'Operating System :: Linux',
                    'Intended Audience :: Developers',
                    'Development Status :: 3 - Alpha Development Status'],
-      long_description=readme.read(),
+      long_description=read('README.md'),
       test_suite = 'nose.collector',
 )
