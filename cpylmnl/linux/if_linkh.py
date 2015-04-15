@@ -551,10 +551,10 @@ PORT_PROFILE_RESPONSE_ERROR			= 261
 class IflaPortVsi(ctypes.Structure):
     """struct ifla_port_vsi
     """
-    _fields_ = [("mgr_id", 		ctypes.c_uint8),	# __u8 vsi_mgr_id
-                ("type_id",		(ctypes.c_uint8 * 3)), # __u8 vsi_type_id[3]
-                ("type_version",	ctypes.c_uint8),	# __u8 vsi_type_version
-                ("pad",			(ctypes.c_uint8 * 3))] # __u8 pad[3]
+    _fields_ = [("vsi_mgr_id", 		ctypes.c_uint8),	# __u8 vsi_mgr_id
+                ("vsi_type_id",		(ctypes.c_uint8 * 3)),	# __u8 vsi_type_id[3]
+                ("vsi_type_version",	ctypes.c_uint8),	# __u8 vsi_type_version
+                ("pad",			(ctypes.c_uint8 * 3))]	# __u8 pad[3]
 
 
 # IPoIB section
