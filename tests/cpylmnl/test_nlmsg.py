@@ -35,17 +35,17 @@ class TestSuite(unittest.TestCase):
 
 
     def test_Header(self):
-        self.assertTrue(self.nlh.len == 0)
-        self.assertTrue(self.nlh.type == 0)
-        self.assertTrue(self.nlh.flags == 0)
-        self.assertTrue(self.nlh.seq == 0)
-        self.assertTrue(self.nlh.pid == 0)
+        self.assertTrue(self.nlh.nlmsg_len == 0)
+        self.assertTrue(self.nlh.nlmsg_type == 0)
+        self.assertTrue(self.nlh.nlmsg_flags == 0)
+        self.assertTrue(self.nlh.nlmsg_seq == 0)
+        self.assertTrue(self.nlh.nlmsg_pid == 0)
 
-        self.nlh.len = 0x12345678
-        self.nlh.type = 0x9abc
-        self.nlh.flags = 0xdef0
-        self.nlh.seq = 0x23456789
-        self.nlh.pid = 0xabcdef01
+        self.nlh.nlmsg_len = 0x12345678
+        self.nlh.nlmsg_type = 0x9abc
+        self.nlh.nlmsg_flags = 0xdef0
+        self.nlh.nlmsg_seq = 0x23456789
+        self.nlh.nlmsg_pid = 0xabcdef01
 
         self.assertTrue(self.hbuf.len == 0x12345678)
         self.assertTrue(self.hbuf.type == 0x9abc)
@@ -65,15 +65,15 @@ class TestSuite(unittest.TestCase):
 
     def test_nlmsg_put_header(self):
         nlh = mnl.nlmsg_put_header(self.hbuf)
-        self.assertTrue(nlh.len == mnl.MNL_NLMSG_HDRLEN)
+        self.assertTrue(nlh.nlmsg_len == mnl.MNL_NLMSG_HDRLEN)
         h = mnl.nlmsg_put_header(self.hbuf, mnl.Header)
-        self.assertTrue(h.len == mnl.MNL_NLMSG_HDRLEN)
+        self.assertTrue(h.nlmsg_len == mnl.MNL_NLMSG_HDRLEN)
         self.assertRaises(TypeError, mnl.nlmsg_put_header, self.hbuf, list)
 
 
     def test_put_new_header(self):
         nlh = mnl.Header.put_new_header(128)
-        self.assertTrue(nlh.len == mnl.MNL_NLMSG_HDRLEN)
+        self.assertTrue(nlh.nlmsg_len == mnl.MNL_NLMSG_HDRLEN)
 
 
     def test_put_extra_header_v(self):
@@ -81,7 +81,7 @@ class TestSuite(unittest.TestCase):
         self.rand_hbuf.len = 256
         exhdr = self.rand_nlh.put_extra_header_v(123)
         self.assertTrue(len(exhdr) == mnl.MNL_ALIGN(123))
-        self.assertTrue(self.rand_nlh.len == 256 + mnl.MNL_ALIGN(123))
+        self.assertTrue(self.rand_nlh.nlmsg_len == 256 + mnl.MNL_ALIGN(123))
         [self.assertTrue(i == 0) for i in exhdr]
         [self.assertTrue(self.rand_hbuf[i] == 0) for i in range(256, 256 + mnl.MNL_ALIGN(123))]
 
@@ -89,7 +89,7 @@ class TestSuite(unittest.TestCase):
     def test_put_extra_header_as(self):
         self.rand_hbuf.len = mnl.MNL_ALIGN(256)
         exhdr = self.rand_nlh.put_extra_header_as(nfnl.Nfgenmsg)
-        self.assertTrue(self.rand_nlh.len == mnl.MNL_ALIGN(256) + mnl.MNL_ALIGN(nfnl.Nfgenmsg.csize()))
+        self.assertTrue(self.rand_nlh.nlmsg_len == mnl.MNL_ALIGN(256) + mnl.MNL_ALIGN(nfnl.Nfgenmsg.csize()))
         self.assertTrue(isinstance(exhdr, nfnl.Nfgenmsg))
         self.assertTrue(exhdr.family == 0)
         self.assertTrue(exhdr.version == 0)
@@ -97,14 +97,14 @@ class TestSuite(unittest.TestCase):
 
 
     def test_get_payload(self):
-        self.rand_nlh.len = mnl.MNL_ALIGN(384)
+        self.rand_nlh.nlmsg_len = mnl.MNL_ALIGN(384)
         p = self.rand_nlh.get_payload()
         b = ctypes.cast(p, ctypes.POINTER((ctypes.c_ubyte * (384 - mnl.MNL_NLMSG_HDRLEN)))).contents
         self.assertTrue(b == self.rand_hbuf[mnl.MNL_NLMSG_HDRLEN:mnl.MNL_ALIGN(384)])
 
 
     def test_get_payload_v(self):
-        self.rand_nlh.len = mnl.MNL_ALIGN(384)
+        self.rand_nlh.nlmsg_len = mnl.MNL_ALIGN(384)
         b = self.rand_nlh.get_payload_v()
         self.assertTrue(len(b) == 384 - mnl.MNL_NLMSG_HDRLEN)
         self.assertTrue(b == self.rand_hbuf[mnl.MNL_NLMSG_HDRLEN:mnl.MNL_ALIGN(384)])
@@ -156,18 +156,18 @@ class TestSuite(unittest.TestCase):
 
         next_nlh, rest = self.nlh.next_header(self.buflen)
         self.assertTrue(rest == self.buflen - 256)
-        self.assertTrue(next_nlh.len == mnl.MNL_ALIGN(128))
+        self.assertTrue(next_nlh.nlmsg_len == mnl.MNL_ALIGN(128))
         # ok()'s job
         self.assertTrue(next_nlh.ok(rest))
 
         next_nlh, rest = next_nlh.next_header(rest)
         self.assertTrue(rest == self.buflen - 256 - 128)
-        self.assertTrue(next_nlh.len == mnl.MNL_ALIGN(64))
+        self.assertTrue(next_nlh.nlmsg_len == mnl.MNL_ALIGN(64))
         self.assertTrue(next_nlh.ok(rest))
 
         next_nlh, rest = next_nlh.next_header(rest)
         self.assertTrue(rest == self.buflen - 256 - 128 - 64)
-        self.assertFalse(next_nlh.ok(rest)) # because next_nlh.len == 0
+        self.assertFalse(next_nlh.ok(rest)) # because next_nlh.nlmsg_len == 0
 
 
     def test_get_payload_tail(self):
@@ -197,7 +197,7 @@ class TestSuite(unittest.TestCase):
 
     # XXX: no assertion
     def _test_print(self):
-        self.nlh.type = netlink.NLMSG_MIN_TYPE
+        self.nlh.nlmsg_type = netlink.NLMSG_MIN_TYPE
         self.nlh.put_extra_header(8)
         nest_start = self.nlh.attr_nest_start(1)
         self.nlh.put_u8(mnl.MNL_TYPE_U8, 0x10)
@@ -208,7 +208,7 @@ class TestSuite(unittest.TestCase):
 
         next_nlh, rest = msg.next_msg(self.buflen)
         next_nlh.put_header()
-        next_nlh.type = netlink.NLMSG_DONE
+        next_nlh.nlmsg_type = netlink.NLMSG_DONE
 
         msg.print(8)
 

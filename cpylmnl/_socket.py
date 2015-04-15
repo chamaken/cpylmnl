@@ -73,7 +73,7 @@ def socket_sendto(nl, buf):
     return ret
 
 def socket_send_nlmsg(nl, nlh):
-    c_buf = (ctypes.c_ubyte * nlh.len).from_address(ctypes.addressof(nlh))
+    c_buf = (ctypes.c_ubyte * nlh.nlmsg_len).from_address(ctypes.addressof(nlh))
     ret = _cproto.c_socket_sendto(nl, c_buf, len(c_buf))
     if ret < 0: raise _cproto.os_error()
     return ret

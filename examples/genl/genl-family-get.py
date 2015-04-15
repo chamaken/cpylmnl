@@ -156,10 +156,10 @@ def main():
         sys.exit(-1)
 
     nlh = mnl.Header.put_new_header(mnl.MNL_SOCKET_BUFFER_SIZE)
-    nlh.type = genl.GENL_ID_CTRL
-    nlh.flags = netlink.NLM_F_REQUEST | netlink.NLM_F_ACK
+    nlh.nlmsg_type = genl.GENL_ID_CTRL
+    nlh.nlmsg_flags = netlink.NLM_F_REQUEST | netlink.NLM_F_ACK
     seq = int(time.time())
-    nlh.seq = seq
+    nlh.nlmsg_seq = seq
 
     genlh = nlh.put_extra_header_as(genl.Genlmsghdr)
     genlh.cmd = genl.CTRL_CMD_GETFAMILY
@@ -169,7 +169,7 @@ def main():
     if len(sys.argv) >= 2:
         nlh.put_strz(genl.CTRL_ATTR_FAMILY_NAME, sys.argv[1])
     else:
-        nlh.flags |= netlink.NLM_F_DUMP
+        nlh.nlmsg_flags |= netlink.NLM_F_DUMP
 
     with mnl.Socket(netlink.NETLINK_GENERIC) as nl:
         nl.bind(0, mnl.MNL_SOCKET_AUTOPID)

@@ -33,10 +33,10 @@ def main():
         sys.exit(-1)
 
     nlh = mnl.Header.put_new_header(mnl.MNL_SOCKET_BUFFER_SIZE)
-    nlh.type = rtnl.RTM_NEWLINK
-    nlh.flags = netlink.NLM_F_REQUEST | netlink.NLM_F_ACK
+    nlh.nlmsg_type = rtnl.RTM_NEWLINK
+    nlh.nlmsg_flags = netlink.NLM_F_REQUEST | netlink.NLM_F_ACK
     seq = int(time.time())
-    nlh.seq = seq
+    nlh.nlmsg_seq = seq
     ifm = nlh.put_extra_header_as(rtnl.Ifinfomsg)
     ifm.family = socket.AF_UNSPEC
     ifm.change = change

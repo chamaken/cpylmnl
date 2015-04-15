@@ -68,10 +68,10 @@ def main():
         sys.exit(-1)
 
     nlh = mnl.Header.put_new_header(mnl.MNL_SOCKET_BUFFER_SIZE)
-    nlh.type = rtnl.RTM_GETADDR
-    nlh.flags = netlink.NLM_F_REQUEST | netlink.NLM_F_DUMP
+    nlh.nlmsg_type = rtnl.RTM_GETADDR
+    nlh.nlmsg_flags = netlink.NLM_F_REQUEST | netlink.NLM_F_DUMP
     seq = int(time.time())
-    nlh.seq = seq
+    nlh.nlmsg_seq = seq
     rt = nlh.put_extra_header_as(rtnl.Rtgenmsg)
     if sys.argv[1] == "inet":    rt.family = socket.AF_INET
     elif sys.argv[1] == "inet6": rt.family = socket.AF_INET6
@@ -90,7 +90,7 @@ def main():
                 raise
             if len(buf) == 0: break
             try:
-                ret = mnl.cb_run(buf, nlh.seq, portid, data_cb, None)
+                ret = mnl.cb_run(buf, nlh.nlmsg_seq, portid, data_cb, None)
             except Exception as e:
                 print("mnl_cb_run: %s" % e, file=sys.stderr)
                 raise

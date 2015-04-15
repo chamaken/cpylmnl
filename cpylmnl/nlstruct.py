@@ -4,6 +4,12 @@ from __future__ import absolute_import, print_function
 
 import sys, os, ctypes
 
+def len_field(c):
+    for s in c._fields_:
+        if s[0].endswith("_len"):
+            return s[0]
+    return None
+
 
 class NLStructure(ctypes.Structure):
     """This class regard memory buffer as struct"""
@@ -23,7 +29,8 @@ class NLStructure(ctypes.Structure):
 
         # see http://stackoverflow.com/questions/15377338/convert-ctype-byte-array-to-bytes
         v = cls.from_buffer(buf, offset)
-        if hasattr(v, "len") and v.len > len(buf):
+        name = len_field(v)
+        if name is not None and getattr(v, name) > len(buf):
             raise ValueError("too long len attribute")
 
         return v
@@ -58,10 +65,10 @@ class NLStructure(ctypes.Structure):
     def marshal_binary(self):
         """create a buffer(bytearray) from this instance
         """
-        if hasattr(self, "len") and self.len > ctypes.sizeof(self): # XXX: fixed name
-            size = self.len
-        else:
-            size = ctypes.sizeof(self)
+        name = len_field(self)
+        size = ctypes.sizeof(self)
+        if name is not None and getattr(self, name) > size:
+            size = getattr(self, name)
 
         # not share, return copy
         return bytearray(ctypes.cast(ctypes.addressof(self), ctypes.POINTER((ctypes.c_ubyte * size))).contents)

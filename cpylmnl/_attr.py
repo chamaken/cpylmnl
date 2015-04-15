@@ -27,7 +27,7 @@ attr_get_payload_len	= _cproto.c_attr_get_payload_len
 attr_get_payload	= _cproto.c_attr_get_payload
 def attr_get_payload_v(attr):
     return ctypes.cast(_cproto.c_attr_get_payload(attr),
-                ctypes.POINTER(ctypes.c_ubyte * (attr.len - _libmnlh.MNL_ATTR_HDRLEN))).contents
+                ctypes.POINTER(ctypes.c_ubyte * (attr.nla_len - _libmnlh.MNL_ATTR_HDRLEN))).contents
 def attr_get_payload_as(attr, cls):
     return ctypes.cast(_cproto.c_attr_get_payload(attr), ctypes.POINTER(cls)).contents
 

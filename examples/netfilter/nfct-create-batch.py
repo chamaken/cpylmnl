@@ -20,9 +20,9 @@ log = logging.getLogger(__name__)
 def put_msg(buf, i, seq):
     nlh = mnl.Header(buf)
     nlh.put_header()
-    nlh.type = (nfnl.NFNL_SUBSYS_CTNETLINK << 8) | nfnlct.IPCTNL_MSG_CT_NEW
-    nlh.flags = netlink.NLM_F_REQUEST | netlink.NLM_F_CREATE | netlink.NLM_F_EXCL | netlink.NLM_F_ACK
-    nlh.seq = seq
+    nlh.nlmsg_type = (nfnl.NFNL_SUBSYS_CTNETLINK << 8) | nfnlct.IPCTNL_MSG_CT_NEW
+    nlh.nlmsg_flags = netlink.NLM_F_REQUEST | netlink.NLM_F_CREATE | netlink.NLM_F_EXCL | netlink.NLM_F_ACK
+    nlh.nlmsg_seq = seq
 
     nfh = nlh.put_extra_header_as(nfnl.Nfgenmsg)
     nfh.family = socket.AF_INET
@@ -71,7 +71,7 @@ def put_msg(buf, i, seq):
 def cb_err(nlh, data):
     err = nlh.get_payload_as(netlink.Nlmsgerr)
     if err.error != 0:
-        print("message with seq %u has failed: %s" % (nlh.seq, os.strerror(-err.error)), file=sys.stderr)
+        print("message with seq %u has failed: %s" % (nlh.nlmsg_seq, os.strerror(-err.error)), file=sys.stderr)
 
     return mnl.MNL_CB_OK
 

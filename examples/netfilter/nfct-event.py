@@ -159,12 +159,12 @@ def data_attr_cb(attr, tb):
 def data_cb(nlh, tb):
     tb = dict()
     nfg = nlh.get_payload_as(nfnl.Nfgenmsg)
-    if nlh.type & 0xff == nfnlct.IPCTNL_MSG_CT_NEW:
-        if nlh.flags & (netlink.NLM_F_CREATE|netlink.NLM_F_EXCL):
+    if nlh.nlmsg_type & 0xff == nfnlct.IPCTNL_MSG_CT_NEW:
+        if nlh.nlmsg_flags & (netlink.NLM_F_CREATE|netlink.NLM_F_EXCL):
             print("%9s " % "[NEW] ", end='')
         else:
             print("%9s " % "[UPDATE] ", end='')
-    elif nlh.type & 0xff == nfnlct.IPCTNL_MSG_CT_DELETE:
+    elif nlh.nlmsg_type & 0xff == nfnlct.IPCTNL_MSG_CT_DELETE:
         print("%9s " % "[DESTROY] ", end='')
 
     nlh.parse(nfnl.Nfgenmsg.csize(), data_attr_cb, tb)

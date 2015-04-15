@@ -150,9 +150,9 @@ def data_cb(nlh, tb):
     tb = dict()
     rm = nlh.get_payload_as(rtnl.Rtmsg)
 
-    if nlh.type == rtnl.RTM_NEWROUTE:
+    if nlh.nlmsg_type == rtnl.RTM_NEWROUTE:
         print("[NEW] ", end='')
-    elif nlh.type == rtnl.RTM_DELROUTE:
+    elif nlh.nlmsg_type == rtnl.RTM_DELROUTE:
         print("[DEL] ", end='')
 
     # protocol family = AF_INET | AF_INET6

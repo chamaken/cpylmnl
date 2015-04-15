@@ -39,11 +39,11 @@ MAX_LINKS = 32
 class Nlmsghdr(NLStructure):
     """struct nlmsghdr
     """
-    _fields_ = [("len",		ctypes.c_uint32), # __u32 nlmsg_len	/* Length of message including header */
-                ("type",	ctypes.c_uint16), # __u16 nlmsg_type	/* Message content */
-                ("flags",	ctypes.c_uint16), # __u16 nlmsg_flags	/* Additional flags */
-                ("seq",		ctypes.c_uint32), # __u32 nlmsg_seq	/* Sequence number */
-                ("pid",		ctypes.c_uint32)] # __u32 nlmsg_pid	/* Sending process port ID */
+    _fields_ = [("nlmsg_len",	ctypes.c_uint32), # __u32 nlmsg_len	/* Length of message including header */
+                ("nlmsg_type",	ctypes.c_uint16), # __u16 nlmsg_type	/* Message content */
+                ("nlmsg_flags",	ctypes.c_uint16), # __u16 nlmsg_flags	/* Additional flags */
+                ("nlmsg_seq",	ctypes.c_uint32), # __u32 nlmsg_seq	/* Sequence number */
+                ("nlmsg_pid",	ctypes.c_uint32)] # __u32 nlmsg_pid	/* Sending process port ID */
 
 # Flags values 
 NLM_F_REQUEST		= 1	# It is request message. 	
@@ -80,16 +80,16 @@ def NLMSG_LENGTH(len):	return ((len) + NLMSG_HDRLEN)
 #define NLMSG_SPACE(len) NLMSG_ALIGN(NLMSG_LENGTH(len))
 def NLMSG_SPACE(len):	return NLMSG_ALIGN(NLMSG_LENGTH(len))
 #define NLMSG_DATA(nlh)  ((void*)(((char*)nlh) + NLMSG_LENGTH(0)))
-def NLMSG_DATA(nlh):	return cast(addressof(nlh), POINTER((c_ubyte * nlh.len))).contents
+def NLMSG_DATA(nlh):	return cast(addressof(nlh), POINTER((c_ubyte * nlh.nlmsg_len))).contents
 # XXX: not implemented yet
 #define NLMSG_OK(nlh,len) ((len) >= (int)ctypes.sizeof(struct nlmsghdr) && \
 #			   (nlh)->nlmsg_len >= ctypes.sizeof(struct nlmsghdr) && \
 #			   (nlh)->nlmsg_len <= (len))
 def NLMSG_OK(nlh, len): return (len >= ctypes.sizeof(Nlmsghdr) and
-                                nlh.len >= ctypes.sizeof(Nlmsghdr) and
-                                nlh.len <= len)
+                                nlh.nlmsg_len >= ctypes.sizeof(Nlmsghdr) and
+                                nlh.nlmsg_len <= len)
 #define NLMSG_PAYLOAD(nlh,len) ((nlh)->nlmsg_len - NLMSG_SPACE((len)))
-def NLMSG_PAYLOAD(nlh, len): return nlh.len - NLMSG_SPACE(len)
+def NLMSG_PAYLOAD(nlh, len): return nlh.nlmsg_len - NLMSG_SPACE(len)
 
 NLMSG_NOOP		= 0x1	# Nothing.		
 NLMSG_ERROR		= 0x2	# Error		
@@ -120,21 +120,21 @@ class NlPktinfo(ctypes.Structure): # not NLStructure?
 class NlMmapReq(ctypes.Structure):
     """struct nl_mmap_req
     """
-    _fields_ = [("block_size", 	ctypes.c_uint), # unsigned int	nm_block_size
-                ("block_nr",	ctypes.c_uint), # unsigned int	nm_block_nr
-                ("frame_size",	ctypes.c_uint), # unsigned int	nm_frame_size
-                ("frame_nr",	ctypes.c_uint)] # unsigned int	nm_frame_nr
+    _fields_ = [("nm_block_size", 	ctypes.c_uint), # unsigned int	nm_block_size
+                ("nm_block_nr",		ctypes.c_uint), # unsigned int	nm_block_nr
+                ("nm_frame_size",	ctypes.c_uint), # unsigned int	nm_frame_size
+                ("nm_frame_nr",		ctypes.c_uint)] # unsigned int	nm_frame_nr
 
 class NlMmapHdr(ctypes.Structure):
     """struct nl_mmap_hdr
     """
-    _fields_ = [("status",	ctypes.c_uint),  # unsigned int	nm_status
-                ("len",		ctypes.c_uint),  # unsigned int	nm_len
-                ("group",	ctypes.c_uint32), # __u32		nm_group;
+    _fields_ = [("nm_status",	ctypes.c_uint),   # unsigned int	nm_status
+                ("nm_len",	ctypes.c_uint),   # unsigned int	nm_len
+                ("nm_group",	ctypes.c_uint32), # __u32		nm_group;
                 # credentials
-                ("pid",		ctypes.c_uint32), # __u32		nm_pid;
-                ("uid",		ctypes.c_uint32), # __u32		nm_uid;
-                ("gid", 	ctypes.c_uint32)] # __u32		nm_gid;
+                ("nm_pid",	ctypes.c_uint32), # __u32		nm_pid;
+                ("nm_uid",	ctypes.c_uint32), # __u32		nm_uid;
+                ("nm_gid", 	ctypes.c_uint32)] # __u32		nm_gid;
 
 class NlMmapStatus(Enum):
     NL_MMAP_STATUS_UNUSED	= 0
@@ -172,8 +172,8 @@ NETLINK_CONNECTED	= 1
 class Nlattr(NLStructure):
     """struct nlattr
     """
-    _fields_ = [("len",		ctypes.c_uint16), # __u16 nla_len
-                ("type",	ctypes.c_uint16)] # __u16 nla_type
+    _fields_ = [("nla_len",	ctypes.c_uint16), # __u16 nla_len
+                ("nla_type",	ctypes.c_uint16)] # __u16 nla_type
 
 # nla_type (16 bits)
 # +---+---+-------------------------------+

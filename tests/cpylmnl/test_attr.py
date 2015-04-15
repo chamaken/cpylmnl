@@ -31,7 +31,7 @@ class TestSuite(unittest.TestCase):
 
         # for nla validation
         self.valid_len = {
-            # {data_type: (nla.len, exp_len)
+            # {data_type: (nla.nla_len, exp_len)
             mnl.MNL_TYPE_UNSPEC		: (0, 0),
             mnl.MNL_TYPE_U8		: (1, 1),
             mnl.MNL_TYPE_U16		: (2, 2),
@@ -55,14 +55,14 @@ class TestSuite(unittest.TestCase):
 
 
     def test_Attribute(self):
-        self.assertTrue(self.nla.len == 0)
-        self.assertTrue(self.nla.type == 0)
+        self.assertTrue(self.nla.nla_len == 0)
+        self.assertTrue(self.nla.nla_type == 0)
 
         self.abuf.len = 10
         self.abuf.type = 2
 
-        self.assertTrue(self.nla.len == 10)
-        self.assertTrue(self.nla.type == 2)
+        self.assertTrue(self.nla.nla_len == 10)
+        self.assertTrue(self.nla.nla_type == 2)
 
 
     def test_get_type(self):
@@ -110,14 +110,14 @@ class TestSuite(unittest.TestCase):
         self.abuf[256:258] = struct.pack("H", 128) # XXX: set next len
 
         next_nla = self.nla.next_attribute()
-        self.assertTrue(next_nla.len == 128)
-        self.assertTrue(next_nla.type == struct.unpack("H", bytes(self.abuf[258:260]))[0])
+        self.assertTrue(next_nla.nla_len == 128)
+        self.assertTrue(next_nla.nla_type == struct.unpack("H", bytes(self.abuf[258:260]))[0])
 
 
     def test_type_valid(self):
         self.abuf.len = 251
         for i in range(mnl.MNL_TYPE_MAX):
-            self.nla.type = i
+            self.nla.nla_type = i
             # XXX: notRaises
             self.nla.type_valid(i + 1)
 
@@ -272,7 +272,7 @@ class TestSuite(unittest.TestCase):
         @mnl.mnl_attr_cb_t
         def cb(attr, data):
             if not data: return mnl.MNL_CB_STOP
-            if atype[0] != attr.type:
+            if atype[0] != attr.nla_type:
                 ctypes.set_errno(errno.EPERM)
                 return mnl.MNL_CB_ERROR
             atype[0] += 1
@@ -295,7 +295,7 @@ class TestSuite(unittest.TestCase):
         @mnl.mnl_attr_cb_t
         def cb(attr, data):
             if not data: return mnl.MNL_CB_STOP
-            if atype[0] != attr.type:
+            if atype[0] != attr.nla_type:
                 ctypes.set_errno(errno.EPERM)
                 return mnl.MNL_CB_ERROR
             atype[0] += 1
@@ -662,7 +662,7 @@ class TestSuite(unittest.TestCase):
         self.nlh.nest_end(nested)
 
         for i, attr in enumerate(nested.nesteds()):
-            self.assertTrue(attr.type == i)
+            self.assertTrue(attr.nla_type == i)
             self.assertTrue(attr.get_u8() == 11 * i)
 
 
@@ -676,7 +676,7 @@ class TestSuite(unittest.TestCase):
         self.nlh.put_u8(3, 0x13)
 
         for i, attr in enumerate(self.nlh.attributes(16)):
-            self.assertTrue(attr.type == i)
+            self.assertTrue(attr.nla_type == i)
             self.assertTrue(attr.get_u8() == 0x10 + i)
 
 
@@ -689,7 +689,7 @@ class TestSuite(unittest.TestCase):
         self.nlh.put_u8(3, 30)
 
         for i, attr in enumerate(mnl.payload_attributes(self.nlh.get_payload_v())):
-            self.assertTrue(attr.type == i)
+            self.assertTrue(attr.nla_type == i)
             self.assertTrue(attr.get_u8() == i * 10)
 
 

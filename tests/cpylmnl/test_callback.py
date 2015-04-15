@@ -112,11 +112,11 @@ class TestSuite(unittest.TestCase):
 
         @mnl.mnl_cb_t
         def cb_data(h, d):
-            d is not None and d.append(h.type)
-            if h.type == 0xff:
+            d is not None and d.append(h.nlmsg_type)
+            if h.nlmsg_type == 0xff:
                 ctypes.set_errno(errno.ENOBUFS)
                 return mnl.MNL_CB_ERROR
-            elif h.type == 0x7f: return mnl.MNL_CB_STOP
+            elif h.nlmsg_type == 0x7f: return mnl.MNL_CB_STOP
             else: return mnl.MNL_CB_OK
 
         l = []
@@ -172,7 +172,7 @@ class TestSuite(unittest.TestCase):
         @mnl.header_cb
         def cb_err(nlh, d):
             err = nlh.get_payload_as(netlink.Nlmsgerr)
-            if nlh.len < nlh.size(netlink.Nlmsgerr.csize()):
+            if nlh.nlmsg_len < nlh.size(netlink.Nlmsgerr.csize()):
                 set_errno(errno.EBADMSG)
                 return mnl.MNL_CB_ERROR
             if err.error < 0:
@@ -216,11 +216,11 @@ class TestSuite(unittest.TestCase):
 
         @mnl.mnl_cb_t
         def cb_data(h, d):
-            d is not None and d.append(h.type)
-            if h.type == 0xff:
+            d is not None and d.append(h.nlmsg_type)
+            if h.nlmsg_type == 0xff:
                 ctypes.set_errno(errno.ENOBUFS)
                 return mnl.MNL_CB_ERROR
-            elif h.type == 0x7f: return mnl.MNL_CB_STOP
+            elif h.nlmsg_type == 0x7f: return mnl.MNL_CB_STOP
             else: return mnl.MNL_CB_OK
 
         l = []

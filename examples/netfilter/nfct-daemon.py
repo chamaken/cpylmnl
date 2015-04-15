@@ -251,8 +251,8 @@ def main():
         sending_nlh = mnl.nlmsg_put_header(buf, mnl.Header)
 
         # Counters are atomically zerod in each dump
-        sending_nlh.type = (nfnl.NFNL_SUBSYS_CTNETLINK << 8) | nfnlct.IPCTNL_MSG_CT_GET_CTRZERO
-        sending_nlh.flags = netlink.NLM_F_REQUEST|netlink.NLM_F_DUMP
+        sending_nlh.nlmsg_type = (nfnl.NFNL_SUBSYS_CTNETLINK << 8) | nfnlct.IPCTNL_MSG_CT_GET_CTRZERO
+        sending_nlh.nlmsg_flags = netlink.NLM_F_REQUEST|netlink.NLM_F_DUMP
 
         nfh = sending_nlh.put_extra_header_as(nfnl.Nfgenmsg)
         nfh.family = socket.AF_INET

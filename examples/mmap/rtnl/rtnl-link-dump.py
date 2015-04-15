@@ -94,15 +94,15 @@ def main():
         buf = mnl.MNL_FRAME_PAYLOAD(frame, frame_size)
 
         nlh = mnl.nlmsg_put_header(buf, mnl.Header)
-        nlh.type = rtnl.RTM_GETLINK
-        nlh.flags = netlink.NLM_F_REQUEST | netlink.NLM_F_DUMP
+        nlh.nlmsg_type = rtnl.RTM_GETLINK
+        nlh.nlmsg_flags = netlink.NLM_F_REQUEST | netlink.NLM_F_DUMP
         seq = int(time.time())
-        nlh.seq = seq
+        nlh.nlmsg_seq = seq
         rt = nlh.put_extra_header_as(rtnl.Rtgenmsg)
         rt.family = socket.AF_PACKET
 
-        frame.len = nlh.len
-        frame.status = netlink.NL_MMAP_STATUS_VALID
+        frame.nm_len = nlh.nlmsg_len
+        frame.nm_status = netlink.NL_MMAP_STATUS_VALID
 
         nl.bind(0, mnl.MNL_SOCKET_AUTOPID)
         portid = nl.get_portid()
@@ -115,12 +115,12 @@ def main():
             # XXX: no try / except
             mnl_socket_poll(nl)
             frame = rxring.get_frame()
-            if frame.status == netlink.NL_MMAP_STATUS_VALID:
-                buf = mnl.MNL_FRAME_PAYLOAD(frame, frame.len)
-            elif frame.status == netlink.NL_MMAP_STATUS_COPY:
+            if frame.nm_status == netlink.NL_MMAP_STATUS_VALID:
+                buf = mnl.MNL_FRAME_PAYLOAD(frame, frame.nm_len)
+            elif frame.nm_status == netlink.NL_MMAP_STATUS_COPY:
                 buf = nl.recv(frame_size * 2)
             else:
-                frame.status = netlink.NL_MMAP_STATUS_UNUSED
+                frame.nm_status = netlink.NL_MMAP_STATUS_UNUSED
                 rxring.advance()
                 continue
 
@@ -129,7 +129,7 @@ def main():
             except Exception as e:
                 print("mnl_cb_run: %s" % e, file=sys.stderr)
                 raise
-            frame.status = netlink.NL_MMAP_STATUS_UNUSED
+            frame.nm_status = netlink.NL_MMAP_STATUS_UNUSED
             rxring.advance()
 
 

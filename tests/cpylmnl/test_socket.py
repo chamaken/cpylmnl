@@ -55,29 +55,29 @@ class TestSuite(unittest.TestCase):
         self.nl.bind(0, mnl.MNL_SOCKET_AUTOPID)
 
         nlh = mnl.Header.put_new_header(mnl.MNL_NLMSG_HDRLEN)
-        nlh.type = netlink.NLMSG_NOOP
-        nlh.flags = netlink.NLM_F_ECHO|netlink.NLM_F_ACK
-        nlh.pid = self.nl.get_portid()
-        nlh.seq = 1234
+        nlh.nlmsg_type = netlink.NLMSG_NOOP
+        nlh.nlmsg_flags = netlink.NLM_F_ECHO|netlink.NLM_F_ACK
+        nlh.nlmsg_pid = self.nl.get_portid()
+        nlh.nlmsg_seq = 1234
 
         # sendto & recv
         self.assertEqual(self.nl.sendto(nlh.marshal_binary()), mnl.MNL_NLMSG_HDRLEN)
         rbuf = self.nl.recv(256)
         nlr = mnl.Header(rbuf)
 
-        self.assertEqual(nlr.len, 36)
-        self.assertEqual(nlr.type, netlink.NLMSG_ERROR)
+        self.assertEqual(nlr.nlmsg_len, 36)
+        self.assertEqual(nlr.nlmsg_type, netlink.NLMSG_ERROR)
         nle = netlink.Nlmsgerr(nlr.get_payload_v())
 
         # commit 20e1db19db5d6b9e4e83021595eab0dc8f107bef
         # netlink: fix possible spoofing from non-root processes
         if self.kernel_version > (3, 6):
             self.assertEquals(abs(nle.error), errno.EPERM)
-        self.assertEquals(nle.msg.len, mnl.MNL_NLMSG_HDRLEN)
-        self.assertEquals(nle.msg.type, netlink.NLMSG_NOOP)
-        self.assertEquals(nle.msg.flags, netlink.NLM_F_ECHO|netlink.NLM_F_ACK)
-        self.assertEquals(nle.msg.pid, self.nl.get_portid())
-        self.assertEquals(nle.msg.seq, 1234)
+        self.assertEquals(nle.msg.nlmsg_len, mnl.MNL_NLMSG_HDRLEN)
+        self.assertEquals(nle.msg.nlmsg_type, netlink.NLMSG_NOOP)
+        self.assertEquals(nle.msg.nlmsg_flags, netlink.NLM_F_ECHO|netlink.NLM_F_ACK)
+        self.assertEquals(nle.msg.nlmsg_pid, self.nl.get_portid())
+        self.assertEquals(nle.msg.nlmsg_seq, 1234)
 
         # send_nlmsg & recv_into
         b = bytearray(256)
@@ -85,16 +85,16 @@ class TestSuite(unittest.TestCase):
         nrcv = self.nl.recv_into(b)
         nlr = mnl.Header(b[:nrcv])
         # repeat
-        self.assertEqual(nlr.len, 36)
-        self.assertEqual(nlr.type, netlink.NLMSG_ERROR)
+        self.assertEqual(nlr.nlmsg_len, 36)
+        self.assertEqual(nlr.nlmsg_type, netlink.NLMSG_ERROR)
         nle = netlink.Nlmsgerr(nlr.get_payload_v())
         if self.kernel_version > (3, 6):
             self.assertEquals(abs(nle.error), errno.EPERM)
-        self.assertEquals(nle.msg.len, mnl.MNL_NLMSG_HDRLEN)
-        self.assertEquals(nle.msg.type, netlink.NLMSG_NOOP)
-        self.assertEquals(nle.msg.flags, netlink.NLM_F_ECHO|netlink.NLM_F_ACK)
-        self.assertEquals(nle.msg.pid, self.nl.get_portid())
-        self.assertEquals(nle.msg.seq, 1234)
+        self.assertEquals(nle.msg.nlmsg_len, mnl.MNL_NLMSG_HDRLEN)
+        self.assertEquals(nle.msg.nlmsg_type, netlink.NLMSG_NOOP)
+        self.assertEquals(nle.msg.nlmsg_flags, netlink.NLM_F_ECHO|netlink.NLM_F_ACK)
+        self.assertEquals(nle.msg.nlmsg_pid, self.nl.get_portid())
+        self.assertEquals(nle.msg.nlmsg_seq, 1234)
 
 
     def test_opt(self):

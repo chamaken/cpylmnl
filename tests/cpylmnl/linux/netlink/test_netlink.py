@@ -51,7 +51,7 @@ class TestSuite(unittest.TestCase):
     def test_marshal_binary(self):
         # XXX: memory error
         # nlh = Nlmsghdr()
-        # nlh.len = 0x100000000 - NLMSG_ALIGNTO
+        # nlh.nlmsg_len = 0x100000000 - NLMSG_ALIGNTO
         # self.assertRaises(MemoryError, nlh.marshal_binary)
 
         for i in range(256):
@@ -70,7 +70,7 @@ class TestSuite(unittest.TestCase):
             self.assertEquals(nlh.marshal_binary()[10], newb)
 
             # unshare
-            nlh.len = 512
+            nlh.nlmsg_len = 512
             mb = nlh.marshal_binary()
             nb[10] = ~nb[10] & 0xff
             self.assertNotEquals(mb, nb)

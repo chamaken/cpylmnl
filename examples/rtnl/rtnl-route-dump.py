@@ -194,10 +194,10 @@ def main():
         sys.exit(-1)
 
     nlh = mnl.Header.put_new_header(mnl.MNL_SOCKET_BUFFER_SIZE)
-    nlh.type = rtnl.RTM_GETROUTE
-    nlh.flags = netlink.NLM_F_REQUEST | netlink.NLM_F_DUMP
+    nlh.nlmsg_type = rtnl.RTM_GETROUTE
+    nlh.nlmsg_flags = netlink.NLM_F_REQUEST | netlink.NLM_F_DUMP
     seq = int(time.time())
-    nlh.seq = seq
+    nlh.nlmsg_seq = seq
     rtm = nlh.put_extra_header_as(rtnl.Rtmsg)
 
     if sys.argv[1] == "inet":

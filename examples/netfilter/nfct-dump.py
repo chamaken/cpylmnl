@@ -215,10 +215,10 @@ def data_cb(nlh, data):
 
 def main():
     nlh = mnl.Header.put_new_header(mnl.MNL_SOCKET_BUFFER_SIZE)
-    nlh.type = (nfnl.NFNL_SUBSYS_CTNETLINK << 8) | nfnlct.IPCTNL_MSG_CT_GET
-    nlh.flags = netlink.NLM_F_REQUEST|netlink.NLM_F_DUMP
+    nlh.nlmsg_type = (nfnl.NFNL_SUBSYS_CTNETLINK << 8) | nfnlct.IPCTNL_MSG_CT_GET
+    nlh.nlmsg_flags = netlink.NLM_F_REQUEST|netlink.NLM_F_DUMP
     seq = int(time.time())
-    nlh.seq = seq
+    nlh.nlmsg_seq = seq
 
     nfh = nlh.put_extra_header_as(nfnl.Nfgenmsg)
     nfh.family = socket.AF_INET
