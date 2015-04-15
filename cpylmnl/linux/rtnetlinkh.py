@@ -344,33 +344,53 @@ RTAX_FEATURE_SACK	= 0x00000002
 RTAX_FEATURE_TIMESTAMP	= 0x00000004
 RTAX_FEATURE_ALLFRAG	= 0x00000008
 
-
-"""
+"""XXX: union, not NLStructure - no longer used?
 struct rta_session
-	__u8	proto
-	__u8	pad1
-	__u16	pad2
+        __u8	proto
+        __u8	pad1
+        __u16	pad2
 
-	union
-		struct
-			__u16	sport
-			__u16	dport
-		} ports
+        union
+        	struct
+        		__u16	sport
+        		__u16	dport
+        	} ports
 
-		struct
-			__u8	type
-			__u8	code
-			__u16	ident
-		} icmpt
+        	struct
+        		__u8	type
+        		__u8	code
+        		__u16	ident
+        	} icmpt
 
-		__u32		spi
-	} u
-
-struct rta_mfc_stats
-	__u64	mfcs_packets
-	__u64	mfcs_bytes
-	__u64	mfcs_wrong_if
+        	__u32		spi
+        } u
 """
+class RtaSessionPorts(ctypes.Structure):
+    _fields_ = [("sport",	ctypes.c_uint16),
+        	("dport",	ctypes.c_uint16)]
+class RtaSessionIcmpt(ctypes.Structure):
+    _fields_ = [("type",	ctypes.c_uint8),
+        	("code",	ctypes.c_uint8),
+        	("ident",	ctypes.c_uint16)]
+class _U_RtaSession(ctypes.Union):
+    _fields_ = [("ports",	RtaSessionPorts),
+        	("icmpt",	RtaSessionIcmpt),
+        	("spi",		ctypes.c_uint32)]
+class RtaSession(ctypes.Structure):
+    _anonymous_ = ("u",)
+    _fields_ = [("proto",	ctypes.c_uint8),
+        	("pad1",	ctypes.c_uint8),
+        	("pad2",	ctypes.c_uint16),
+        	("u",		_U_RtaSession)]
+
+
+class RtaMfcStats(NLStructure):
+    """struct rta_mfc_stats
+    """
+    _fields_ = [("mfcs_packets",	ctypes.c_uint64),
+        	("mfcs_bytes",		ctypes.c_uint64),
+        	("mfcs_wrong_if",	ctypes.c_uint64)]
+
 
 # General form of address family dependent message.
 class Rtgenmsg(NLStructure):
