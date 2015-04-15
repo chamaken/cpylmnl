@@ -7,11 +7,11 @@ import cpylmnl.linux.rtnetlinkh as rtnetlink
 from cpylmnl.nlstruct import NLStructure
 
 class Ifaddrmsg(NLStructure):
-    _fields_ = [("family",	ctypes.c_uint8),  # __u8 ifa_family
-                ("prefixlen",	ctypes.c_uint8),  # __u8 ifa_prefixlen /* The prefix length            */
-                ("flags",	ctypes.c_uint8),  # __u8 ifa_flags     /* Flags                        */
-                ("scope",	ctypes.c_uint8),  # __u8 ifa_scope     /* Address scope                */
-                ("index",	ctypes.c_uint32)] # __u32 ifa_index    /* Link index                   */
+    _fields_ = [("ifa_family",		ctypes.c_uint8),  # __u8 ifa_family
+                ("ifa_prefixlen",	ctypes.c_uint8),  # __u8 ifa_prefixlen /* The prefix length            */
+                ("ifa_flags",		ctypes.c_uint8),  # __u8 ifa_flags     /* Flags                        */
+                ("ifa_scope",		ctypes.c_uint8),  # __u8 ifa_scope     /* Address scope                */
+                ("ifa_index",		ctypes.c_uint32)] # __u32 ifa_index    /* Link index                   */
 
 # Important comment:
 # IFA_ADDRESS is prefix address, rather than local interface address.
@@ -50,10 +50,10 @@ IFA_F_NOPREFIXROUTE	= 0x200
 class IfaCacheinfo(ctypes.Structure):
     """struct ifa_cacheinfo
     """
-    _fields_ = [("prefered",	ctypes.c_uint32), # __u32 ifa_prefered
-                ("valid",	ctypes.c_uint32), # __u32 ifa_valid
-                ("cstamp",	ctypes.c_uint32), # __u32 cstamp /* created timestamp, hundredths of seconds */
-                ("tstamp",	ctypes.c_uint32)] # __u32 tstamp /* updated timestamp, hundredths of seconds */
+    _fields_ = [("ifa_prefered",	ctypes.c_uint32), # __u32 ifa_prefered
+                ("ifa_valid",		ctypes.c_uint32), # __u32 ifa_valid
+                ("cstamp",		ctypes.c_uint32), # __u32 cstamp /* created timestamp, hundredths of seconds */
+                ("tstamp",		ctypes.c_uint32)] # __u32 tstamp /* updated timestamp, hundredths of seconds */
 
 
 # backwards compatibility for userspace

@@ -38,7 +38,7 @@ def data_attr_cb(attr, tb):
 @mnl.header_cb
 def data_cb(nlh, data):
     ifa = nlh.get_payload_as(if_addr.Ifaddrmsg)
-    print("index=%d family=%d " % (ifa.index, ifa.family), end='')
+    print("index=%d family=%d " % (ifa.ifa_index, ifa.ifa_family), end='')
 
     tb = dict()
     nlh.parse(if_addr.Ifaddrmsg.csize(), data_attr_cb, tb)
@@ -47,7 +47,7 @@ def data_cb(nlh, data):
     if if_addr.IFA_ADDRESS in tb:
         attr = tb[if_addr.IFA_ADDRESS]
         addr = attr.get_payload_v()
-        out = socket.inet_ntop(ifa.family, addr)
+        out = socket.inet_ntop(ifa.ifa_family, addr)
         print("%s " % out, end='')
 
     print("scope=", end='')
@@ -56,7 +56,7 @@ def data_cb(nlh, data):
       253: lambda: print("link ",	end=''),
       254: lambda: print("host ",	end=''),
       255: lambda: print("nowhere ",	end='')
-        }.get(ifa.scope, lambda: print("%d " % ifa.scope, end=''))()
+        }.get(ifa.ifa_scope, lambda: print("%d " % ifa.ifa_scope, end=''))()
 
     print()
     return mnl.MNL_CB_OK
