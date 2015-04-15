@@ -221,7 +221,7 @@ def main():
     nlh.nlmsg_seq = seq
 
     nfh = nlh.put_extra_header_as(nfnl.Nfgenmsg)
-    nfh.family = socket.AF_INET
+    nfh.nfgen_family = socket.AF_INET
     nfh.version = nfnl.NFNETLINK_V0
     nfh.res_id = 0
 

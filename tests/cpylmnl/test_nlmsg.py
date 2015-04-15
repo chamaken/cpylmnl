@@ -91,7 +91,7 @@ class TestSuite(unittest.TestCase):
         exhdr = self.rand_nlh.put_extra_header_as(nfnl.Nfgenmsg)
         self.assertTrue(self.rand_nlh.nlmsg_len == mnl.MNL_ALIGN(256) + mnl.MNL_ALIGN(nfnl.Nfgenmsg.csize()))
         self.assertTrue(isinstance(exhdr, nfnl.Nfgenmsg))
-        self.assertTrue(exhdr.family == 0)
+        self.assertTrue(exhdr.nfgen_family == 0)
         self.assertTrue(exhdr.version == 0)
         self.assertTrue(exhdr.res_id == 0)
 
@@ -126,7 +126,7 @@ class TestSuite(unittest.TestCase):
     def test_get_payload_offset_as(self):
         exhdr = self.nlh.get_payload_offset_as(191, nfnl.Nfgenmsg)
         self.assertTrue(isinstance(exhdr, nfnl.Nfgenmsg))
-        self.assertTrue(exhdr.family == 0)
+        self.assertTrue(exhdr.nfgen_family == 0)
         self.assertTrue(exhdr.version == 0)
         self.assertTrue(exhdr.res_id == 0)
 

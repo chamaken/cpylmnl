@@ -138,7 +138,7 @@ def nflog_build_cfg_pf_request(buf, command):
     nlh.nlmsg_flags = netlink.NLM_F_REQUEST
 
     nfg = nlh.put_extra_header_as(nfnl.Nfgenmsg)
-    nfg.family = socket.AF_INET
+    nfg.nfgen_family = socket.AF_INET
     nfg.version = nfnl.NFNETLINK_V0
 
     cmd = nfulnl.NfulnlMsgConfigCmd()
@@ -155,7 +155,7 @@ def nflog_build_cfg_request(buf, command, qnum):
     nlh.nlmsg_flags = netlink.NLM_F_REQUEST
 
     nfg = nlh.put_extra_header_as(nfnl.Nfgenmsg)
-    nfg.family = socket.AF_INET
+    nfg.nfgen_family = socket.AF_INET
     nfg.version = nfnl.NFNETLINK_V0
     nfg.res_id = socket.htons(qnum)
 
@@ -173,7 +173,7 @@ def nflog_build_cfg_params(buf, mode, copy_range, qnum):
     nlh.nlmsg_flags = netlink.NLM_F_REQUEST
 
     nfg = nlh.put_extra_header_as(nfnl.Nfgenmsg)
-    nfg.family = socket.AF_UNSPEC
+    nfg.nfgen_family = socket.AF_UNSPEC
     nfg.version = nfnl.NFNETLINK_V0
     nfg.res_id = socket.htons(qnum)
 

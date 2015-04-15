@@ -37,7 +37,7 @@ NFNLGRP_MAX			= NfnetlinkGroups.NFNLGRP_MAX
 class Nfgenmsg(NLStructure):
     """struct nfgenmsg
     """
-    _fields_ = [("family",	ctypes.c_uint8),  # __u8   nfgen_family /* AF_xxx */
+    _fields_ = [("nfgen_family",ctypes.c_uint8),  # __u8   nfgen_family /* AF_xxx */
                 ("version",	ctypes.c_uint8),  # __u8   version      /* nfnetlink version */
                 ("res_id",	ctypes.c_uint16)] # __be16 res_id       /* resource id */
 

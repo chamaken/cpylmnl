@@ -255,7 +255,7 @@ def main():
         sending_nlh.nlmsg_flags = netlink.NLM_F_REQUEST|netlink.NLM_F_DUMP
 
         nfh = sending_nlh.put_extra_header_as(nfnl.Nfgenmsg)
-        nfh.family = socket.AF_INET
+        nfh.nfgen_family = socket.AF_INET
         nfh.version = nfnl.NFNETLINK_V0
         nfh.res_id = 0
 

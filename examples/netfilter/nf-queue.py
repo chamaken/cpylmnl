@@ -76,7 +76,7 @@ def nfq_build_cfg_pf_request(buf, command):
     nlh.nlmsg_flags = netlink.NLM_F_REQUEST
 
     nfg = nlh.put_extra_header_as(nfnl.Nfgenmsg)
-    nfg.family = socket.AF_UNSPEC
+    nfg.nfgen_family = socket.AF_UNSPEC
     nfg.version = nfnl.NFNETLINK_V0
 
     cmd = nfqnl.NfqnlMsgConfigCmd()
@@ -94,7 +94,7 @@ def nfq_build_cfg_request(buf, command, queue_num):
     nlh.nlmsg_flags = netlink.NLM_F_REQUEST
 
     nfg = nlh.put_extra_header_as(nfnl.Nfgenmsg)
-    nfg.family = socket.AF_UNSPEC
+    nfg.nfgen_family = socket.AF_UNSPEC
     nfg.version = nfnl.NFNETLINK_V0
     nfg.res_id = socket.htons(queue_num)
 
@@ -113,7 +113,7 @@ def nfq_build_cfg_params(buf, copy_mode, copy_range, queue_num):
     nlh.nlmsg_flags = netlink.NLM_F_REQUEST
 
     nfg = nlh.put_extra_header_as(nfnl.Nfgenmsg)
-    nfg.family = socket.AF_UNSPEC
+    nfg.nfgen_family = socket.AF_UNSPEC
     nfg.version = nfnl.NFNETLINK_V0
     nfg.res_id = socket.htons(queue_num)
 
@@ -131,7 +131,7 @@ def nfq_build_verdict(buf, packet_id, queue_num, verd):
     nlh.nlmsg_type = (nfnl.NFNL_SUBSYS_QUEUE << 8) | nfqnl.NFQNL_MSG_VERDICT
     nlh.nlmsg_flags = netlink.NLM_F_REQUEST
     nfg = nlh.put_extra_header_as(nfnl.Nfgenmsg)
-    nfg.family = socket.AF_UNSPEC
+    nfg.nfgen_family = socket.AF_UNSPEC
     nfg.version = nfnl.NFNETLINK_V0
     nfg.res_id = socket.htons(queue_num)
 
