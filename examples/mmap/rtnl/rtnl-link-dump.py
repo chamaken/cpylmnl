@@ -41,7 +41,7 @@ def data_attr_cb(attr, tb):
 @mnl.header_cb
 def data_cb(nlh, tb):
     ifm = nlh.get_payload_as(rtnl.Ifinfomsg)
-    print("index=%d type=%d flags=%d family=%d " % (ifm.index, ifm.type, ifm.flags, ifm.family), end='')
+    print("index=%d type=%d flags=%d family=%d " % (ifm.ifi_index, ifm.ifi_type, ifm.ifi_flags, ifm.ifi_family), end='')
 
     if ifm.flags & ifh.IFF_RUNNING:
         print("[RUNNING] ", end='')
@@ -99,7 +99,7 @@ def main():
         seq = int(time.time())
         nlh.nlmsg_seq = seq
         rt = nlh.put_extra_header_as(rtnl.Rtgenmsg)
-        rt.family = socket.AF_PACKET
+        rt.rtm_family = socket.AF_PACKET
 
         frame.nm_len = nlh.nlmsg_len
         frame.nm_status = netlink.NL_MMAP_STATUS_VALID

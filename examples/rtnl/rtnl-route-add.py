@@ -56,16 +56,16 @@ def main():
     nlh.nlmsg_seq = seq
 
     rtm = nlh.put_extra_header_as(rtnl.Rtmsg)
-    rtm.family = family
-    rtm.dst_len = prefix
-    rtm.src_len = 0
-    rtm.tos = 0
-    rtm.protocol = rtnl.RTPROT_STATIC
-    rtm.table = rtnl.RT_TABLE_MAIN
-    rtm.type = rtnl.RTN_UNICAST
+    rtm.rtm_family = family
+    rtm.rtm_dst_len = prefix
+    rtm.rtm_src_len = 0
+    rtm.rtm_tos = 0
+    rtm.rtm_protocol = rtnl.RTPROT_STATIC
+    rtm.rtm_table = rtnl.RT_TABLE_MAIN
+    rtm.rtm_type = rtnl.RTN_UNICAST
     # is there any gateway?
-    rtm.scope = len(sys.argv) == 4 and rtnl.RT_SCOPE_LINK or rtnl.RT_SCOPE_UNIVERSE
-    rtm.flags = 0
+    rtm.rtm_scope = len(sys.argv) == 4 and rtnl.RT_SCOPE_LINK or rtnl.RT_SCOPE_UNIVERSE
+    rtm.rtm_flags = 0
 
     log.debug("family: %d, dst len: %d" % (family, len(dst)))
     nlh.put(rtnl.RTA_DST, dst)

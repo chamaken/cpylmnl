@@ -41,7 +41,7 @@ def data_attr_cb(attr, tb):
 def data_cb(nlh, tb):
     ifm = nlh.get_payload_as(rtnl.Ifinfomsg)
 
-    print("index=%d type=%d flags=%d family=%d " % (ifm.index, ifm.type, ifm.flags, ifm.family), end='')
+    print("index=%d type=%d flags=%d family=%d " % (ifm.ifi_index, ifm.ifi_type, ifm.ifi_flags, ifm.ifi_family), end='')
 
     if ifm.flags & ifh.IFF_RUNNING:
         print("[RUNNING] ", end='')

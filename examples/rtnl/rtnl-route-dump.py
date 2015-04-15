@@ -151,36 +151,36 @@ def data_cb(nlh, tb):
     rm = nlh.get_payload_as(rtnl.Rtmsg)
 
     # protocol family = AF_INET | AF_INET6
-    print("family=%u " % rm.family,	end='')
+    print("family=%u " % rm.rtm_family,		end='')
 
     # destination CIDR, e.g. 24 or 32 for IPv4
-    print("dst_len=%u " % rm.dst_len,	end='')
+    print("dst_len=%u " % rm.rtm_dst_len,	end='')
 
     # source CIDR
-    print("src_len=%u " % rm.src_len,	end='')
+    print("src_len=%u " % rm.rtm_src_len,	end='')
 
     # type of service (TOS), e.g. 0
-    print("tos=%u " % rm.tos,		end='')
+    print("tos=%u " % rm.rtm_tos,		end='')
 
     # table
-    print("table=%u " % rm.table,	end='')
+    print("table=%u " % rm.rtm_table,		end='')
 
     # type
-    print("type=%u " % rm.type,		end='')
+    print("type=%u " % rm.rtm_type,		end='')
 
     # scope
-    print("scope=%u " % rm.scope,		end='')
+    print("scope=%u " % rm.rtm_scope,		end='')
 
     # proto
-    print("proto=%u " % rm.protocol,		end='')
+    print("proto=%u " % rm.rtm_protocol,	end='')
 
     # flags
-    print("flags=%x " % rm.flags,		end='')
+    print("flags=%x " % rm.rtm_flags,		end='')
 
-    if rm.family == socket.AF_INET:
+    if rm.rtm_family == socket.AF_INET:
         nlh.parse(rtnl.Rtmsg.csize(), data_ipv4_attr_cb, tb)
         attributes_show_ipv4(tb)
-    elif rm.family == socket.AF_INET6:
+    elif rm.rtm_family == socket.AF_INET6:
         nlh.parse(rtnl.Rtmsg.csize(), data_ipv6_attr_cb, tb)
         attributes_show_ipv6(tb)
 
@@ -201,9 +201,9 @@ def main():
     rtm = nlh.put_extra_header_as(rtnl.Rtmsg)
 
     if sys.argv[1] == "inet":
-        rtm.family = socket.AF_INET
+        rtm.rtm_family = socket.AF_INET
     elif sys.argv[1] == "inet6":
-        rtm.family = socket.AF_INET6
+        rtm.rtm_family = socket.AF_INET6
 
     with mnl.Socket(netlink.NETLINK_ROUTE) as nl:
         nl.bind(0, mnl.MNL_SOCKET_AUTOPID)

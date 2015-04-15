@@ -38,9 +38,9 @@ def main():
     seq = int(time.time())
     nlh.nlmsg_seq = seq
     ifm = nlh.put_extra_header_as(rtnl.Ifinfomsg)
-    ifm.family = socket.AF_UNSPEC
-    ifm.change = change
-    ifm.flags = flags
+    ifm.ifi_family = socket.AF_UNSPEC
+    ifm.ifi_change = change
+    ifm.ifi_flags = flags
 
     nlh.put_str(if_link.IFLA_IFNAME, sys.argv[1])
 

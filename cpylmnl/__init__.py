@@ -919,7 +919,7 @@ class Header(netlink.Nlmsghdr):
         @type out: file
         @param out: output file object
         """
-        _nlmsg.nlmsg_fprint(ctypes.cast(ctypes.addressof(self), ctypes.POINTER(ctypes.c_ubyte * self.len)).contents, elen, out)
+        _nlmsg.nlmsg_fprint(ctypes.cast(ctypes.addressof(self), ctypes.POINTER(ctypes.c_ubyte * self.nlmsg_len)).contents, elen, out)
 
     def attributes(self, offset):
         """mnl_attr_for_each() macro in libmnl.h

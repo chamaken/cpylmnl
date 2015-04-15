@@ -73,8 +73,8 @@ def main():
     seq = int(time.time())
     nlh.nlmsg_seq = seq
     rt = nlh.put_extra_header_as(rtnl.Rtgenmsg)
-    if sys.argv[1] == "inet":    rt.family = socket.AF_INET
-    elif sys.argv[1] == "inet6": rt.family = socket.AF_INET6
+    if sys.argv[1] == "inet":    rt.rtgen_family = socket.AF_INET
+    elif sys.argv[1] == "inet6": rt.rtgen_family = socket.AF_INET6
 
     with mnl.Socket(netlink.NETLINK_ROUTE) as nl:
         nl.bind(0, mnl.MNL_SOCKET_AUTOPID)
