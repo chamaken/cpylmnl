@@ -254,7 +254,6 @@ RTA_MP_ALGO	= RtattrTypeT.RTA_MP_ALGO
 RTA_TABLE	= RtattrTypeT.RTA_TABLE
 RTA_MARK	= RtattrTypeT.RTA_MARK
 RTA_MFC_STATS	= RtattrTypeT.RTA_MFC_STATS
-__RTA_MAX	= RtattrTypeT.__RTA_MAX
 RTA_MAX		= RtattrTypeT.RTA_MAX
 
 #define RTM_RTA(r)  ((struct rtattr*)(((char*)(r)) + NLMSG_ALIGN(sizeof(struct rtmsg))))
@@ -576,7 +575,6 @@ RTNLGRP_DCB		= RtnetlinkGroups.RTNLGRP_DCB
 RTNLGRP_IPV4_NETCONF	= RtnetlinkGroups.RTNLGRP_IPV4_NETCONF
 RTNLGRP_IPV6_NETCONF	= RtnetlinkGroups.RTNLGRP_IPV6_NETCONF
 RTNLGRP_MDB		= RtnetlinkGroups.RTNLGRP_MDB
-__RTNLGRP_MAX		= RtnetlinkGroups.__RTNLGRP_MAX
 RTNLGRP_MAX		= RtnetlinkGroups.RTNLGRP_MAX
 
 
