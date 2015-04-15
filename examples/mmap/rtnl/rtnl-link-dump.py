@@ -93,7 +93,7 @@ def main():
         frame = txring.get_frame()
         buf = mnl.MNL_FRAME_PAYLOAD(frame, frame_size)
 
-        nlh = mnl.nlmsg_put_header(buf, mnl.Header)
+        nlh = mnl.nlmsg_put_header(buf, mnl.Msghdr)
         nlh.nlmsg_type = rtnl.RTM_GETLINK
         nlh.nlmsg_flags = netlink.NLM_F_REQUEST | netlink.NLM_F_DUMP
         seq = int(time.time())

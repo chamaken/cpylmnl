@@ -20,14 +20,14 @@ class TestSuite(unittest.TestCase):
 
         # nlmsghdr
         self.hbuf = NlmsghdrBuf(buflen)
-        self.nlh = mnl.Header(self.hbuf)
+        self.nlh = mnl.Msghdr(self.hbuf)
 
         # nlattr
         self.abuf = NlattrBuf(buflen)
-        self.nla = mnl.Attribute(self.abuf)
+        self.nla = mnl.Attr(self.abuf)
         self.rand_abuf = NlattrBuf(bytearray([random.randrange(0, 255) for j in range(buflen)]))
         self.rand_abuf.len = buflen
-        self.rand_nla = mnl.Attribute(self.rand_abuf)
+        self.rand_nla = mnl.Attr(self.rand_abuf)
 
         # for nla validation
         self.valid_len = {
@@ -54,7 +54,7 @@ class TestSuite(unittest.TestCase):
         }
 
 
-    def test_Attribute(self):
+    def test_Attr(self):
         self.assertTrue(self.nla.nla_len == 0)
         self.assertTrue(self.nla.nla_type == 0)
 
@@ -233,7 +233,7 @@ class TestSuite(unittest.TestCase):
         cb = mnl.attribute_cb(_cb())
 
         # XXX: using functions defined here
-        nlh = mnl.Header.put_new_header(512)
+        nlh = mnl.Msghdr.put_new_header(512)
         nlh.put_u8(mnl.MNL_TYPE_U8, 0x10)
         nlh.put_u8(mnl.MNL_TYPE_U8, 0x11)
         nlh.put_u8(mnl.MNL_TYPE_U8, 0x12)
@@ -241,21 +241,21 @@ class TestSuite(unittest.TestCase):
         self.assertTrue(nlh.parse(0, cb, None) == mnl.MNL_CB_OK)
 
         # just testing closure
-        nlh = mnl.Header.put_new_header(512)
+        nlh = mnl.Msghdr.put_new_header(512)
         nlh.put_u8(mnl.MNL_TYPE_U8, 0x14)
         nlh.put_u8(mnl.MNL_TYPE_U8, 0x15)
         nlh.put_u8(mnl.MNL_TYPE_U8, 0x16)
         nlh.put_u8(mnl.MNL_TYPE_U8, 0x17)
         self.assertTrue(nlh.parse(0, cb, None) == mnl.MNL_CB_OK)
 
-        nlh = mnl.Header.put_new_header(512)
+        nlh = mnl.Msghdr.put_new_header(512)
         nlh.put_u8(mnl.MNL_TYPE_U8, 0x18)
         nlh.put_u8(mnl.MNL_TYPE_U8, 0x19)
         nlh.put_u8(mnl.MNL_TYPE_U8, 0x1a)
         nlh.put_u8(mnl.MNL_TYPE_U8, 0x10)
         self.assertTrue(nlh.parse(0, cb, None) == mnl.MNL_CB_STOP)
 
-        nlh = mnl.Header.put_new_header(512)
+        nlh = mnl.Msghdr.put_new_header(512)
         nlh.put_u8(mnl.MNL_TYPE_U8, 0x00)
         self.assertRaises(OSError, nlh.parse, 0, cb, 1)
 
@@ -285,7 +285,7 @@ class TestSuite(unittest.TestCase):
 
     def test_attr_parse_payload(self):
         # XXX: using functions defined here
-        nlh = mnl.Header.put_new_header(512)
+        nlh = mnl.Msghdr.put_new_header(512)
         nlh.put_u8(2, 10)
         nlh.put_u8(3, 10)
         nlh.put_u8(4, 10)
@@ -461,7 +461,7 @@ class TestSuite(unittest.TestCase):
 
         # should be false
         _hbuf = NlmsghdrBuf(self.msg_attr_hlen)
-        _nlh = mnl.Header(_hbuf)
+        _nlh = mnl.Msghdr(_hbuf)
         _nlh.put_header()
         pb = _hbuf[:]
         self.assertFalse(_nlh.put_check(self.msg_attr_hlen, 1, b))
@@ -489,7 +489,7 @@ class TestSuite(unittest.TestCase):
 
         # should be false
         _hbuf = NlmsghdrBuf(self.msg_attr_hlen)
-        _nlh = mnl.Header(_hbuf)
+        _nlh = mnl.Msghdr(_hbuf)
         _nlh.put_header()
         pb = _hbuf[:]
         self.assertFalse(_nlh.put_u8_check(self.msg_attr_hlen, mnl.MNL_TYPE_U8, 7))
@@ -510,7 +510,7 @@ class TestSuite(unittest.TestCase):
 
         # should be false
         _hbuf = NlmsghdrBuf(self.msg_attr_hlen)
-        _nlh = mnl.Header(_hbuf)
+        _nlh = mnl.Msghdr(_hbuf)
         _nlh.put_header()
         pb = _hbuf[:]
         self.assertFalse(_nlh.put_u16_check(self.msg_attr_hlen, mnl.MNL_TYPE_U16, 12345))
@@ -531,7 +531,7 @@ class TestSuite(unittest.TestCase):
 
         # should be false
         _hbuf = NlmsghdrBuf(self.msg_attr_hlen)
-        _nlh = mnl.Header(_hbuf)
+        _nlh = mnl.Msghdr(_hbuf)
         _nlh.put_header()
         pb = _hbuf[:]
         self.assertFalse(_nlh.put_u32_check(self.msg_attr_hlen, mnl.MNL_TYPE_U32, 0x12345678))
@@ -552,7 +552,7 @@ class TestSuite(unittest.TestCase):
 
         # should be false
         _hbuf = NlmsghdrBuf(self.msg_attr_hlen)
-        _nlh = mnl.Header(_hbuf)
+        _nlh = mnl.Msghdr(_hbuf)
         _nlh.put_header()
         pb = _hbuf[:]
         self.assertFalse(_nlh.put_u64_check(self.msg_attr_hlen, mnl.MNL_TYPE_U64, 0x123456789abcdef0))
@@ -578,7 +578,7 @@ class TestSuite(unittest.TestCase):
 
         # should be false
         _hbuf = NlmsghdrBuf(self.msg_attr_hlen)
-        _nlh = mnl.Header(_hbuf)
+        _nlh = mnl.Msghdr(_hbuf)
         _nlh.put_header()
         pb = _hbuf[:]
         self.assertFalse(_nlh.put_str_check(self.msg_attr_hlen, mnl.MNL_TYPE_STRING, s))
@@ -604,7 +604,7 @@ class TestSuite(unittest.TestCase):
 
         # should be false
         _hbuf = NlmsghdrBuf(self.msg_attr_hlen)
-        _nlh = mnl.Header(_hbuf)
+        _nlh = mnl.Msghdr(_hbuf)
         _nlh.put_header()
         pb = _hbuf[:]
         self.assertFalse(_nlh.put_strz_check(self.msg_attr_hlen, mnl.MNL_TYPE_NUL_STRING, s))

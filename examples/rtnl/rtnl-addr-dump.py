@@ -67,7 +67,7 @@ def main():
         print("Usage: %s <inet|inet6>" % sys.argv[0], file=sys.stderr)
         sys.exit(-1)
 
-    nlh = mnl.Header.put_new_header(mnl.MNL_SOCKET_BUFFER_SIZE)
+    nlh = mnl.Msghdr.put_new_header(mnl.MNL_SOCKET_BUFFER_SIZE)
     nlh.nlmsg_type = rtnl.RTM_GETADDR
     nlh.nlmsg_flags = netlink.NLM_F_REQUEST | netlink.NLM_F_DUMP
     seq = int(time.time())

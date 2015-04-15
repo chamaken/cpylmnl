@@ -248,7 +248,7 @@ def main():
         nl_socket.setsockopt(netlink.NETLINK_NO_ENOBUFS, on)
 
         buf = bytearray(mnl.MNL_SOCKET_BUFFER_SIZE)
-        sending_nlh = mnl.nlmsg_put_header(buf, mnl.Header)
+        sending_nlh = mnl.nlmsg_put_header(buf, mnl.Msghdr)
 
         # Counters are atomically zerod in each dump
         sending_nlh.nlmsg_type = (nfnl.NFNL_SUBSYS_CTNETLINK << 8) | nfnlct.IPCTNL_MSG_CT_GET_CTRZERO

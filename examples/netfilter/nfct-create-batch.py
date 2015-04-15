@@ -18,7 +18,7 @@ log = logging.getLogger(__name__)
 
 
 def put_msg(buf, i, seq):
-    nlh = mnl.Header(buf)
+    nlh = mnl.Msghdr(buf)
     nlh.put_header()
     nlh.nlmsg_type = (nfnl.NFNL_SUBSYS_CTNETLINK << 8) | nfnlct.IPCTNL_MSG_CT_NEW
     nlh.nlmsg_flags = netlink.NLM_F_REQUEST | netlink.NLM_F_CREATE | netlink.NLM_F_EXCL | netlink.NLM_F_ACK

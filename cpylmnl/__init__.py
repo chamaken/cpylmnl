@@ -62,7 +62,7 @@ from . import _socket
 from .linux import netlinkh as netlink
 
 
-class Attribute(netlink.Nlattr):
+class Attr(netlink.Nlattr):
     """Netlink attribute helpers
 
     Netlink Type-Length-Value (TLV) attribute:
@@ -263,7 +263,7 @@ class Attribute(netlink.Nlattr):
         as parameter. You have to use mnl_attr_ok() to ensure that the next
         attribute is valid.
 
-        @rtype: Attribute
+        @rtype: Attr
         @return: next attribute in the payload of a netlink message
         """
         return ctypes.cast(ctypes.addressof(_attr.attr_next(self)), ctypes.POINTER(self.__class__)).contents
@@ -271,13 +271,13 @@ class Attribute(netlink.Nlattr):
     def nesteds(self):
         """mnl_attr_for_each_nested() macro in libmnl.h
         """
-        a = self.get_payload_as(Attribute)
+        a = self.get_payload_as(Attr)
         while a.ok(self.get_payload() + self.get_payload_len() - ctypes.addressof(a)):
             yield a
             a = a.next_attribute()
 
 
-class Header(netlink.Nlmsghdr):
+class Msghdr(netlink.Nlmsghdr):
     """Netlink message helpers
 
     Netlink message:
@@ -418,13 +418,13 @@ class Header(netlink.Nlmsghdr):
         """start an attribute nest
 
         This function adds the attribute header that identifies the beginning of
-        an attribute nest. This function always returns a valid Attribute object
+        an attribute nest. This function always returns a valid Attr object
         beginning of the nest start.
 
         @type t: number
         @param t: netlink attribute type
         """
-        return ctypes.cast(ctypes.addressof(_attr.attr_nest_start(self, t)), ctypes.POINTER(Attribute)).contents
+        return ctypes.cast(ctypes.addressof(_attr.attr_nest_start(self, t)), ctypes.POINTER(Attr)).contents
 
     def put_check(self, l, t, d):
         """add an attribute to netlink message
@@ -588,26 +588,26 @@ class Header(netlink.Nlmsghdr):
 
         This function adds the attribute header that identifies the beginning of
         an attribute nest. If the nested attribute cannot be added then None,
-        otherwise valid Attribute object beginning of the nest is returned.
+        otherwise valid Attr object beginning of the nest is returned.
 
         @type l: number
         @param l: size of buffer which stores the message
         @type t: number
         @param t: netlink attribute type
 
-        @rtype: Attribute
-        @return: Attribute beginning of the nest or None if error
+        @rtype: Attr
+        @return: Attr beginning of the nest or None if error
         """
         ret = _attr.attr_nest_start_check(self, l, t)
         if ret is None: return None
-        return ctypes.cast(ctypes.addressof(ret), ctypes.POINTER(Attribute)).contents
+        return ctypes.cast(ctypes.addressof(ret), ctypes.POINTER(Attr)).contents
 
     def nest_end(self, a):
         """end an attribute nest
 
         This function updates the attribute header that identifies the nest.
 
-        @type a: Attribute
+        @type a: Attr
         @param a: attribute nest returned by mnl_attr_nest_start()
         """
         _attr.attr_nest_end(self, a)
@@ -617,7 +617,7 @@ class Header(netlink.Nlmsghdr):
 
         This function updates the attribute header that identifies the nest.
 
-        @type a: Attribute
+        @type a: Attr
         @param a: attribute nest returned by mnl_attr_nest_start()
         """
         _attr.attr_nest_cancel(self, a)
@@ -869,10 +869,10 @@ class Header(netlink.Nlmsghdr):
         @type size: number
         @param size: buffer size
 
-        @rtype: Header
+        @rtype: Msghdr
         @return: new created and room prepared Netlink header 
         """
-        nlh = Header(bytearray(size))
+        nlh = Msghdr(bytearray(size))
         nlh.put_header()
         return nlh
 
@@ -924,7 +924,7 @@ class Header(netlink.Nlmsghdr):
     def attributes(self, offset):
         """mnl_attr_for_each() macro in libmnl.h
         """
-        a = self.get_payload_offset_as(offset, Attribute)
+        a = self.get_payload_offset_as(offset, Attr)
         while a.ok(self.get_payload_tail() - ctypes.addressof(a)):
             yield a
             a = a.next_attribute()
@@ -1312,15 +1312,15 @@ def payload_attributes(payload): # buffer
     """mnl_attr_for_each_payload() macro in libmnl.h
     """
     p = ctypes.addressof((ctypes.c_ubyte * len(payload)).from_buffer(payload))
-    a = Attribute(payload)
+    a = Attr(payload)
     while a.ok(p + len(payload) - ctypes.addressof(a)):
         yield a
         a = a.next_attribute()
 
 
 from . import _callback
-header_cb       = _callback._cb_factory(Header, _cproto.MNL_CB_T)
-attribute_cb    = _callback._cb_factory(Attribute, _cproto.MNL_ATTR_CB_T)
+header_cb       = _callback._cb_factory(Msghdr, _cproto.MNL_CB_T)
+attribute_cb    = _callback._cb_factory(Attr, _cproto.MNL_ATTR_CB_T)
 
 
 from ._nlmsg import nlmsg_put_header

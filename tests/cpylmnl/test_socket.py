@@ -54,7 +54,7 @@ class TestSuite(unittest.TestCase):
     def test_send_recv(self):
         self.nl.bind(0, mnl.MNL_SOCKET_AUTOPID)
 
-        nlh = mnl.Header.put_new_header(mnl.MNL_NLMSG_HDRLEN)
+        nlh = mnl.Msghdr.put_new_header(mnl.MNL_NLMSG_HDRLEN)
         nlh.nlmsg_type = netlink.NLMSG_NOOP
         nlh.nlmsg_flags = netlink.NLM_F_ECHO|netlink.NLM_F_ACK
         nlh.nlmsg_pid = self.nl.get_portid()
@@ -63,7 +63,7 @@ class TestSuite(unittest.TestCase):
         # sendto & recv
         self.assertEqual(self.nl.sendto(nlh.marshal_binary()), mnl.MNL_NLMSG_HDRLEN)
         rbuf = self.nl.recv(256)
-        nlr = mnl.Header(rbuf)
+        nlr = mnl.Msghdr(rbuf)
 
         self.assertEqual(nlr.nlmsg_len, 36)
         self.assertEqual(nlr.nlmsg_type, netlink.NLMSG_ERROR)
@@ -83,7 +83,7 @@ class TestSuite(unittest.TestCase):
         b = bytearray(256)
         self.assertEqual(self.nl.send_nlmsg(nlh), mnl.MNL_NLMSG_HDRLEN)
         nrcv = self.nl.recv_into(b)
-        nlr = mnl.Header(b[:nrcv])
+        nlr = mnl.Msghdr(b[:nrcv])
         # repeat
         self.assertEqual(nlr.nlmsg_len, 36)
         self.assertEqual(nlr.nlmsg_type, netlink.NLMSG_ERROR)
