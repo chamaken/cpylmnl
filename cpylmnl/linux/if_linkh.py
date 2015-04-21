@@ -145,7 +145,8 @@ IFLA_PHYS_PORT_ID	= 34
 IFLA_CARRIER_CHANGES	= 35
 IFLA_PHYS_SWITCH_ID	= 36
 IFLA_LINK_NETNSID	= 37
-__IFLA_MAX		= 38
+IFLA_PHYS_PORT_NAME	= 38
+__IFLA_MAX		= 39
 IFLA_MAX = (__IFLA_MAX - 1)
 
 
@@ -202,15 +203,15 @@ IFLA_INET6_ICMP6STATS		= 6 # statistics (icmpv6)
 IFLA_INET6_TOKEN		= 7 # device token
 IFLA_INET6_ADDR_GEN_MODE	= 8 # implicit address generator mode
 __IFLA_INET6_MAX		= 9
-
-IFLA_INET6_MAX		= (__IFLA_INET6_MAX - 1)
+IFLA_INET6_MAX			= (__IFLA_INET6_MAX - 1)
 
 class In6AddrGenMode(Enum):
-    IN6_ADDR_GEN_MODE_EUI64	= 0
-    IN6_ADDR_GEN_MODE_NONE	= 1
+    IN6_ADDR_GEN_MODE_EUI64		= 0
+    IN6_ADDR_GEN_MODE_NONE		= 1
+    IN6_ADDR_GEN_MODE_STABLE_PRIVACY	= 2
 IN6_ADDR_GEN_MODE_EUI64	= In6AddrGenMode.IN6_ADDR_GEN_MODE_EUI64
 IN6_ADDR_GEN_MODE_NONE	= In6AddrGenMode.IN6_ADDR_GEN_MODE_NONE
-
+IN6_ADDR_GEN_MODE_STABLE_PRIVACY = In6AddrGenMode.IN6_ADDR_GEN_MODE_STABLE_PRIVACY
 
 # Bridge section
 # enum
@@ -218,7 +219,10 @@ IFLA_BR_UNSPEC		= 0
 IFLA_BR_FORWARD_DELAY	= 1
 IFLA_BR_HELLO_TIME	= 2
 IFLA_BR_MAX_AGE		= 3
-__IFLA_BR_MAX		= 4
+IFLA_BR_AGEING_TIME	= 4
+IFLA_BR_STP_STATE	= 5
+IFLA_BR_PRIORITY	= 6
+__IFLA_BR_MAX		= 7
 IFLA_BR_MAX		= (__IFLA_BR_MAX - 1)
 
 # enum
@@ -236,7 +240,10 @@ IFLA_BRPORT_PROTECT		= 6  # root port protection
 IFLA_BRPORT_FAST_LEAVE		= 7  # multicast fast leave  
 IFLA_BRPORT_LEARNING		= 8  # mac learning          
 IFLA_BRPORT_UNICAST_FLOOD	= 9  # flood unicast traffic 
-__IFLA_BRPORT_MAX		= 10
+IFLA_BRPORT_PROXYARP		= 10 # proxy ARP
+IFLA_BRPORT_LEARNING_SYNC	= 11 # mac learning sync from device
+IFLA_BRPORT_PROXYARP_WIFI	= 12 # proxy ARP for Wi-Fi
+__IFLA_BRPORT_MAX		= 13
 IFLA_BRPORT_MAX			= (__IFLA_BRPORT_MAX - 1)
 
 class IflaCacheinfo(ctypes.Structure):
@@ -442,7 +449,9 @@ IFLA_VF_TX_RATE		= 3  # Max TX Bandwidth Allocation
 IFLA_VF_SPOOFCHK	= 4  # Spoof Checking on/off switch
 IFLA_VF_LINK_STATE	= 5  # link state enable/disable/auto switch
 IFLA_VF_RATE		= 6  # Min and Max TX Bandwidth Allocation
-__IFLA_VF_MAX		= 7
+IFLA_VF_RSS_QUERY_EN	= 7  # RSS Redirection Table and Hash Key query
+                             # on/off switch
+__IFLA_VF_MAX		= 8
 IFLA_VF_MAX		= (__IFLA_VF_MAX - 1)
 
 class IflaVfMac(ctypes.Structure):
@@ -488,6 +497,13 @@ class IflaVfLinkState(ctypes.Structure):
     """
     _fields_ = [("vf",		ctypes.c_uint32), # __u32 vf
                 ("link_state",	ctypes.c_uint32)] # __u32 link_state
+
+
+class IflaVfRssQueryEn(ctypes.Structure):
+    """sruct ifla_vf_rss_query_en
+    """
+    _fields_ = [("vf",		ctypes.c_uint32), # __u32 vf
+                ("setting",	ctypes.c_uint32)] # __u32 setting
 
 
 # VF ports management section

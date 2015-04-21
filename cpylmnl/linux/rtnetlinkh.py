@@ -67,6 +67,7 @@ RTM_NEWMDB		= 84
 RTM_DELMDB		= 85
 RTM_GETMDB		= 86
 RTM_NEWNSID		= 88
+RTM_DELNSID		= 89
 RTM_GETNSID		= 90
 __RTM_MAX		= 91
 RTM_MAX			= (((__RTM_MAX + 3) & ~3) - 1)
@@ -234,7 +235,10 @@ class RtattrTypeT(Enum):
 	RTA_TABLE	= 15
 	RTA_MARK	= 16
 	RTA_MFC_STATS	= 17
-	__RTA_MAX	= 18
+	RTA_VIA		= 19
+	RTA_NEWDST	= 20
+	RTA_PREF	= 21
+        __RTA_MAX	= 22
 	RTA_MAX		= (__RTA_MAX - 1)
 RTA_UNSPEC	= RtattrTypeT.RTA_UNSPEC
 RTA_DST		= RtattrTypeT.RTA_DST
@@ -254,6 +258,9 @@ RTA_MP_ALGO	= RtattrTypeT.RTA_MP_ALGO
 RTA_TABLE	= RtattrTypeT.RTA_TABLE
 RTA_MARK	= RtattrTypeT.RTA_MARK
 RTA_MFC_STATS	= RtattrTypeT.RTA_MFC_STATS
+RTA_VIA		= RtattrTypeT.RTA_VIA
+RTA_NEWDST	= RtattrTypeT.RTA_NEWDST
+RTA_PREF	= RtattrTypeT.RTA_PREF
 RTA_MAX		= RtattrTypeT.RTA_MAX
 
 #define RTM_RTA(r)  ((struct rtattr*)(((char*)(r)) + NLMSG_ALIGN(sizeof(struct rtmsg))))
@@ -281,6 +288,7 @@ class Rtnexthop(NLStructure):
 RTNH_F_DEAD		= 1	# Nexthop is dead (used by multipath)
 RTNH_F_PERVASIVE	= 2	# Do recursive gateway lookup
 RTNH_F_ONLINK		= 4	# Gateway is forced on link
+RTNH_F_EXTERNAL		= 8	# Route installed externally
 
 # Macros to handle hexthops
 RTNLH_ALIGNTO	= 4
@@ -298,6 +306,16 @@ def RTNH_LENGTH(len):	return RTNL_ALIGN(ctypes.sizeof(Rtnexthop)) + len
 def RTNH_SPACE(len):	return RTNH_ALIGN(RTNH_LENGTH(len))
 #define RTNH_DATA(rtnh)   ((struct rtattr*)(((char*)(rtnh)) + RTNH_LENGTH(0)))
 def RTNH_DATA(rtnh):	return Rtattr(ctypes.addressof(rtnh) + RTNH_LENGTH(0))
+
+# RTA_VIA
+class Rtvia(ctypes.Structure):
+    """struct rtvia
+    """
+    _fields_ = [
+        # typedef unsigned short __kernel_sa_family_t
+        ("rtvia_family",	ctypes.c_ushort), # __kernel_sa_family_t	rtvia_family
+        # or ``ctypes.c_uint8 * 0''?
+        ("rtvia_addr",		ctypes.c_void_p)] # __u8			rtvia_addr[0];
 
 
 # RTM_CACHEINFO
@@ -546,7 +564,9 @@ class RtnetlinkGroups(Enum):
 	RTNLGRP_IPV4_NETCONF	= 24
 	RTNLGRP_IPV6_NETCONF	= 25
 	RTNLGRP_MDB		= 26
-	__RTNLGRP_MAX		= 27
+	RTNLGRP_MPLS_ROUTE	= 27
+	RTNLGRP_NSID		= 28
+	__RTNLGRP_MAX		= 29
 	RTNLGRP_MAX		= (__RTNLGRP_MAX - 1)
 RTNLGRP_NONE		= RtnetlinkGroups.RTNLGRP_NONE
 RTNLGRP_LINK		= RtnetlinkGroups.RTNLGRP_LINK
@@ -575,6 +595,8 @@ RTNLGRP_DCB		= RtnetlinkGroups.RTNLGRP_DCB
 RTNLGRP_IPV4_NETCONF	= RtnetlinkGroups.RTNLGRP_IPV4_NETCONF
 RTNLGRP_IPV6_NETCONF	= RtnetlinkGroups.RTNLGRP_IPV6_NETCONF
 RTNLGRP_MDB		= RtnetlinkGroups.RTNLGRP_MDB
+RTNLGRP_MPLS_ROUTE	= RtnetlinkGroups.RTNLGRP_MPLS_ROUTE
+RTNLGRP_NSID		= RtnetlinkGroups.RTNLGRP_NSID
 RTNLGRP_MAX		= RtnetlinkGroups.RTNLGRP_MAX
 
 

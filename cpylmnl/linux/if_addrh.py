@@ -46,6 +46,9 @@ IFA_F_TENTATIVE		= 0x40
 IFA_F_PERMANENT		= 0x80
 IFA_F_MANAGETEMPADDR	= 0x100
 IFA_F_NOPREFIXROUTE	= 0x200
+IFA_F_MCAUTOJOIN	= 0x400
+IFA_F_STABLE_PRIVACY	= 0x800
+
 
 class IfaCacheinfo(ctypes.Structure):
     """struct ifa_cacheinfo
