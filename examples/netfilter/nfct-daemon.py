@@ -29,7 +29,7 @@ class Nstat(object):
         self.bytes = 0
 
 
-@mnl.attribute_cb
+@mnl.attr_cb
 def parse_counters_cb(attr, tb):
     attr_type = attr.get_type()
 
@@ -63,7 +63,7 @@ def parse_counters(nest, ns):
         ns.bytes += be64toh(tb[nfnlct.CTA_COUNTERS_BYTES].get_u64())
 
 
-@mnl.attribute_cb
+@mnl.attr_cb
 def parse_ip_cb(attr, tb):
     attr_type = attr.get_type()
 
@@ -102,7 +102,7 @@ def parse_ip(nest, ns):
         ns.addr = ipaddr.IPv6Address(":".join(["%x%x" % (a[i], a[i + 1]) for i in range(0, len(v6addr), 2)]))
 
 
-@mnl.attribute_cb
+@mnl.attr_cb
 def parse_tuple_cb(attr, tb):
     attr_type = attr.get_type()
 
@@ -130,7 +130,7 @@ def parse_tuple(nest, ns):
         parse_ip(tb[nfnlct.CTA_TUPLE_IP], ns)
 
 
-@mnl.attribute_cb
+@mnl.attr_cb
 def data_attr_cb(attr, tb):
     attr_type = attr.get_type()
 
@@ -149,7 +149,7 @@ def data_attr_cb(attr, tb):
     return mnl.MNL_CB_OK
 
 
-@mnl.header_cb
+@mnl.msghdr_cb
 def data_cb(nlh, data):
     tb = dict()
     nfg = nlh.get_payload_as(nfnl.Nfgenmsg)

@@ -13,7 +13,7 @@ log = logging.getLogger(__name__)
 group = 0
 
 
-@mnl.attribute_cb
+@mnl.attr_cb
 def data_cb(nlh, data):
     print("received event type=%d from genetlink group %d" % (nlh.nlmsg_type, group))
     return mnl.MNL_CB_OK

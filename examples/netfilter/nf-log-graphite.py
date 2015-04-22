@@ -68,7 +68,7 @@ CARBON_SERVER = '127.0.0.1'
 CARBON_PORT = 2004
 
 
-@mnl.attribute_cb
+@mnl.attr_cb
 def parse_attr_cb(attr, tb):
     """only interested in
     length from NFULA_PACKET_HDR
@@ -109,7 +109,7 @@ def make_tuple(ethtype, pktbuf):
     return (dg.src, dg.dst, dg.p)
 
 
-@mnl.header_cb
+@mnl.msghdr_cb
 def log_cb(nlh, data):
     tb = dict()
 

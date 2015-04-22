@@ -230,7 +230,7 @@ class TestSuite(unittest.TestCase):
                     return mnl.MNL_CB_OK
                 else: return mnl.MNL_CB_STOP
 
-        cb = mnl.attribute_cb(_cb())
+        cb = mnl.attr_cb(_cb())
 
         # XXX: using functions defined here
         nlh = mnl.Msghdr.put_new_header(512)

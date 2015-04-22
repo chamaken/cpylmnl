@@ -160,16 +160,16 @@ class TestSuite(unittest.TestCase):
                 self.fail("not raise OSError")
 
         # with crl cb
-        @mnl.header_cb
+        @mnl.msghdr_cb
         def cb_done(nlh, d):
             return mnl.MNL_CB_STOP
 
-        @mnl.header_cb
+        @mnl.msghdr_cb
         def cb_overrun(nlh, d):
             set_errno(errno.ENOSPC)
             return mnl.MNL_CB_ERROR
 
-        @mnl.header_cb
+        @mnl.msghdr_cb
         def cb_err(nlh, d):
             err = nlh.get_payload_as(netlink.Nlmsgerr)
             if nlh.nlmsg_len < nlh.size(netlink.Nlmsgerr.csize()):

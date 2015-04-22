@@ -209,7 +209,7 @@ class Attr(netlink.Nlattr):
         This function propagates the return value of the callback, which can be
         MNL_CB_OK or MNL_CB_STOP or raise OSError in case of MNL_CB_ERROR.
 
-        @type cb: attribute_cb (decorator)
+        @type cb: attr_cb (decorator)
         @param cb: callback function that is called for each attribute in the nest
         @type d: any
         @param d: data passed to the callback function
@@ -316,7 +316,7 @@ class Msghdr(netlink.Nlmsghdr):
 
         @type o: number
         @param o: offset to start parsing from (if payload is after any header)
-        @type cb: attribute_cb (decorator)
+        @type cb: attr_cb (decorator)
         @param cb: callback function that is called for each attribute
         @type d: any
         @param d: data that is passed to the callback function
@@ -1319,8 +1319,8 @@ def payload_attributes(payload): # buffer
 
 
 from . import _callback
-header_cb       = _callback._cb_factory(Msghdr, _cproto.MNL_CB_T)
-attribute_cb    = _callback._cb_factory(Attr, _cproto.MNL_ATTR_CB_T)
+msghdr_cb       = _callback._cb_factory(Msghdr, _cproto.MNL_CB_T)
+attr_cb    = _callback._cb_factory(Attr, _cproto.MNL_ATTR_CB_T)
 
 
 from ._nlmsg import nlmsg_put_header

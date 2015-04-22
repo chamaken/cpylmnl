@@ -15,7 +15,7 @@ import cpylmnl as mnl
 log = logging.getLogger(__name__)
 
 
-@mnl.attribute_cb
+@mnl.attr_cb
 def parse_ip_cb(attr, tb):
     attr_type = attr.get_type()
 
@@ -47,7 +47,7 @@ def print_ip(nest):
         print("dst=%s " % socket.inet_ntoa(tb[nfnlct.CTA_IP_V4_DST].get_payload_v()), end='')
 
 
-@mnl.attribute_cb
+@mnl.attr_cb
 def parse_proto_cb(attr, tb):
     attr_type = attr.get_type()
 
@@ -93,7 +93,7 @@ def print_proto(nest):
     if nfnlct.CTA_PROTO_ICMP_CODE in tb: print("code=%u " % tb[nfnlct.CTA_PROTO_ICMP_CODE].get_u8(), end='')
 
 
-@mnl.attribute_cb
+@mnl.attr_cb
 def parse_tuple_cb(attr, tb):
     attr_type = attr.get_type()
 
@@ -127,7 +127,7 @@ def print_tuple(nest):
     if nfnlct.CTA_TUPLE_PROTO in tb: print_proto(tb[nfnlct.CTA_TUPLE_PROTO])
 
 
-@mnl.attribute_cb
+@mnl.attr_cb
 def data_attr_cb(attr, tb):
     attr_type = attr.get_type()
 
@@ -155,7 +155,7 @@ def data_attr_cb(attr, tb):
     return mnl.MNL_CB_OK
 
 
-@mnl.header_cb
+@mnl.msghdr_cb
 def data_cb(nlh, tb):
     tb = dict()
     nfg = nlh.get_payload_as(nfnl.Nfgenmsg)

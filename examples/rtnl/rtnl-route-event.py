@@ -83,7 +83,7 @@ def attributes_show_ipv6(tb):
                 print("metrics[%d]=%u " % (i, tbx[i].get_u32()), end='')
 
 
-@mnl.attribute_cb
+@mnl.attr_cb
 def data_ipv4_attr_cb(attr, tb):
     attr_type = attr.get_type()
 
@@ -114,7 +114,7 @@ def data_ipv4_attr_cb(attr, tb):
     return mnl.MNL_CB_OK
 
 
-@mnl.attribute_cb
+@mnl.attr_cb
 def data_ipv6_attr_cb(attr, tb):
     attr_type = attr.get_type()
 
@@ -145,7 +145,7 @@ def data_ipv6_attr_cb(attr, tb):
     return mnl.MNL_CB_OK
 
 
-@mnl.header_cb
+@mnl.msghdr_cb
 def data_cb(nlh, tb):
     tb = dict()
     rm = nlh.get_payload_as(rtnl.Rtmsg)

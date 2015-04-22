@@ -67,7 +67,7 @@ def put_msg(buf, i, seq):
     nlh.put_u32(nfnlct.CTA_TIMEOUT, socket.htonl(1000))
 
 
-@mnl.header_cb
+@mnl.msghdr_cb
 def cb_err(nlh, data):
     err = nlh.get_payload_as(netlink.Nlmsgerr)
     if err.error != 0:

@@ -14,7 +14,7 @@ from cpylmnl.linux import if_linkh, ifh
 log = logging.getLogger(__name__)
 
 
-@mnl.attribute_cb
+@mnl.attr_cb
 def data_attr_cb(attr, tb):
     attr_type = attr.get_type()
 
@@ -38,7 +38,7 @@ def data_attr_cb(attr, tb):
     return mnl.MNL_CB_OK
 
 
-@mnl.header_cb
+@mnl.msghdr_cb
 def data_cb(nlh, tb):
     ifm = nlh.get_payload_as(rtnl.Ifinfomsg)
     print("index=%d type=%d flags=%d family=%d " % (ifm.ifi_index, ifm.ifi_type, ifm.ifi_flags, ifm.ifi_family), end='')

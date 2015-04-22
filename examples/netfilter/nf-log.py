@@ -14,7 +14,7 @@ import cpylmnl as mnl
 log = logging.getLogger(__name__)
 
 
-@mnl.attribute_cb
+@mnl.attr_cb
 def parse_attr_cb(attr, tb):
     attr_type = attr.get_type()
 
@@ -59,7 +59,7 @@ def parse_attr_cb(attr, tb):
     return mnl.MNL_CB_OK
 
 
-@mnl.header_cb
+@mnl.msghdr_cb
 def log_cb(nlh, data):
     tb = dict()
     prefix = ""

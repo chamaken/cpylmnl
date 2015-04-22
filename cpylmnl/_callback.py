@@ -31,7 +31,7 @@ def cb_run2(buf, seq, portid, cb_data, data, cb_ctls=None):
     @param seq: sequence number that we expect to receive
     @type portid: number
     @param portid: Netlink PortID that we expect to receive
-    @type cb_data: can be used mnl_cb_t or header header_cb decorator
+    @type cb_data: can be used mnl_cb_t or header msghdr_cb decorator
     @param cb_data: callback handler for data messages
     @type data: any
     @param data: data that will be passed to the data callback handler
@@ -78,7 +78,7 @@ def cb_run(buf, seq, portid, cb_data, data):
     @param seq: sequence number that we expect to receive
     @type portid: number
     @param portid: Netlink PortID that we expect to receive
-    @type cb_data: can be used mnl_cb_t or header header_cb decorator
+    @type cb_data: can be used mnl_cb_t or header msghdr_cb decorator
     @param cb_data: callback handler for data messages
     @type data: any
     @param data: data that will be passed to the data callback handler

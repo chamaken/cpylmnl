@@ -13,7 +13,7 @@ import cpylmnl as mnl
 log = logging.getLogger(__name__)
 
 
-@mnl.attribute_cb
+@mnl.attr_cb
 def parse_mc_grps_cb(attr, tb):
     attr_type = attr.get_type()
 
@@ -53,7 +53,7 @@ def parse_genl_mc_grps(nested):
         print()
 
 
-@mnl.attribute_cb
+@mnl.attr_cb
 def parse_family_ops_cb(attr, tb):
     attr_type = attr.get_type()
 
@@ -89,7 +89,7 @@ def parse_genl_family_ops(nested):
         print()
 
 
-@mnl.attribute_cb
+@mnl.attr_cb
 def data_attr_cb(attr, tb):
     attr_type = attr.get_type()
 
@@ -125,7 +125,7 @@ def data_attr_cb(attr, tb):
     return mnl.MNL_CB_OK
 
 
-@mnl.header_cb
+@mnl.msghdr_cb
 def data_cb(nlh, tb):
     genlh = genl.Genlmsghdr(nlh.get_payload_v())
 

@@ -90,7 +90,7 @@ def attr_parse_payload(payload, cb, data):
 
     @type payload: buffer
     @param payload: payload of the Netlink message
-    @type cb: mnl_attr_cb_t or attribute_cb decorator can be used
+    @type cb: mnl_attr_cb_t or attr_cb decorator can be used
     @param cb: callback function that is called for each attribute
     @type data: any
     @param data: python object that is passed to the callback function
