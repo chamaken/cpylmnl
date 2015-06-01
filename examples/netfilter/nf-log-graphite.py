@@ -109,7 +109,7 @@ def make_tuple(ethtype, pktbuf):
     return (dg.src, dg.dst, dg.p)
 
 
-@mnl.msghdr_cb
+@mnl.nlmsg_cb
 def log_cb(nlh, data):
     tb = dict()
 
@@ -132,7 +132,7 @@ def log_cb(nlh, data):
 
 
 def nflog_build_cfg_pf_request(buf, command):
-    nlh = mnl.Msghdr(buf)
+    nlh = mnl.Nlmsg(buf)
     nlh.put_header()
     nlh.nlmsg_type = (nfnl.NFNL_SUBSYS_ULOG << 8) | nfulnl.NFULNL_MSG_CONFIG
     nlh.nlmsg_flags = netlink.NLM_F_REQUEST
@@ -149,7 +149,7 @@ def nflog_build_cfg_pf_request(buf, command):
 
 
 def nflog_build_cfg_request(buf, command, qnum):
-    nlh = mnl.Msghdr(buf)
+    nlh = mnl.Nlmsg(buf)
     nlh.put_header()
     nlh.nlmsg_type = (nfnl.NFNL_SUBSYS_ULOG << 8) | nfulnl.NFULNL_MSG_CONFIG
     nlh.nlmsg_flags = netlink.NLM_F_REQUEST
@@ -167,7 +167,7 @@ def nflog_build_cfg_request(buf, command, qnum):
 
 
 def nflog_build_cfg_params(buf, mode, copy_range, qnum):
-    nlh = mnl.Msghdr(buf)
+    nlh = mnl.Nlmsg(buf)
     nlh.put_header()
     nlh.nlmsg_type = (nfnl.NFNL_SUBSYS_ULOG << 8) | nfulnl.NFULNL_MSG_CONFIG
     nlh.nlmsg_flags = netlink.NLM_F_REQUEST

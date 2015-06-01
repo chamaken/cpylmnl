@@ -125,7 +125,7 @@ def data_attr_cb(attr, tb):
     return mnl.MNL_CB_OK
 
 
-@mnl.msghdr_cb
+@mnl.nlmsg_cb
 def data_cb(nlh, tb):
     genlh = genl.Genlmsghdr(nlh.get_payload_v())
 
@@ -155,7 +155,7 @@ def main():
         print("%s [family name]" % sys.argv[0])
         sys.exit(-1)
 
-    nlh = mnl.Msghdr.put_new_header(mnl.MNL_SOCKET_BUFFER_SIZE)
+    nlh = mnl.Nlmsg.put_new_header(mnl.MNL_SOCKET_BUFFER_SIZE)
     nlh.nlmsg_type = genl.GENL_ID_CTRL
     nlh.nlmsg_flags = netlink.NLM_F_REQUEST | netlink.NLM_F_ACK
     seq = int(time.time())

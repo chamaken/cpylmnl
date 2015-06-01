@@ -38,7 +38,7 @@ def data_attr_cb(attr, tb):
     return mnl.MNL_CB_OK
 
 
-@mnl.msghdr_cb
+@mnl.nlmsg_cb
 def data_cb(nlh, tb):
     ifm = nlh.get_payload_as(rtnl.Ifinfomsg)
     print("index=%d type=%d flags=%d family=%d " % (ifm.ifi_index, ifm.ifi_type, ifm.ifi_flags, ifm.ifi_family), end='')
@@ -64,7 +64,7 @@ def data_cb(nlh, tb):
 
 
 def main():
-    nlh = mnl.Msghdr.put_new_header(mnl.MNL_SOCKET_BUFFER_SIZE)
+    nlh = mnl.Nlmsg.put_new_header(mnl.MNL_SOCKET_BUFFER_SIZE)
     nlh.nlmsg_type = rtnl.RTM_GETLINK
     nlh.nlmsg_flags = netlink.NLM_F_REQUEST | netlink.NLM_F_DUMP
     seq = int(time.time())

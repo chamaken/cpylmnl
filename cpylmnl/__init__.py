@@ -277,7 +277,7 @@ class Attr(netlink.Nlattr):
             a = a.next_attribute()
 
 
-class Msghdr(netlink.Nlmsghdr):
+class Nlmsg(netlink.Nlmsghdr):
     """Netlink message helpers
 
     Netlink message:
@@ -869,10 +869,10 @@ class Msghdr(netlink.Nlmsghdr):
         @type size: number
         @param size: buffer size
 
-        @rtype: Msghdr
+        @rtype: Nlmsg
         @return: new created and room prepared Netlink header 
         """
-        nlh = Msghdr(bytearray(size))
+        nlh = Nlmsg(bytearray(size))
         nlh.put_header()
         return nlh
 
@@ -1319,8 +1319,8 @@ def payload_attributes(payload): # buffer
 
 
 from . import _callback
-msghdr_cb       = _callback._cb_factory(Msghdr, _cproto.MNL_CB_T)
-attr_cb    = _callback._cb_factory(Attr, _cproto.MNL_ATTR_CB_T)
+nlmsg_cb = _callback._cb_factory(Nlmsg, _cproto.MNL_CB_T)
+attr_cb  = _callback._cb_factory(Attr, _cproto.MNL_ATTR_CB_T)
 
 
 from ._nlmsg import nlmsg_put_header

@@ -145,7 +145,7 @@ def data_ipv6_attr_cb(attr, tb):
     return mnl.MNL_CB_OK
 
 
-@mnl.msghdr_cb
+@mnl.nlmsg_cb
 def data_cb(nlh, tb):
     tb = dict()
     rm = nlh.get_payload_as(rtnl.Rtmsg)
@@ -193,7 +193,7 @@ def main():
         print("Usage: %s <inet|inet6>" % sys.argv[0])
         sys.exit(-1)
 
-    nlh = mnl.Msghdr.put_new_header(mnl.MNL_SOCKET_BUFFER_SIZE)
+    nlh = mnl.Nlmsg.put_new_header(mnl.MNL_SOCKET_BUFFER_SIZE)
     nlh.nlmsg_type = rtnl.RTM_GETROUTE
     nlh.nlmsg_flags = netlink.NLM_F_REQUEST | netlink.NLM_F_DUMP
     seq = int(time.time())

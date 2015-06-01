@@ -54,7 +54,7 @@ def parse_attr_cb(attr, tb):
     return mnl.MNL_CB_OK
 
 
-@mnl.msghdr_cb
+@mnl.nlmsg_cb
 def queue_cb(nlh, tb):
     tb = dict()
     packet_id = 0
@@ -70,7 +70,7 @@ def queue_cb(nlh, tb):
 
 
 def nfq_build_cfg_pf_request(buf, command):
-    nlh = mnl.Msghdr(buf)
+    nlh = mnl.Nlmsg(buf)
     nlh.put_header()
     nlh.nlmsg_type = (nfnl.NFNL_SUBSYS_QUEUE << 8) | nfqnl.NFQNL_MSG_CONFIG
     nlh.nlmsg_flags = netlink.NLM_F_REQUEST
@@ -88,7 +88,7 @@ def nfq_build_cfg_pf_request(buf, command):
 
 
 def nfq_build_cfg_request(buf, command, queue_num):
-    nlh = mnl.Msghdr(buf)
+    nlh = mnl.Nlmsg(buf)
     nlh.put_header()
     nlh.nlmsg_type = (nfnl.NFNL_SUBSYS_QUEUE << 8) | nfqnl.NFQNL_MSG_CONFIG
     nlh.nlmsg_flags = netlink.NLM_F_REQUEST
@@ -107,7 +107,7 @@ def nfq_build_cfg_request(buf, command, queue_num):
 
 
 def nfq_build_cfg_params(buf, copy_mode, copy_range, queue_num):
-    nlh = mnl.Msghdr(buf)
+    nlh = mnl.Nlmsg(buf)
     nlh.put_header()
     nlh.nlmsg_type = (nfnl.NFNL_SUBSYS_QUEUE << 8) | nfqnl.NFQNL_MSG_CONFIG
     nlh.nlmsg_flags = netlink.NLM_F_REQUEST
@@ -126,7 +126,7 @@ def nfq_build_cfg_params(buf, copy_mode, copy_range, queue_num):
 
 
 def nfq_build_verdict(buf, packet_id, queue_num, verd):
-    nlh = mnl.Msghdr(buf)
+    nlh = mnl.Nlmsg(buf)
     nlh.put_header()
     nlh.nlmsg_type = (nfnl.NFNL_SUBSYS_QUEUE << 8) | nfqnl.NFQNL_MSG_VERDICT
     nlh.nlmsg_flags = netlink.NLM_F_REQUEST

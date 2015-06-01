@@ -37,7 +37,7 @@ def data_attr_cb(attr, tb):
     return mnl.MNL_CB_OK
 
 
-@mnl.msghdr_cb
+@mnl.nlmsg_cb
 def data_cb(nlh, tb):
     ifm = nlh.get_payload_as(rtnl.Ifinfomsg)
 

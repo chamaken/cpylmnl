@@ -21,10 +21,10 @@ class TestSuite(unittest.TestCase):
 
         # nlmsghdr
         self.hbuf = NlmsghdrBuf(self.buflen)
-        self.nlh = mnl.Msghdr(self.hbuf)
+        self.nlh = mnl.Nlmsg(self.hbuf)
         self.rand_hbuf = NlmsghdrBuf(bytearray([random.randrange(0, 255) for j in range(self.buflen)]))
         self.rand_hbuf.len = self.buflen
-        self.rand_nlh = mnl.Msghdr(self.rand_hbuf)
+        self.rand_nlh = mnl.Nlmsg(self.rand_hbuf)
 
         # nlattr
         self.abuf = NlattrBuf(self.buflen)
@@ -34,7 +34,7 @@ class TestSuite(unittest.TestCase):
         self.rand_nla = mnl.Attr(self.rand_abuf)
 
 
-    def test_Msghdr(self):
+    def test_Nlmsg(self):
         self.assertTrue(self.nlh.nlmsg_len == 0)
         self.assertTrue(self.nlh.nlmsg_type == 0)
         self.assertTrue(self.nlh.nlmsg_flags == 0)
@@ -55,7 +55,7 @@ class TestSuite(unittest.TestCase):
 
 
     def test_size(self):
-        self.assertTrue(mnl.Msghdr.size(3) == 19)
+        self.assertTrue(mnl.Nlmsg.size(3) == 19)
 
 
     def test_get_payload_len(self):
@@ -66,13 +66,13 @@ class TestSuite(unittest.TestCase):
     def test_nlmsg_put_header(self):
         nlh = mnl.nlmsg_put_header(self.hbuf)
         self.assertTrue(nlh.nlmsg_len == mnl.MNL_NLMSG_HDRLEN)
-        h = mnl.nlmsg_put_header(self.hbuf, mnl.Msghdr)
+        h = mnl.nlmsg_put_header(self.hbuf, mnl.Nlmsg)
         self.assertTrue(h.nlmsg_len == mnl.MNL_NLMSG_HDRLEN)
         self.assertRaises(TypeError, mnl.nlmsg_put_header, self.hbuf, list)
 
 
     def test_put_new_header(self):
-        nlh = mnl.Msghdr.put_new_header(128)
+        nlh = mnl.Nlmsg.put_new_header(128)
         self.assertTrue(nlh.nlmsg_len == mnl.MNL_NLMSG_HDRLEN)
 
 
@@ -224,7 +224,7 @@ class TestSuite(unittest.TestCase):
 
         # make buf full
         for i in range(1, 11):
-            nlh = mnl.Msghdr.from_pointer(b.current())
+            nlh = mnl.Nlmsg.from_pointer(b.current())
             nlh.put_header()
             self.assertTrue(b.next_batch() == True)
             self.assertTrue(b.size() == mnl.MNL_NLMSG_HDRLEN * i,)
@@ -233,7 +233,7 @@ class TestSuite(unittest.TestCase):
             self.assertTrue(b.is_empty() == False)
 
         # after full
-        nlh = mnl.Msghdr.from_pointer(b.current())
+        nlh = mnl.Nlmsg.from_pointer(b.current())
         nlh.put_header()
         self.assertTrue(b.next_batch() == False)
         self.assertTrue(b.size() == mnl.MNL_NLMSG_HDRLEN * i)

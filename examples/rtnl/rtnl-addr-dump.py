@@ -35,7 +35,7 @@ def data_attr_cb(attr, tb):
     return mnl.MNL_CB_OK
 
 
-@mnl.msghdr_cb
+@mnl.nlmsg_cb
 def data_cb(nlh, data):
     ifa = nlh.get_payload_as(if_addr.Ifaddrmsg)
     print("index=%d family=%d " % (ifa.ifa_index, ifa.ifa_family), end='')
@@ -67,7 +67,7 @@ def main():
         print("Usage: %s <inet|inet6>" % sys.argv[0], file=sys.stderr)
         sys.exit(-1)
 
-    nlh = mnl.Msghdr.put_new_header(mnl.MNL_SOCKET_BUFFER_SIZE)
+    nlh = mnl.Nlmsg.put_new_header(mnl.MNL_SOCKET_BUFFER_SIZE)
     nlh.nlmsg_type = rtnl.RTM_GETADDR
     nlh.nlmsg_flags = netlink.NLM_F_REQUEST | netlink.NLM_F_DUMP
     seq = int(time.time())
