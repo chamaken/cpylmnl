@@ -1108,6 +1108,10 @@ class Socket(object):
         """
         return _socket.socket_get_fd(self._nls)
 
+    def fileno(self):
+        """alias for get_fd()"""
+        return self.get_fd()
+
     def get_portid(self):
         """obtain Netlink PortID from netlink socket
 
