@@ -1,13 +1,8 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from enum import Enum
-except ImportError:
-    Enum = object
-
 
 # enum cntl_msg_types
-class CtnlMsgTypes(Enum):
+class CtnlMsgTypes(object):
     IPCTNL_MSG_CT_NEW			= 0
     IPCTNL_MSG_CT_GET			= 1
     IPCTNL_MSG_CT_DELETE		= 2
@@ -28,7 +23,7 @@ IPCTNL_MSG_CT_GET_UNCONFIRMED	= CtnlMsgTypes.IPCTNL_MSG_CT_GET_UNCONFIRMED
 IPCTNL_MSG_MAX			= CtnlMsgTypes.IPCTNL_MSG_MAX
 
 # enum ctnl_exp_msg_types
-class CtnlExpMsgTypes(Enum):
+class CtnlExpMsgTypes(object):
     IPCTNL_MSG_EXP_NEW			= 0
     IPCTNL_MSG_EXP_GET			= 1
     IPCTNL_MSG_EXP_DELETE		= 2
@@ -41,7 +36,7 @@ IPCTNL_MSG_EXP_GET_STATS_CPU	= CtnlExpMsgTypes.IPCTNL_MSG_EXP_GET_STATS_CPU
 IPCTNL_MSG_EXP_MAX		= CtnlExpMsgTypes.IPCTNL_MSG_EXP_MAX
 
 # enum ctattr_type
-class CtattrType(Enum):
+class CtattrType(object):
     CTA_UNSPEC			= 0
     CTA_TUPLE_ORIG		= 1
     CTA_TUPLE_REPLY		= 2
@@ -101,7 +96,7 @@ CTA_LABELS_MASK		= CtattrType.CTA_LABELS_MASK
 CTA_MAX			= CtattrType.CTA_MAX
 
 # enum ctattr_tuple
-class CtattrTuple(Enum):
+class CtattrTuple(object):
     CTA_TUPLE_UNSPEC	= 0
     CTA_TUPLE_IP	= 1
     CTA_TUPLE_PROTO	= 2
@@ -113,7 +108,7 @@ CTA_TUPLE_PROTO		= CtattrTuple.CTA_TUPLE_PROTO
 CTA_TUPLE_MAX		= CtattrTuple.CTA_TUPLE_MAX
 
 # enum ctattr_ip
-class CtattrIp(Enum):
+class CtattrIp(object):
     CTA_IP_UNSPEC	= 0
     CTA_IP_V4_SRC	= 1
     CTA_IP_V4_DST	= 2
@@ -129,7 +124,7 @@ CTA_IP_V6_DST	= CtattrIp.CTA_IP_V6_DST
 CTA_IP_MAX	= CtattrIp.CTA_IP_MAX
 
 # enum ctattr_l4proto
-class CtattrL4proto(Enum):
+class CtattrL4proto(object):
     CTA_PROTO_UNSPEC		= 0
     CTA_PROTO_NUM		= 1
     CTA_PROTO_SRC_PORT		= 2
@@ -155,7 +150,7 @@ CTA_PROTO_ICMPV6_CODE	= CtattrL4proto.CTA_PROTO_ICMPV6_CODE
 CTA_PROTO_MAX		= CtattrL4proto.CTA_PROTO_MAX
 
 # enum ctattr_protoinfo
-class CtattrProtoinfo(Enum):
+class CtattrProtoinfo(object):
     CTA_PROTOINFO_UNSPEC	= 0
     CTA_PROTOINFO_TCP		= 1
     CTA_PROTOINFO_DCCP		= 2
@@ -169,7 +164,7 @@ CTA_PROTOINFO_SCTP	= CtattrProtoinfo.CTA_PROTOINFO_SCTP
 CTA_PROTOINFO_MAX	= CtattrProtoinfo.CTA_PROTOINFO_MAX
 
 # enum ctattr_protoinfo_tcp
-class CtattrProtoinfoTcp(Enum):
+class CtattrProtoinfoTcp(object):
     CTA_PROTOINFO_TCP_UNSPEC		= 0
     CTA_PROTOINFO_TCP_STATE		= 1
     CTA_PROTOINFO_TCP_WSCALE_ORIGINAL	= 2
@@ -187,7 +182,7 @@ CTA_PROTOINFO_TCP_FLAGS_REPLY		= CtattrProtoinfoTcp.CTA_PROTOINFO_TCP_FLAGS_REPL
 CTA_PROTOINFO_TCP_MAX			= CtattrProtoinfoTcp.CTA_PROTOINFO_TCP_MAX
 
 # enum ctattr_protoinfo_dccp
-class CtattrProtoinfoDccp(Enum):
+class CtattrProtoinfoDccp(object):
     CTA_PROTOINFO_DCCP_UNSPEC		= 0
     CTA_PROTOINFO_DCCP_STATE		= 1
     CTA_PROTOINFO_DCCP_ROLE		= 2
@@ -201,7 +196,7 @@ CTA_PROTOINFO_DCCP_HANDSHAKE_SEQ	= CtattrProtoinfoDccp.CTA_PROTOINFO_DCCP_HANDSH
 CTA_PROTOINFO_DCCP_MAX			= CtattrProtoinfoDccp.CTA_PROTOINFO_DCCP_MAX
 
 # enum ctattr_protoinfo_sctp
-class CtattrProtoinfoSctp(Enum):
+class CtattrProtoinfoSctp(object):
     CTA_PROTOINFO_SCTP_UNSPEC		= 0
     CTA_PROTOINFO_SCTP_STATE		= 1
     CTA_PROTOINFO_SCTP_VTAG_ORIGINAL	= 2
@@ -215,7 +210,7 @@ CTA_PROTOINFO_SCTP_VTAG_REPLY		= CtattrProtoinfoSctp.CTA_PROTOINFO_SCTP_VTAG_REP
 CTA_PROTOINFO_SCTP_MAX			= CtattrProtoinfoSctp.CTA_PROTOINFO_SCTP_MAX
 
 # enum ctattr_counters
-class CtattrCounters(Enum):
+class CtattrCounters(object):
     CTA_COUNTERS_UNSPEC		= 0
     CTA_COUNTERS_PACKETS	= 1
     CTA_COUNTERS_BYTES		= 2
@@ -231,7 +226,7 @@ CTA_COUNTERS32_BYTES	= CtattrCounters.CTA_COUNTERS32_BYTES
 CTA_COUNTERS_MAX	= CtattrCounters.CTA_COUNTERS_MAX
 
 # enum ctattr_tstamp
-class CtattrTstamp(Enum):
+class CtattrTstamp(object):
     CTA_TIMESTAMP_UNSPEC	= 0
     CTA_TIMESTAMP_START		= 1
     CTA_TIMESTAMP_STOP		= 2
@@ -243,7 +238,7 @@ CTA_TIMESTAMP_STOP	= CtattrTstamp.CTA_TIMESTAMP_STOP
 CTA_TIMESTAMP_MAX	= CtattrTstamp.CTA_TIMESTAMP_MAX
 
 # enum ctattr_nat
-class CtattrNat(Enum):
+class CtattrNat(object):
     CTA_NAT_UNSPEC	= 0
     CTA_NAT_V4_MINIP	= 1
     CTA_NAT_MINIP	= CTA_NAT_V4_MINIP
@@ -265,7 +260,7 @@ CTA_NAT_V6_MAXIP	= CtattrNat.CTA_NAT_V6_MAXIP
 CTA_NAT_MAX		= CtattrNat.CTA_NAT_MAX
 
 # enum ctattr_protonat
-class CtattrProtonat(Enum):
+class CtattrProtonat(object):
     CTA_PROTONAT_UNSPEC		= 0
     CTA_PROTONAT_PORT_MIN	= 1
     CTA_PROTONAT_PORT_MAX	= 2
@@ -277,7 +272,7 @@ CTA_PROTONAT_PORT_MAX	= CtattrProtonat.CTA_PROTONAT_PORT_MAX
 CTA_PROTONAT_MAX	= CtattrProtonat.CTA_PROTONAT_MAX
 
 # enum ctattr_seqadj
-class CtattrSeqadj(Enum):
+class CtattrSeqadj(object):
     CTA_SEQADJ_UNSPEC		= 0
     CTA_SEQADJ_CORRECTION_POS	= 1
     CTA_SEQADJ_OFFSET_BEFORE	= 2
@@ -291,7 +286,7 @@ CTA_SEQADJ_OFFSET_AFTER		= CtattrSeqadj.CTA_SEQADJ_OFFSET_AFTER
 CTA_SEQADJ_MAX			= CtattrSeqadj.CTA_SEQADJ_MAX
 
 # enum ctattr_natseq
-class CtattrNatseq(Enum):
+class CtattrNatseq(object):
     CTA_NAT_SEQ_UNSPEC		= 0
     CTA_NAT_SEQ_CORRECTION_POS	= 1
     CTA_NAT_SEQ_OFFSET_BEFORE	= 2
@@ -305,7 +300,7 @@ CTA_NAT_SEQ_OFFSET_AFTER	= CtattrNatseq.CTA_NAT_SEQ_OFFSET_AFTER
 CTA_NAT_SEQ_MAX			= CtattrNatseq.CTA_NAT_SEQ_MAX
 
 # enum ctattr_expect
-class CtattrExpect(Enum):
+class CtattrExpect(object):
     CTA_EXPECT_UNSPEC		= 0
     CTA_EXPECT_MASTER		= 1
     CTA_EXPECT_TUPLE		= 2
@@ -335,7 +330,7 @@ CTA_EXPECT_FN		= CtattrExpect.CTA_EXPECT_FN
 CTA_EXPECT_MAX		= CtattrExpect.CTA_EXPECT_MAX
 
 # enum ctattr_expect_nat
-class CtattrExpectNat(Enum):
+class CtattrExpectNat(object):
     CTA_EXPECT_NAT_UNSPEC	= 0
     CTA_EXPECT_NAT_DIR		= 1
     CTA_EXPECT_NAT_TUPLE	= 2
@@ -347,7 +342,7 @@ CTA_EXPECT_NAT_TUPLE	= CtattrExpectNat.CTA_EXPECT_NAT_TUPLE
 CTA_EXPECT_NAT_MAX	= CtattrExpectNat.CTA_EXPECT_NAT_MAX
 
 # enum ctattr_help
-class CtattrHelp(Enum):
+class CtattrHelp(object):
     CTA_HELP_UNSPEC	= 0
     CTA_HELP_NAME	= 1
     CTA_HELP_INFO	= 2
@@ -359,7 +354,7 @@ CTA_HELP_INFO	= CtattrHelp.CTA_HELP_INFO
 CTA_HELP_MAX	= CtattrHelp.CTA_HELP_MAX
 
 # enum ctattr_secctx
-class CtattrSecctx(Enum):
+class CtattrSecctx(object):
     CTA_SECCTX_UNSPEC	= 0
     CTA_SECCTX_NAME	= 1
     __CTA_SECCTX_MAX	= 2
@@ -369,7 +364,7 @@ CTA_SECCTX_NAME		= CtattrSecctx.CTA_SECCTX_NAME
 CTA_SECCTX_MAX		= CtattrSecctx.CTA_SECCTX_MAX
 
 # enum ctattr_stats_cpu
-class CtattrStatsCpu(Enum):
+class CtattrStatsCpu(object):
     CTA_STATS_UNSPEC		= 0
     CTA_STATS_SEARCHED		= 1
     CTA_STATS_FOUND		= 2
@@ -403,7 +398,7 @@ CTA_STATS_SEARCH_RESTART	= CtattrStatsCpu.CTA_STATS_SEARCH_RESTART
 CTA_STATS_MAX			= CtattrStatsCpu.CTA_STATS_MAX
 
 # enum ctattr_stats_global
-class CtattrStatsGlobal(Enum):
+class CtattrStatsGlobal(object):
     CTA_STATS_GLOBAL_UNSPEC	= 0
     CTA_STATS_GLOBAL_ENTRIES	= 1
     __CTA_STATS_GLOBAL_MAX	= 2
@@ -413,7 +408,7 @@ CTA_STATS_GLOBAL_ENTRIES	= CtattrStatsGlobal.CTA_STATS_GLOBAL_ENTRIES
 CTA_STATS_GLOBAL_MAX		= CtattrStatsGlobal.CTA_STATS_GLOBAL_MAX
 
 # enum ctattr_expect_stats
-class CtattrExpectStats(Enum):
+class CtattrExpectStats(object):
     CTA_STATS_EXP_UNSPEC	= 0
     CTA_STATS_EXP_NEW		= 1
     CTA_STATS_EXP_CREATE	= 2

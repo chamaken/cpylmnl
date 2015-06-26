@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from enum import Enum
-except ImportError:
-    Enum = object
 
 # Responses from hook functions.
 NF_DROP		= 0
@@ -40,7 +36,7 @@ NFC_ALTERED = 0x8000
 # NF_VERDICT_BITS should be 8 now, but userspace might break if this changes
 NF_VERDICT_BITS = 16
 
-class NfInetHooks(Enum):
+class NfInetHooks(object):
     NF_INET_PRE_ROUTING		= 0
     NF_INET_LOCAL_IN		= 1
     NF_INET_FORWARD		= 2

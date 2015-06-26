@@ -3,10 +3,6 @@
 import ctypes
 
 from cpylmnl.nlstruct import NLStructure
-try:
-    from enum import Enum
-except ImportError:
-    Enum = object
 
 
 NETLINK_ROUTE		= 0	# Routing/device hook				
@@ -136,7 +132,7 @@ class NlMmapHdr(ctypes.Structure):
                 ("nm_uid",	ctypes.c_uint32), # __u32		nm_uid;
                 ("nm_gid", 	ctypes.c_uint32)] # __u32		nm_gid;
 
-class NlMmapStatus(Enum):
+class NlMmapStatus(object):
     NL_MMAP_STATUS_UNUSED	= 0
     NL_MMAP_STATUS_RESERVED	= 1
     NL_MMAP_STATUS_VALID	= 2

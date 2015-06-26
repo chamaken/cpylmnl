@@ -4,14 +4,9 @@ import ctypes
 
 import cpylmnl.linux.netlinkh as netlink
 from cpylmnl.nlstruct import NLStructure
-try:
-    from enum import Enum
-except ImportError:
-    Enum = object
-
 
 # enum nfqnl_msg_types
-class NfqnlMsgTypes(Enum):
+class NfqnlMsgTypes(object):
     NFQNL_MSG_PACKET		= 0 # packet from kernel to userspace
     NFQNL_MSG_VERDICT		= 1 # verdict from userspace to kernel
     NFQNL_MSG_CONFIG		= 2 # connect to a particular queue 
@@ -44,7 +39,7 @@ class NfqnlMsgPacketTimestamp(NLStructure):
                 ("usec",	ctypes.c_uint64)]
 
 # enum nfqnl_attr_type
-class NfqnlAttrType(Enum):
+class NfqnlAttrType(object):
     NFQA_UNSPEC			= 0  # 
     NFQA_PACKET_HDR		= 1  # 
     NFQA_VERDICT_HDR		= 2  # 
@@ -92,7 +87,7 @@ class NfqnlMsgVerdictHdr(NLStructure):
                 ("id",          ctypes.c_uint32)]
 
 # enum nfqnl_msg_config_cmds
-class NfqnlMsgConfigCmds(Enum):
+class NfqnlMsgConfigCmds(object):
     NFQNL_CFG_CMD_NONE		= 0
     NFQNL_CFG_CMD_BIND		= 1
     NFQNL_CFG_CMD_UNBIND	= 2
@@ -112,7 +107,7 @@ class NfqnlMsgConfigCmd(NLStructure):
                 ("pf",          ctypes.c_uint16)] # AF_xxx for PF_[UN]BIND
 
 # enum nfqnl_config_mode
-class NfqnlConfigMode(Enum):
+class NfqnlConfigMode(object):
     NFQNL_COPY_NONE	= 0
     NFQNL_COPY_META	= 1
     NFQNL_COPY_PACKET	= 2
@@ -127,7 +122,7 @@ class NfqnlMsgConfigParams(NLStructure):
                 ("copy_mode",   ctypes.c_uint8)]  # enum nfqnl_config_mode
 
 # enum nfqnl_attr_config
-class NfqnlAttrConfig(Enum):
+class NfqnlAttrConfig(object):
     NFQA_CFG_UNSPEC		= 0
     NFQA_CFG_CMD		= 1 # nfqnl_msg_config_cmd
     NFQA_CFG_PARAMS		= 2 # nfqnl_msg_config_params

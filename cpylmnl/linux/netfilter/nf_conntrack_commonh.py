@@ -1,17 +1,12 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from enum import Enum
-except ImportError:
-    Enum = object
-
 
 # Connection state tracking for netfilter.  This is separated from,
 # but required by, the NAT layer; it can also be used by an iptables
 # extension.
 
 # enum ip_conntrack_info
-class IpConntrackInfo(Enum):
+class IpConntrackInfo(object):
     # Part of an established connection (either direction).
     IP_CT_ESTABLISHED		= 0
 
@@ -48,7 +43,7 @@ NF_CT_STATE_UNTRACKED_BIT = (1 << (IP_CT_NUMBER + 1))
 
 # Bitset representing status of connection.
 # enum ip_conntrack_status
-class IpConntrackStatus(Enum):
+class IpConntrackStatus(object):
     # It's an expected connection: bit 0 set.  This bit never changed
     IPS_EXPECTED_BIT		= 0
     IPS_EXPECTED		= (1 << IPS_EXPECTED_BIT)
@@ -142,7 +137,7 @@ IPS_HELPER		= IpConntrackStatus.IPS_HELPER
 
 # Connection tracking event types
 # enum ip_conntrack_events
-class IpConntrackEvents(Enum):
+class IpConntrackEvents(object):
     IPCT_NEW		= 0  # new conntrack
     IPCT_RELATED	= 1  # related conntrack
     IPCT_DESTROY	= 2  # destroyed conntrack
@@ -169,7 +164,7 @@ IPCT_SECMARK	= IpConntrackEvents.IPCT_SECMARK
 IPCT_LABEL	= IpConntrackEvents.IPCT_LABEL
 
 # enum ip_conntrack_expect_events
-class IpConntrackExpectEvents(Enum):
+class IpConntrackExpectEvents(object):
     IPEXP_NEW		= 0 # new expectation
     IPEXP_DESTROY	= 1 # destroyed expectation
 IPEXP_NEW	= IpConntrackExpectEvents.IPEXP_NEW

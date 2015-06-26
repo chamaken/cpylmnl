@@ -4,10 +4,6 @@ import ctypes
 
 import cpylmnl.linux.netlinkh as netlink
 import cpylmnl.linux.rtnetlinkh as rtnetlink
-try:
-    from enum import Enum
-except ImportError:
-    Enum = object
 
 
 # This struct should be in sync with struct rtnl_link_stats64
@@ -205,7 +201,7 @@ IFLA_INET6_ADDR_GEN_MODE	= 8 # implicit address generator mode
 __IFLA_INET6_MAX		= 9
 IFLA_INET6_MAX			= (__IFLA_INET6_MAX - 1)
 
-class In6AddrGenMode(Enum):
+class In6AddrGenMode(object):
     IN6_ADDR_GEN_MODE_EUI64		= 0
     IN6_ADDR_GEN_MODE_NONE		= 1
     IN6_ADDR_GEN_MODE_STABLE_PRIVACY	= 2
@@ -306,7 +302,7 @@ IFLA_MACVLAN_MACADDR_COUNT	= 6
 __IFLA_MACVLAN_MAX		= 7
 IFLA_MACVLAN_MAX		= (__IFLA_MACVLAN_MAX - 1)
 
-class MacvlanMode(Enum):
+class MacvlanMode(object):
     MACVLAN_MODE_PRIVATE	= 1
     MACVLAN_MODE_VEPA		= 2
     MACVLAN_MODE_BRIDGE		= 4
@@ -318,7 +314,7 @@ MACVLAN_MODE_BRIDGE	= MacvlanMode.MACVLAN_MODE_BRIDGE
 MACVLAN_MODE_PASSTHRU	= MacvlanMode.MACVLAN_MODE_PASSTHRU
 MACVLAN_MODE_SOURCE	= MacvlanMode.MACVLAN_MODE_SOURCE
 
-class MacvlanMacaddrMode(Enum):
+class MacvlanMacaddrMode(object):
     MACVLAN_MACADDR_ADD		= 0
     MACVLAN_MACADDR_DEL		= 1
     MACVLAN_MACADDR_FLUSH	= 2
@@ -338,7 +334,7 @@ IFLA_IPVLAN_MODE	= 1
 __IFLA_IPVLAN_MAX	= 2
 IFLA_IPVLAN_MAX		= (__IFLA_IPVLAN_MAX - 1)
 
-class IpvlanMode(Enum):
+class IpvlanMode(object):
     IPVLAN_MODE_L2	= 0
     IPVLAN_MODE_L3	= 1
     IPVLAN_MODE_MAX	= 2

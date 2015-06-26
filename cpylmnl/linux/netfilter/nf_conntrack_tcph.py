@@ -2,17 +2,12 @@
 
 import ctypes
 
-try:
-    from enum import Enum
-except ImportError:
-    Enum = object
-
 
 # TCP tracking.
 
 # This is exposed to userspace (ctnetlink)
 # enum tcp_conntrack
-class TcpConntrack(Enum):
+class TcpConntrack(object):
     TCP_CONNTRACK_NONE		= 0
     TCP_CONNTRACK_SYN_SENT	= 1
     TCP_CONNTRACK_SYN_RECV	= 2

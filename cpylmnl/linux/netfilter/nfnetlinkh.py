@@ -4,13 +4,9 @@ import ctypes
 
 import cpylmnl.linux.netlinkh as netlink
 from cpylmnl.nlstruct import NLStructure
-try:
-    from enum import Enum
-except ImportError:
-    Enum = object
 
 
-class NfnetlinkGroups(Enum):
+class NfnetlinkGroups(object):
     NFNLGRP_NONE			= 0
     NFNLGRP_CONNTRACK_NEW		= 1
     NFNLGRP_CONNTRACK_UPDATE		= 2

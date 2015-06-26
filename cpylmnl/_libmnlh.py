@@ -3,10 +3,6 @@
 import os, ctypes
 from . import _cproto
 from .linux import netlinkh as netlink
-try:
-    from enum import Enum
-except ImportError:
-    Enum = object
 
 
 # Netlink socket API
@@ -27,7 +23,7 @@ MNL_NLMSG_HDRLEN		= MNL_ALIGN(ctypes.sizeof(netlink.Nlmsghdr))
 #define MNL_ATTR_HDRLEN	MNL_ALIGN(sizeof(struct nlattr))
 MNL_ATTR_HDRLEN		= MNL_ALIGN(ctypes.sizeof(netlink.Nlattr))
 
-class MnlAttrDataType(Enum):
+class MnlAttrDataType(object):
     MNL_TYPE_UNSPEC = 0
     MNL_TYPE_U8 = 1
     MNL_TYPE_U16 = 2

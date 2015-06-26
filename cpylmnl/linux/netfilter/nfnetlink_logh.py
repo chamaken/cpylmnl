@@ -4,14 +4,10 @@ import ctypes
 
 import cpylmnl.linux.netlinkh as netlink
 from cpylmnl.nlstruct import NLStructure
-try:
-    from enum import Enum
-except ImportError:
-    Enum = object
 
 
 # enum nfulnl_msg_types
-class NfulnlMsgTypes(Enum):
+class NfulnlMsgTypes(object):
     NFULNL_MSG_PACKET	= 0 # packet from kernel to userspace
     NFULNL_MSG_CONFIG	= 1 # connect to a particular queue
     NFULNL_MSG_MAX	= 2
@@ -40,7 +36,7 @@ class NfulnlMsgPacketTimestamp(NLStructure):
                 ("usec",	ctypes.c_uint64)] # __aligned_be64 usec;
 
 # enum nfulnl_attr_type
-class NfulnlAttrType(Enum):
+class NfulnlAttrType(object):
     NFULA_UNSPEC		= 0  # 
     NFULA_PACKET_HDR		= 1  # 
     NFULA_MARK			= 2  # __u32 nfmark
@@ -82,7 +78,7 @@ NFULA_HWLEN			= NfulnlAttrType.NFULA_HWLEN
 NFULA_MAX			= NfulnlAttrType.NFULA_MAX
 
 # enum nfulnl_msg_config_cmds
-class NfulnlMsgConfigCmds(Enum):
+class NfulnlMsgConfigCmds(object):
     NFULNL_CFG_CMD_NONE		= 0
     NFULNL_CFG_CMD_BIND		= 1
     NFULNL_CFG_CMD_UNBIND	= 2
@@ -108,7 +104,7 @@ class NfulnlMsgConfigMode(NLStructure):
                 ("_pad",	ctypes.c_uint8)]  # __u8   _pad;
 
 # enum nfulnl_attr_config
-class NfulnlAttrConfig(Enum):
+class NfulnlAttrConfig(object):
     NFULA_CFG_UNSPEC	= 0 # 
     NFULA_CFG_CMD	= 1 # 
     NFULA_CFG_MODE	= 2 # nfulnl_msg_config_cmd

@@ -1,13 +1,8 @@
 # -*- coding: utf-8 -*-
 
-try:
-    from enum import Enum
-except ImportError:
-    Enum = object
-
 # IFF_ only
 
-class NetDeviceFlags(Enum):
+class NetDeviceFlags(object):
     """struct net_device flags
 
     IFF_UP: interface is up. Can be toggled through sysfs.

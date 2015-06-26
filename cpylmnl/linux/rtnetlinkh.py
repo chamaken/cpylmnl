@@ -4,10 +4,6 @@ import ctypes
 
 from cpylmnl.nlstruct import NLStructure
 import cpylmnl.linux.netlinkh as netlink
-try:
-    from enum import Enum
-except ImportError:
-    Enum = object
 
 
 # rtnetlink families. Values up to 127 are reserved for real address
@@ -178,7 +174,7 @@ RTPROT_BABEL	= 42	# Babel daemon
 # could be assigned a value between UNIVERSE and LINK.
 
 # enum rt_scope_t
-class RtScopeT(Enum):
+class RtScopeT(object):
 	RT_SCOPE_UNIVERSE	= 0
 	# User defined values
 	RT_SCOPE_SITE		= 200
@@ -199,7 +195,7 @@ RTM_F_PREFIX		= 0x800	# Prefix addresses
 
 # Reserved table identifiers
 # enum rt_class_t
-class RtClassT(Enum):
+class RtClassT(object):
 	RT_TABLE_UNSPEC		= 0
 	# User defined values
 	RT_TABLE_COMPAT		= 252
@@ -216,7 +212,7 @@ RT_TABLE_MAX		= RtClassT.RT_TABLE_MAX
 
 # Routing message attributes
 # enum rtattr_type_t
-class RtattrTypeT(Enum):
+class RtattrTypeT(object):
     RTA_UNSPEC		= 0
     RTA_DST		= 1
     RTA_SRC		= 2
@@ -536,7 +532,7 @@ RTMGRP_IPV6_PREFIX	= 0x20000
 
 # RTnetlink multicast groups
 # enum rtnetlink_groups
-class RtnetlinkGroups(Enum):
+class RtnetlinkGroups(object):
 	RTNLGRP_NONE		= 0
 	RTNLGRP_LINK		= 1
 	RTNLGRP_NOTIFY		= 2
