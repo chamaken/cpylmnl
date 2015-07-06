@@ -36,9 +36,9 @@ if _cproto.HAS_MNL_RING:
         ret = _cproto.c_socket_set_ringopt(nl, rtype, block_size, block_nr, frame_size, frame_nr)
         if ret < 0: raise _cproto.os_error()
 
-    # int mnl_socket_map_ring(struct mnl_socket *nl);
-    def socket_map_ring(nl):
-        ret = _cproto.c_socket_map_ring(nl)
+    # int mnl_socket_map_ring(struct mnl_socket *nl, int flags);
+    def socket_map_ring(nl, flags):
+        ret = _cproto.c_socket_map_ring(nl, flags)
         if ret < 0: raise _cproto.os_error()
 
     def socket_unmap_ring(nl):

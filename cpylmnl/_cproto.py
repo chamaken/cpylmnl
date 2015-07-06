@@ -52,8 +52,8 @@ int mnl_socket_set_ringopt(struct mnl_socket *nl, enum mnl_ring_type type,
 
     c_socket_map_ring = LIBMNL.mnl_socket_map_ring
     c_socket_map_ring.__doc__ = """\
-extern int mnl_socket_map_ring(struct mnl_socket *nl)"""
-    c_socket_map_ring.argtypes = [ctypes.c_void_p]
+extern int mnl_socket_map_ring(struct mnl_socket *nl, int flags)"""
+    c_socket_map_ring.argtypes = [ctypes.c_void_p, ctypes.c_int]
     c_socket_map_ring.restype = ctypes.c_int
 
     c_socket_unmap_ring = LIBMNL.mnl_socket_unmap_ring

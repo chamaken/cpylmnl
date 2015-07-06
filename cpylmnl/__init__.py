@@ -1144,10 +1144,10 @@ class Socket(object):
             """
             _socket.socket_set_ringopt(self._nls, rt, bs, bn, fs, fn)
 
-        def map_ring(self):
+        def map_ring(self, flags):
             """
             """
-            _socket.socket_map_ring(self._nls)
+            _socket.socket_map_ring(self._nls, flags)
 
         def unmap_ring(self):
             """
