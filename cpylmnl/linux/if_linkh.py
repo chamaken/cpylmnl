@@ -379,6 +379,14 @@ class IflaVxlanPortRange(ctypes.Structure):
     _fields_ = [("low",		ctypes.c_uint16), # __be16 low
                 ("high", 	ctypes.c_uint16)] # __be16 high
 
+# GENEVE section
+IFLA_GENEVE_UNSPEC	= 0
+IFLA_GENEVE_ID		= 1
+IFLA_GENEVE_REMOTE	= 2
+IFLA_GENEVE_TTL		= 3
+IFLA_GENEVE_TOS		= 4
+__IFLA_GENEVE_MAX	= 5
+IFLA_GENEVE_MAX		= (__IFLA_GENEVE_MAX - 1)
 
 # Bonding section
 # enum
@@ -406,7 +414,10 @@ IFLA_BOND_PACKETS_PER_SLAVE	= 20
 IFLA_BOND_AD_LACP_RATE		= 21
 IFLA_BOND_AD_SELECT		= 22
 IFLA_BOND_AD_INFO		= 23
-__IFLA_BOND_MAX			= 24
+IFLA_BOND_AD_ACTOR_SYS_PRIO	= 24
+IFLA_BOND_AD_USER_PORT_KEY	= 25
+IFLA_BOND_AD_ACTOR_SYSTEM	= 26
+__IFLA_BOND_MAX			= 27
 IFLA_BOND_MAX		= (__IFLA_BOND_MAX - 1)
 
 # enum
@@ -427,7 +438,9 @@ IFLA_BOND_SLAVE_LINK_FAILURE_COUNT	= 3
 IFLA_BOND_SLAVE_PERM_HWADDR		= 4
 IFLA_BOND_SLAVE_QUEUE_ID		= 5
 IFLA_BOND_SLAVE_AD_AGGREGATOR_ID	= 6
-__IFLA_BOND_SLAVE_MAX			= 6
+IFLA_BOND_SLAVE_AD_ACTOR_OPER_PORT_STATE	= 7
+IFLA_BOND_SLAVE_AD_PARTNER_OPER_PORT_STATE	= 8
+__IFLA_BOND_SLAVE_MAX			= 9
 IFLA_BOND_SLAVE_MAX			= (__IFLA_BOND_SLAVE_MAX - 1)
 
 # SR-IOV virtual function management section
@@ -447,7 +460,8 @@ IFLA_VF_LINK_STATE	= 5  # link state enable/disable/auto switch
 IFLA_VF_RATE		= 6  # Min and Max TX Bandwidth Allocation
 IFLA_VF_RSS_QUERY_EN	= 7  # RSS Redirection Table and Hash Key query
                              # on/off switch
-__IFLA_VF_MAX		= 8
+IFLA_VF_STATS		= 8  # network device statistics
+__IFLA_VF_MAX		= 9
 IFLA_VF_MAX		= (__IFLA_VF_MAX - 1)
 
 class IflaVfMac(ctypes.Structure):
@@ -501,6 +515,14 @@ class IflaVfRssQueryEn(ctypes.Structure):
     _fields_ = [("vf",		ctypes.c_uint32), # __u32 vf
                 ("setting",	ctypes.c_uint32)] # __u32 setting
 
+IFLA_VF_STATS_RX_PACKETS	= 0
+IFLA_VF_STATS_TX_PACKETS	= 1
+IFLA_VF_STATS_RX_BYTES		= 2
+IFLA_VF_STATS_TX_BYTES		= 3
+IFLA_VF_STATS_BROADCAST		= 4
+IFLA_VF_STATS_MULTICAST		= 5
+__IFLA_VF_STATS_MAX		= 6
+IFLA_VF_STATS_MAX		= (__IFLA_VF_STATS_MAX - 1)
 
 # VF ports management section
 #

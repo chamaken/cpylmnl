@@ -100,13 +100,15 @@ class Nlmsgerr(NLStructure):
     _fields_ = [("error",	ctypes.c_int),  # int error
                 ("msg",		Nlmsghdr)] 	# struct nlmsghdr msg
 
-NETLINK_ADD_MEMBERSHIP	= 1
-NETLINK_DROP_MEMBERSHIP	= 2
-NETLINK_PKTINFO		= 3
-NETLINK_BROADCAST_ERROR	= 4
-NETLINK_NO_ENOBUFS	= 5
-NETLINK_RX_RING		= 6
-NETLINK_TX_RING		= 7
+NETLINK_ADD_MEMBERSHIP		= 1
+NETLINK_DROP_MEMBERSHIP		= 2
+NETLINK_PKTINFO			= 3
+NETLINK_BROADCAST_ERROR		= 4
+NETLINK_NO_ENOBUFS		= 5
+NETLINK_RX_RING			= 6
+NETLINK_TX_RING			= 7
+NETLINK_LISTEN_ALL_NSID		= 8
+NETLINK_LIST_MEMBERSHIPS	= 9
 
 class NlPktinfo(ctypes.Structure): # not NLStructure?
     """struct nl_pktinfo

@@ -58,7 +58,8 @@ class NfqnlAttrType(object):
     NFQA_EXP			= 15 # __u32 skb meta information
     NFQA_UID			= 16 # __u32 sk uid
     NFQA_GID			= 17 # __u32 sk gid
-    __NFQA_MAX			= 18 # nf_conntrack_netlink.h
+    NFQA_SECCTX			= 18 # security context string
+    __NFQA_MAX			= 19 # nf_conntrack_netlink.h
     NFQA_MAX			= (__NFQA_MAX - 1)
 NFQA_UNSPEC		= NfqnlAttrType.NFQA_UNSPEC
 NFQA_PACKET_HDR		= NfqnlAttrType.NFQA_PACKET_HDR
@@ -78,6 +79,7 @@ NFQA_SKB_INFO		= NfqnlAttrType.NFQA_SKB_INFO
 NFQA_EXP		= NfqnlAttrType.NFQA_EXP
 NFQA_UID		= NfqnlAttrType.NFQA_UID
 NFQA_GID		= NfqnlAttrType.NFQA_GID
+NFQA_SECCTX		= NfqnlAttrType.NFQA_SECCTX
 NFQA_MAX		= NfqnlAttrType.NFQA_MAX
 
 class NfqnlMsgVerdictHdr(NLStructure):
@@ -144,7 +146,8 @@ NFQA_CFG_F_FAIL_OPEN	= (1 << 0)
 NFQA_CFG_F_CONNTRACK	= (1 << 1)
 NFQA_CFG_F_GSO		= (1 << 2)
 NFQA_CFG_F_UID_GID	= (1 << 3)
-NFQA_CFG_F_MAX		= (1 << 4)
+NFQA_CFG_F_SECCTX	= (1 << 4)
+NFQA_CFG_F_MAX		= (1 << 5)
 
 # flags for NFQA_SKB_INFO
 # packet appears to have wrong checksums, but they are ok

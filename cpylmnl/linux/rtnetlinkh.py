@@ -284,7 +284,10 @@ class Rtnexthop(NLStructure):
 RTNH_F_DEAD		= 1	# Nexthop is dead (used by multipath)
 RTNH_F_PERVASIVE	= 2	# Do recursive gateway lookup
 RTNH_F_ONLINK		= 4	# Gateway is forced on link
-RTNH_F_EXTERNAL		= 8	# Route installed externally
+RTNH_F_OFFLOAD		= 8	# offloaded route
+RTNH_F_LINKDOWN		= 16	# carrier-down on nexthop
+RTNH_COMPARE_MASK	= (RTNH_F_DEAD | RTNH_F_LINKDOWN)
+
 
 # Macros to handle hexthops
 RTNLH_ALIGNTO	= 4

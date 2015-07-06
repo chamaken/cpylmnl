@@ -56,8 +56,11 @@ IP_CT_TCP_FLAG_BE_LIBERAL		= 0x08
 # Has unacknowledged data
 IP_CT_TCP_FLAG_DATA_UNACKNOWLEDGED	= 0x10
 
-#The field td_maxack has been set
+# The field td_maxack has been set
 IP_CT_TCP_FLAG_MAXACK_SET		= 0x20
+
+# Marks possibility for expected RFC5961 challenge ACK
+IP_CT_EXP_CHALLENGE_ACK 		= 0x40
 
 class NfCtTcpFlags(ctypes.Structure):
     """struct nf_ct_tcp_flags
