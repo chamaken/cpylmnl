@@ -1322,6 +1322,12 @@ def payload_attributes(payload): # buffer
         a = a.next_attribute()
 
 
+def ptrs2attrs(ptrs, size):
+    return {i: j.contents
+            for i, j in enumerate((ctypes.POINTER(Attr) * size).from_address(ptrs))
+            if j}
+
+
 from . import _callback
 nlmsg_cb = _callback._cb_factory(Nlmsg, _cproto.MNL_CB_T)
 attr_cb  = _callback._cb_factory(Attr, _cproto.MNL_ATTR_CB_T)
