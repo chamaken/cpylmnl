@@ -42,11 +42,11 @@ extern int mnl_socket_getsockopt(const struct mnl_socket *nl, int type, void *bu
 extern int mnl_socket_set_ringopt(struct mnl_socket *nl, enum mnl_ring_type type,
 				  unsigned int block_size, unsigned int block_nf,
 				  unsigned int frame_size, unsigned int frame_nr);
-extern int mnl_socket_map_ring(struct mnl_socket *nl);
+extern int mnl_socket_map_ring(struct mnl_socket *nl, int flags);
 extern int mnl_socket_unmap_ring(struct mnl_socket *nl);
 extern struct mnl_ring *mnl_socket_get_ring(const struct mnl_socket *nl, enum mnl_ring_type type);
 extern void mnl_ring_advance(struct mnl_ring *ring);
-extern struct nl_mmap_hdr *mnl_ring_get_frame(const struct mnl_ring *ring);
+extern struct nl_mmap_hdr *mnl_ring_current_frame(const struct mnl_ring *ring);
 
 /*
  * Netlink message API
