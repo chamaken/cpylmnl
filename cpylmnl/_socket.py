@@ -45,15 +45,15 @@ if _cproto.HAS_MNL_RING:
         ret = _cproto.c_socket_unmap_ring(nl)
         if ret < 0: raise _cproto.os_error()
 
-    # struct mnl_ring *mnl_socket_get_ring(const struct mnl_socket *nl, enum mnl_ring_type type)
-    def socket_get_ring(nl, rtype):
-        ret = _cproto.c_socket_get_ring(nl, rtype)
+    # struct mnl_ring *mnl_socket_current_ring(const struct mnl_socket *nl, enum mnl_ring_type type)
+    def socket_current_ring(nl, rtype):
+        ret = _cproto.c_socket_current_ring(nl, rtype)
         if ret is None: raise _cproto.os_error()
         return ret
 
-    # struct nl_mmap_hdr *mnl_ring_get_frame(const struct mnl_ring *ring)
-    def ring_get_frame(ring):
-        return _cproto.c_ring_get_frame(ring).contents
+    # struct nl_mmap_hdr *mnl_ring_current_frame(const struct mnl_ring *ring)
+    def ring_current_frame(ring):
+        return _cproto.c_ring_current_frame(ring).contents
 
 
     # void mnl_ring_advance(struct mnl_ring *ring)

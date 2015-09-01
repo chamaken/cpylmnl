@@ -91,7 +91,7 @@ def main():
                        frame_size, int(64 * mnl.MNL_SOCKET_BUFFER_SIZE * 16 / frame_size))
         nl.map_ring(mmap.MAP_SHARED)
         txring = nl.get_ring(mnl.MNL_RING_TX)
-        frame = txring.get_frame()
+        frame = txring.current_frame()
         buf = mnl.MNL_FRAME_PAYLOAD(frame, frame_size)
 
         nlh = mnl.nlmsg_put_header(buf, mnl.Nlmsg)
@@ -118,7 +118,7 @@ def main():
         while ret > mnl.MNL_CB_STOP:
             # XXX: no try / except
             mnl_socket_poll(nl)
-            frame = rxring.get_frame()
+            frame = rxring.current_frame()
             if frame.nm_status == netlink.NL_MMAP_STATUS_VALID:
                 buf = mnl.MNL_FRAME_PAYLOAD(frame, frame.nm_len)
             elif frame.nm_status == netlink.NL_MMAP_STATUS_COPY:

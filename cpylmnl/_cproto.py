@@ -74,11 +74,11 @@ void mnl_ring_advance(struct mnl_ring *ring)"""
     c_ring_advance.argtypes = [ctypes.c_void_p]
     c_ring_advance.restype = None
 
-    c_ring_get_frame = LIBMNL.mnl_ring_get_frame
-    c_ring_get_frame.__doc__ = """\
-struct nl_mmap_hdr *mnl_ring_get_frame(const struct mnl_ring *ring)"""
-    c_ring_get_frame.argtypes = [ctypes.c_void_p]
-    c_ring_get_frame.restype = ctypes.POINTER(netlink.NlMmapHdr)
+    c_ring_current_frame = LIBMNL.mnl_ring_current_frame
+    c_ring_current_frame.__doc__ = """\
+struct nl_mmap_hdr *mnl_ring_current_frame(const struct mnl_ring *ring)"""
+    c_ring_current_frame.argtypes = [ctypes.c_void_p]
+    c_ring_current_frame.restype = ctypes.POINTER(netlink.NlMmapHdr)
 except AttributeError:
     HAS_MNL_RING = False
 else:

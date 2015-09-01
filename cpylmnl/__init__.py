@@ -1306,10 +1306,10 @@ if _cproto.HAS_MNL_RING:
             """
             _socket.ring_advance(self._ring)
 
-        def get_frame(self):
+        def current_frame(self):
             """
             """
-            return _socket.ring_get_frame(self._ring)
+            return _socket.ring_current_frame(self._ring)
 
 
 def payload_attributes(payload): # buffer
