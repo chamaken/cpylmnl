@@ -37,8 +37,8 @@ class NfulnlMsgPacketTimestamp(NLStructure):
 
 # enum nfulnl_attr_type
 class NfulnlAttrType(object):
-    NFULA_UNSPEC		= 0  # 
-    NFULA_PACKET_HDR		= 1  # 
+    NFULA_UNSPEC		= 0  #
+    NFULA_PACKET_HDR		= 1  #
     NFULA_MARK			= 2  # __u32 nfmark
     NFULA_TIMESTAMP		= 3  # nfulnl_msg_packet_timestamp
     NFULA_IFINDEX_INDEV		= 4  # __u32 ifindex
@@ -55,7 +55,9 @@ class NfulnlAttrType(object):
     NFULA_HWTYPE		= 15 # hardware type
     NFULA_HWHEADER		= 16 # hardware header
     NFULA_HWLEN			= 17 # hardware header length
-    __NFULA_MAX			= 18
+    NFULA_CT			= 18 # nf_conntrack_netlink.h
+    NFULA_CT_INFO		= 19 # enum ip_conntrack_info
+    __NFULA_MAX			= 20
     NFULA_MAX			= (__NFULA_MAX - 1)
 NFULA_UNSPEC			= NfulnlAttrType.NFULA_UNSPEC
 NFULA_PACKET_HDR		= NfulnlAttrType.NFULA_PACKET_HDR
@@ -75,6 +77,8 @@ NFULA_GID			= NfulnlAttrType.NFULA_GID
 NFULA_HWTYPE			= NfulnlAttrType.NFULA_HWTYPE
 NFULA_HWHEADER			= NfulnlAttrType.NFULA_HWHEADER
 NFULA_HWLEN			= NfulnlAttrType.NFULA_HWLEN
+NFULA_CT			= NfulnlAttrType.NFULA_CT
+NFULA_CT_INFO			= NfulnlAttrType.NFULA_CT_INFO
 NFULA_MAX			= NfulnlAttrType.NFULA_MAX
 
 # enum nfulnl_msg_config_cmds
@@ -105,8 +109,8 @@ class NfulnlMsgConfigMode(NLStructure):
 
 # enum nfulnl_attr_config
 class NfulnlAttrConfig(object):
-    NFULA_CFG_UNSPEC	= 0 # 
-    NFULA_CFG_CMD	= 1 # 
+    NFULA_CFG_UNSPEC	= 0 #
+    NFULA_CFG_CMD	= 1 #
     NFULA_CFG_MODE	= 2 # nfulnl_msg_config_cmd
     NFULA_CFG_NLBUFSIZ	= 3 # nfulnl_msg_config_mode
     NFULA_CFG_TIMEOUT	= 4 # __u32 buffer size
@@ -130,3 +134,4 @@ NFULNL_COPY_PACKET	= 0x02
 
 NFULNL_CFG_F_SEQ	= 0x0001
 NFULNL_CFG_F_SEQ_GLOBAL	= 0x0002
+NFULNL_CFG_F_CONNTRACK	= 0x0004
