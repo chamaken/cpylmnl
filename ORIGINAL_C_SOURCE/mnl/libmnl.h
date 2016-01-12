@@ -29,7 +29,8 @@ struct mnl_ring;
 
 #define MNL_FRAME_PAYLOAD(frame) ((void *)(frame) + NL_MMAP_HDRLEN)
 
-extern struct mnl_socket *mnl_socket_open(int type);
+extern struct mnl_socket *mnl_socket_open(int bus);
+extern struct mnl_socket *mnl_socket_open2(int bus, int flags);
 extern struct mnl_socket *mnl_socket_fdopen(int fd);
 extern int mnl_socket_bind(struct mnl_socket *nl, unsigned int groups, pid_t pid);
 extern int mnl_socket_close(struct mnl_socket *nl);
