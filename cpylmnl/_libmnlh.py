@@ -75,6 +75,10 @@ if _cproto.HAS_MNL_RING:
         return ctypes.cast(ctypes.addressof(frame) + netlink.NL_MMAP_HDRLEN,
                            ctypes.POINTER(ctypes.c_ubyte * size)).contents
 
+    def MNL_NLMSG_FRAME(nlh):
+        return ctypes.cast(ctypes.addressof(nlh) - netlink.NL_MMAP_HDRLEN,
+                           netlink.NlMmapHdr)
+
     MNL_RING_RX = 0
     MNL_RING_TX = 1
 
