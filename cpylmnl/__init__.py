@@ -81,7 +81,7 @@ class Attr(netlink.Nlattr):
         """get type of netlink attribute
 
         @rtype: number
-        @return: the attribute type 
+        @return: the attribute type
         """
         return _attr.attr_get_type(self)
 
@@ -149,7 +149,7 @@ class Attr(netlink.Nlattr):
         attribute iteration, that is why we use a signed integer.
 
         @type size: number
-        @param size: remaining bytes in a buffer that contains the attribute 
+        @param size: remaining bytes in a buffer that contains the attribute
         @rtype: bool
         @return: true if ok
         """
@@ -330,7 +330,7 @@ class Nlmsg(netlink.Nlmsghdr):
         by adding the size (header + payload) of the new attribute.
 
         @type t: number
-        @param t: netlink attribute type that you want to add 
+        @param t: netlink attribute type that you want to add
         @type d: ctypes data type data
         @param d: the data that will be stored by the new attribute
         """
@@ -713,7 +713,7 @@ class Nlmsg(netlink.Nlmsghdr):
     def get_payload_as(self, c):
         """get the payload of the netlink message as a specified instance
 
-        This function wraps get_payload(). 
+        This function wraps get_payload().
         Param c must be a ctypes data type.
 
         @type c: class
@@ -870,7 +870,7 @@ class Nlmsg(netlink.Nlmsghdr):
         @param size: buffer size
 
         @rtype: Nlmsg
-        @return: new created and room prepared Netlink header 
+        @return: new created and room prepared Netlink header
         """
         nlh = Nlmsg(bytearray(size))
         nlh.put_header()
@@ -1079,7 +1079,7 @@ class NlmsgBatch(object):
 class Socket(object):
     """Netlink socket helpers
     """
-    def __init__(self, bus_or_socket):
+    def __init__(self, bus_or_socket, flags=0):
         """open a netlink socket
 
         The socket object is not dup'ed, and will be closed when the socket
@@ -1098,7 +1098,7 @@ class Socket(object):
             self._sock = bus_or_socket
             self._nls = _socket.socket_fdopen(bus_or_socket.fileno())
         else:
-            self._nls = _socket.socket_open(bus_or_socket)
+            self._nls = _socket.socket_open2(bus_or_socket, flags)
 
     def get_fd(self):
         """obtain file descriptor from netlink socket

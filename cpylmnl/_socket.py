@@ -19,6 +19,12 @@ def socket_open(bus):
     if ret is None: raise _cproto.os_error()
     return ret
 
+# struct mnl_socket *mnl_socket_open2(int bus, int flags)
+def socket_open2(bus, flags):
+    ret = _cproto.c_socket_open2(bus, flags)
+    if ret is None: raise _cproto.os_error()
+    return ret
+
 # struct mnl_socket *mnl_socket_fdopen(int fd)
 def socket_fdopen(fd):
     ret = _cproto.c_socket_fdopen(fd)

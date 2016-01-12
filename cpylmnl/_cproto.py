@@ -23,9 +23,15 @@ except ImportError:
 
 c_socket_open = LIBMNL.mnl_socket_open
 c_socket_open.__doc__ = """\
-struct mnl_socket *mnl_socket_open(int type)"""
+struct mnl_socket *mnl_socket_open(int bus)"""
 c_socket_open.argtypes = [ctypes.c_int]
 c_socket_open.restype = ctypes.c_void_p
+
+c_socket_open2 = LIBMNL.mnl_socket_open2
+c_socket_open2.__doc__ = """\
+struct mnl_socket *mnl_socket_open2(int bus)"""
+c_socket_open2.argtypes = [ctypes.c_int, ctypes.c_int]
+c_socket_open2.restype = ctypes.c_void_p
 
 c_socket_fdopen = LIBMNL.mnl_socket_fdopen
 c_socket_fdopen.__doc__ = """\
