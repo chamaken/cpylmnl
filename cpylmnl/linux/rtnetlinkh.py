@@ -188,10 +188,11 @@ RT_SCOPE_HOST		= RtScopeT.RT_SCOPE_HOST
 RT_SCOPE_NOWHERE	= RtScopeT.RT_SCOPE_NOWHERE
 
 # rtm_flags
-RTM_F_NOTIFY		= 0x100	# Notify user of route change
-RTM_F_CLONED		= 0x200	# This route is cloned
-RTM_F_EQUALIZE		= 0x400	# Multipath equalizer: NI
-RTM_F_PREFIX		= 0x800	# Prefix addresses
+RTM_F_NOTIFY		= 0x100	 # Notify user of route change
+RTM_F_CLONED		= 0x200	 # This route is cloned
+RTM_F_EQUALIZE		= 0x400	 # Multipath equalizer: NI
+RTM_F_PREFIX		= 0x800	 # Prefix addresses
+RTM_F_LOOKUP_TABLE	= 0x1000 # set rtm_table to FIB lookup result
 
 # Reserved table identifiers
 # enum rt_class_t
@@ -234,7 +235,10 @@ class RtattrTypeT(object):
     RTA_VIA		= 19
     RTA_NEWDST		= 20
     RTA_PREF		= 21
-    __RTA_MAX		= 22
+    RTA_ENCAP_TYPE	= 22
+    RTA_ENCAP		= 23
+    RTA_EXPIRES		= 24
+    __RTA_MAX		= 25
     RTA_MAX		= (__RTA_MAX - 1)
 RTA_UNSPEC	= RtattrTypeT.RTA_UNSPEC
 RTA_DST		= RtattrTypeT.RTA_DST
@@ -257,6 +261,9 @@ RTA_MFC_STATS	= RtattrTypeT.RTA_MFC_STATS
 RTA_VIA		= RtattrTypeT.RTA_VIA
 RTA_NEWDST	= RtattrTypeT.RTA_NEWDST
 RTA_PREF	= RtattrTypeT.RTA_PREF
+RTA_ENCAP_TYPE	= RtattrTypeT.RTA_ENCAP_TYPE
+RTA_ENCAP	= RtattrTypeT.RTA_ENCAP
+RTA_EXPIRES	= RtattrTypeT.RTA_EXPIRES
 RTA_MAX		= RtattrTypeT.RTA_MAX
 
 #define RTM_RTA(r)  ((struct rtattr*)(((char*)(r)) + NLMSG_ALIGN(sizeof(struct rtmsg))))
@@ -355,10 +362,12 @@ RTAX_CC_ALGO	= 16
 __RTAX_MAX	= 17
 RTAX_MAX	= (__RTAX_MAX - 1)
 
-RTAX_FEATURE_ECN	= 0x00000001
-RTAX_FEATURE_SACK	= 0x00000002
-RTAX_FEATURE_TIMESTAMP	= 0x00000004
-RTAX_FEATURE_ALLFRAG	= 0x00000008
+RTAX_FEATURE_ECN	= (1 << 0)
+RTAX_FEATURE_SACK	= (1 << 1)
+RTAX_FEATURE_TIMESTAMP	= (1 << 2)
+RTAX_FEATURE_ALLFRAG	= (1 << 3)
+RTAX_FEATURE_MASK	= (RTAX_FEATURE_ECN | RTAX_FEATURE_SACK | \
+                           RTAX_FEATURE_TIMESTAMP | RTAX_FEATURE_ALLFRAG)
 
 """XXX: union, not NLStructure - no longer used?
 struct rta_session
@@ -619,3 +628,4 @@ TCAA_MAX	= 1
 RTEXT_FILTER_VF			= (1 << 0)
 RTEXT_FILTER_BRVLAN		= (1 << 1)
 RTEXT_FILTER_BRVLAN_COMPRESSED	= (1 << 2)
+RTEXT_FILTER_SKIP_STATS		= (1 << 3)

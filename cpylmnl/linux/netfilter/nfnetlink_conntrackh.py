@@ -100,11 +100,13 @@ class CtattrTuple(object):
     CTA_TUPLE_UNSPEC	= 0
     CTA_TUPLE_IP	= 1
     CTA_TUPLE_PROTO	= 2
-    __CTA_TUPLE_MAX	= 3
+    CTA_TUPLE_ZONE	= 3
+    __CTA_TUPLE_MAX	= 4
     CTA_TUPLE_MAX	= (__CTA_TUPLE_MAX - 1)
 CTA_TUPLE_UNSPEC	= CtattrTuple.CTA_TUPLE_UNSPEC
 CTA_TUPLE_IP		= CtattrTuple.CTA_TUPLE_IP
 CTA_TUPLE_PROTO		= CtattrTuple.CTA_TUPLE_PROTO
+CTA_TUPLE_ZONE		= CtattrTuple.CTA_TUPLE_ZONE
 CTA_TUPLE_MAX		= CtattrTuple.CTA_TUPLE_MAX
 
 # enum ctattr_ip
