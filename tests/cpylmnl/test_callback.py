@@ -155,7 +155,12 @@ class TestSuite(unittest.TestCase):
             try:
                 mnl.cb_run2(self.nlmsghdr_intr, 1, 1, cb_data, None)
             except OSError as e:
-                self.assertEqual(e.errno, errno.EINTR)
+                # will raise ENOBUFS same as the above until libmnl 1.0.3
+                # see libmnl commit: 260759dfdebe774aba6866bf49c2928b2242bb7e
+                if not mnl._HAS_SOCKET_FDOPEN:
+                    self.assertEqual(e.errno, errno.ENOBUFS)
+                else:
+                    self.assertEqual(e.errno, errno.EINTR)
             else:
                 self.fail("not raise OSError")
 
@@ -259,7 +264,12 @@ class TestSuite(unittest.TestCase):
             try:
                 mnl.cb_run2(self.nlmsghdr_intr, 1, 1, cb_data, None)
             except OSError as e:
-                self.assertEqual(e.errno, errno.EINTR)
+                # will raise ENOBUFS same as the above until libmnl 1.0.3
+                # see libmnl commit: 260759dfdebe774aba6866bf49c2928b2242bb7e
+                if not mnl._HAS_SOCKET_FDOPEN:
+                    self.assertEqual(e.errno, errno.ENOBUFS)
+                else:
+                    self.assertEqual(e.errno, errno.EINTR)
             else:
                 self.fail("not raise OSError")
 

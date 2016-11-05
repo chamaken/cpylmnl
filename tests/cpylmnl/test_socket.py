@@ -109,6 +109,9 @@ class TestSuiteFd(TestSuite):
     """Same as TestSuite except creating base Socket by mnl_socket_fdopen()
     """
     def setUp(self):
+        if not mnl._HAS_SOCKET_FDOPEN:
+            self.skipTest("skipped test due to _HAS_SOCKET_FDOPEN")
+
         sock = socket.socket(socket.AF_NETLINK, socket.SOCK_RAW, netlink.NETLINK_NETFILTER)
         self.nl = mnl.Socket(sock)
         m = re.search('([0-9]+)\.([0-9]+)\.([0-9]+)', platform.release())

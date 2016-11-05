@@ -15,6 +15,9 @@ try:
 except ImportError:
     c_ssize_t = ctypes.c_longlong
 
+_HAS_SOCKET_OPEN2 = False
+_HAS_SOCKET_FDOPEN = False
+
 """handle inner struct - mnl_socket, mnl_nlmsg_batch, mnl_ring as opaque, ctypes.c_void_p"""
 
 ###
@@ -27,17 +30,27 @@ struct mnl_socket *mnl_socket_open(int bus)"""
 c_socket_open.argtypes = [ctypes.c_int]
 c_socket_open.restype = ctypes.c_void_p
 
-c_socket_open2 = LIBMNL.mnl_socket_open2
-c_socket_open2.__doc__ = """\
-struct mnl_socket *mnl_socket_open2(int bus)"""
-c_socket_open2.argtypes = [ctypes.c_int, ctypes.c_int]
-c_socket_open2.restype = ctypes.c_void_p
+try:
+    c_socket_open2 = LIBMNL.mnl_socket_open2
+    c_socket_open2.__doc__ = """\
+    struct mnl_socket *mnl_socket_open2(int bus, int flags)"""
+    c_socket_open2.argtypes = [ctypes.c_int, ctypes.c_int]
+    c_socket_open2.restype = ctypes.c_void_p
+    _HAS_SOCKET_OPEN2 = True
+except AttributeError:
+    def c_socket_open2(bus, flags):
+        raise NotImplemented("requires libmnl >= 1.0.4")
 
-c_socket_fdopen = LIBMNL.mnl_socket_fdopen
-c_socket_fdopen.__doc__ = """\
-struct mnl_socket *mnl_socket_fdopen(int fd)"""
-c_socket_fdopen.argtypes = [ctypes.c_int]
-c_socket_fdopen.restype = ctypes.c_void_p
+try:
+    c_socket_fdopen = LIBMNL.mnl_socket_fdopen
+    c_socket_fdopen.__doc__ = """\
+    struct mnl_socket *mnl_socket_fdopen(int fd)"""
+    c_socket_fdopen.argtypes = [ctypes.c_int]
+    c_socket_fdopen.restype = ctypes.c_void_p
+    _HAS_SOCKET_FDOPEN = True
+except AttributeError:
+    def c_socket_fdopen(fd):
+        raise NotImplemented("requires libmnl >= 1.0.4")
 
 c_socket_bind = LIBMNL.mnl_socket_bind
 c_socket_bind.__doc__ = """\

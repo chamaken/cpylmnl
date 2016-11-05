@@ -53,7 +53,10 @@ from __future__ import absolute_import
 import ctypes
 
 from ._libmnlh import *
+
+from ._cproto import _HAS_SOCKET_OPEN2, _HAS_SOCKET_FDOPEN
 from . import _cproto
+
 from . import _attr
 from . import _nlmsg
 from . import _callback
@@ -1097,8 +1100,10 @@ class Socket(object):
             # drops socket reference
             self._sock = bus_or_socket
             self._nls = _socket.socket_fdopen(bus_or_socket.fileno())
-        else:
+        elif flags != 0:
             self._nls = _socket.socket_open2(bus_or_socket, flags)
+        else:
+            self._nls = _socket.socket_open(bus_or_socket)
 
     def get_fd(self):
         """obtain file descriptor from netlink socket
