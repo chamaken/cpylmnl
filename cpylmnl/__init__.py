@@ -1143,27 +1143,6 @@ class Socket(object):
         """
         _socket.socket_bind(self._nls, groups, pid)
 
-    if _cproto.HAS_MNL_RING:
-        def set_ringopt(self, rt, bs, bn, fs, fn):
-            """
-            """
-            _socket.socket_set_ringopt(self._nls, rt, bs, bn, fs, fn)
-
-        def map_ring(self, flags):
-            """
-            """
-            _socket.socket_map_ring(self._nls, flags)
-
-        def unmap_ring(self):
-            """
-            """
-            _socket.socket_unmap_ring(self._nls)
-
-        def get_ring(self, rt):
-            """
-            """
-            return Ring(_socket.socket_get_ring(self._nls, rt))
-
     def sendto(self, buf):
         """send a netlink message of a certain size
 
@@ -1297,24 +1276,6 @@ class Socket(object):
     def __exit__(self, t, v, tb):
         _socket.socket_close(self._nls)
         return False
-
-
-if _cproto.HAS_MNL_RING:
-    class Ring(object):
-        def __init__(self, ring):
-            """
-            """
-            self._ring = ring
-
-        def advance(self):
-            """
-            """
-            _socket.ring_advance(self._ring)
-
-        def current_frame(self):
-            """
-            """
-            return _socket.ring_current_frame(self._ring)
 
 
 def payload_attributes(payload): # buffer

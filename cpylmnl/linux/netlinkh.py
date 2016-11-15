@@ -106,8 +106,6 @@ NETLINK_DROP_MEMBERSHIP		= 2
 NETLINK_PKTINFO			= 3
 NETLINK_BROADCAST_ERROR		= 4
 NETLINK_NO_ENOBUFS		= 5
-NETLINK_RX_RING			= 6
-NETLINK_TX_RING			= 7
 NETLINK_LISTEN_ALL_NSID		= 8
 NETLINK_LIST_MEMBERSHIPS	= 9
 NETLINK_CAP_ACK			= 10
@@ -117,47 +115,9 @@ class NlPktinfo(ctypes.Structure): # not NLStructure?
     """
     _fields_ = [("group",	ctypes.c_uint32)] # __u32 group
 
-class NlMmapReq(ctypes.Structure):
-    """struct nl_mmap_req
-    """
-    _fields_ = [("nm_block_size", 	ctypes.c_uint), # unsigned int	nm_block_size
-                ("nm_block_nr",		ctypes.c_uint), # unsigned int	nm_block_nr
-                ("nm_frame_size",	ctypes.c_uint), # unsigned int	nm_frame_size
-                ("nm_frame_nr",		ctypes.c_uint)] # unsigned int	nm_frame_nr
 
-class NlMmapHdr(ctypes.Structure):
-    """struct nl_mmap_hdr
-    """
-    _fields_ = [("nm_status",	ctypes.c_uint),   # unsigned int	nm_status
-                ("nm_len",	ctypes.c_uint),   # unsigned int	nm_len
-                ("nm_group",	ctypes.c_uint32), # __u32		nm_group;
-                # credentials
-                ("nm_pid",	ctypes.c_uint32), # __u32		nm_pid;
-                ("nm_uid",	ctypes.c_uint32), # __u32		nm_uid;
-                ("nm_gid", 	ctypes.c_uint32)] # __u32		nm_gid;
+NET_MAJOR = 36		# Major 36 is reserved for networking
 
-class NlMmapStatus(object):
-    NL_MMAP_STATUS_UNUSED	= 0
-    NL_MMAP_STATUS_RESERVED	= 1
-    NL_MMAP_STATUS_VALID	= 2
-    NL_MMAP_STATUS_COPY		= 3
-    NL_MMAP_STATUS_SKIP		= 4
-NL_MMAP_STATUS_UNUSED	= NlMmapStatus.NL_MMAP_STATUS_UNUSED
-NL_MMAP_STATUS_RESERVED	= NlMmapStatus.NL_MMAP_STATUS_RESERVED
-NL_MMAP_STATUS_VALID	= NlMmapStatus.NL_MMAP_STATUS_VALID
-NL_MMAP_STATUS_COPY	= NlMmapStatus.NL_MMAP_STATUS_COPY
-NL_MMAP_STATUS_SKIP	= NlMmapStatus.NL_MMAP_STATUS_SKIP
-
-NL_MMAP_MSG_ALIGNMENT	= NLMSG_ALIGNTO
-# 'kernel.h' contains some often-used function prototypes etc
-def __ALIGN_KERNEL(x, a):		return __ALIGN_KERNEL_MASK(x, (a) - 1)
-def __ALIGN_KERNEL_MASK(x, mask):	return  ((x) + (mask)) & ~(mask)
-#define NL_MMAP_MSG_ALIGN(sz)		__ALIGN_KERNEL(sz, NL_MMAP_MSG_ALIGNMENT)
-def NL_MMAP_MSG_ALIGN(sz):		return __ALIGN_KERNEL(sz, NL_MMAP_MSG_ALIGNMENT)
-#define NL_MMAP_HDRLEN			NL_MMAP_MSG_ALIGN(ctypes.sizeof(struct nl_mmap_hdr))
-NL_MMAP_HDRLEN				= NL_MMAP_MSG_ALIGN(ctypes.sizeof(NlMmapHdr))
-
-NET_MAJOR = 36		# Major 36 is reserved for networking 						
 
 # enum
 NETLINK_UNCONNECTED	= 0

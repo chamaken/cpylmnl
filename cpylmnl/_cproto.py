@@ -18,7 +18,7 @@ except ImportError:
 _HAS_SOCKET_OPEN2 = False
 _HAS_SOCKET_FDOPEN = False
 
-"""handle inner struct - mnl_socket, mnl_nlmsg_batch, mnl_ring as opaque, ctypes.c_void_p"""
+"""handle inner struct - mnl_socket, mnl_nlmsg_batch, ctypes.c_void_p"""
 
 ###
 ## Netlink socket API
@@ -57,51 +57,6 @@ c_socket_bind.__doc__ = """\
 int mnl_socket_bind(struct mnl_socket *nl, unsigned int groups, pid_t pid)"""
 c_socket_bind.argtypes = [ctypes.c_void_p, ctypes.c_uint, c_pid_t]
 c_socket_bind.restype = ctypes.c_int
-
-HAS_MNL_RING = False # whether libmnl has mmap extention or not
-
-try: # ring functions
-    c_socket_set_ringopt = LIBMNL.mnl_socket_set_ringopt
-    c_socket_set_ringopt.__doc__ = """\
-int mnl_socket_set_ringopt(struct mnl_socket *nl, enum mnl_ring_type type,
-			   unsigned int block_size, unsigned int block_nf,
-			   unsigned int frame_size, unsigned int frame_nr)"""
-    c_socket_set_ringopt.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_uint, ctypes.c_uint, ctypes.c_uint, ctypes.c_uint]
-    c_socket_set_ringopt.restype = ctypes.c_int
-
-    c_socket_map_ring = LIBMNL.mnl_socket_map_ring
-    c_socket_map_ring.__doc__ = """\
-extern int mnl_socket_map_ring(struct mnl_socket *nl, int flags)"""
-    c_socket_map_ring.argtypes = [ctypes.c_void_p, ctypes.c_int]
-    c_socket_map_ring.restype = ctypes.c_int
-
-    c_socket_unmap_ring = LIBMNL.mnl_socket_unmap_ring
-    c_socket_unmap_ring.__doc__ = """\
-extern int mnl_socket_unmap_ring(struct mnl_socket *nl)"""
-    c_socket_unmap_ring.argtypes = [ctypes.c_void_p]
-    c_socket_unmap_ring.restype = ctypes.c_int
-
-    c_socket_get_ring = LIBMNL.mnl_socket_get_ring
-    c_socket_get_ring.__doc__ = """\
-struct mnl_ring *mnl_socket_get_ring(const struct mnl_socket *nl, enum mnl_ring_type type)"""
-    c_socket_get_ring.argtypes = [ctypes.c_void_p, ctypes.c_int]
-    c_socket_get_ring.restype = ctypes.c_void_p
-
-    c_ring_advance = LIBMNL.mnl_ring_advance
-    c_ring_advance.__doc__ = """\
-void mnl_ring_advance(struct mnl_ring *ring)"""
-    c_ring_advance.argtypes = [ctypes.c_void_p]
-    c_ring_advance.restype = None
-
-    c_ring_current_frame = LIBMNL.mnl_ring_current_frame
-    c_ring_current_frame.__doc__ = """\
-struct nl_mmap_hdr *mnl_ring_current_frame(const struct mnl_ring *ring)"""
-    c_ring_current_frame.argtypes = [ctypes.c_void_p]
-    c_ring_current_frame.restype = ctypes.POINTER(netlink.NlMmapHdr)
-except AttributeError:
-    HAS_MNL_RING = False
-else:
-    HAS_MNL_RING = True
 
 c_socket_close = LIBMNL.mnl_socket_close
 c_socket_close.__doc__ = """\
@@ -274,12 +229,6 @@ c_nlmsg_batch_is_empty.__doc__ = """\
 bool mnl_nlmsg_batch_is_empty(struct mnl_nlmsg_batch *b)"""
 c_nlmsg_batch_is_empty.argtypes = [ctypes.c_void_p]
 c_nlmsg_batch_is_empty.restype = ctypes.c_bool
-
-if HAS_MNL_RING:
-    c_nlmsg_batch_reset_buffer = LIBMNL.mnl_nlmsg_batch_reset_buffer
-    c_nlmsg_batch_reset_buffer.__doc__ = """\
-void mnl_nlmsg_batch_reset_buffer(struct mnl_nlmsg_batch *b, void *buf, size_t limit)"""
-    c_nlmsg_batch_reset_buffer.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_size_t]
 
 
 ###
