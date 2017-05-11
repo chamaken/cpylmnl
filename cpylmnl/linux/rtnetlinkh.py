@@ -58,6 +58,7 @@ RTM_GETADDRLABEL	= 74
 RTM_GETDCB		= 78
 RTM_SETDCB		= 79
 RTM_NEWNETCONF		= 80
+RTM_DELNETCONF		= 81
 RTM_GETNETCONF		= 82
 RTM_NEWMDB		= 84
 RTM_DELMDB		= 85
@@ -65,7 +66,9 @@ RTM_GETMDB		= 86
 RTM_NEWNSID		= 88
 RTM_DELNSID		= 89
 RTM_GETNSID		= 90
-__RTM_MAX		= 91
+RTM_NEWSTATS		= 92
+RTM_GETSTATS		= 94
+__RTM_MAX		= 95
 RTM_MAX			= (((__RTM_MAX + 3) & ~3) - 1)
 
 RTM_NR_MSGTYPES = (RTM_MAX + 1 - RTM_BASE)
@@ -238,33 +241,39 @@ class RtattrTypeT(object):
     RTA_ENCAP_TYPE	= 22
     RTA_ENCAP		= 23
     RTA_EXPIRES		= 24
-    __RTA_MAX		= 25
+    RTA_PAD		= 25
+    RTA_UID		= 26
+    RTA_TTL_PROPAGATE	= 27
+    __RTA_MAX		= 28
     RTA_MAX		= (__RTA_MAX - 1)
-RTA_UNSPEC	= RtattrTypeT.RTA_UNSPEC
-RTA_DST		= RtattrTypeT.RTA_DST
-RTA_SRC		= RtattrTypeT.RTA_SRC
-RTA_IIF		= RtattrTypeT.RTA_IIF
-RTA_OIF		= RtattrTypeT.RTA_OIF
-RTA_GATEWAY	= RtattrTypeT.RTA_GATEWAY
-RTA_PRIORITY	= RtattrTypeT.RTA_PRIORITY
-RTA_PREFSRC	= RtattrTypeT.RTA_PREFSRC
-RTA_METRICS	= RtattrTypeT.RTA_METRICS
-RTA_MULTIPATH	= RtattrTypeT.RTA_MULTIPATH
-RTA_PROTOINFO	= RtattrTypeT.RTA_PROTOINFO
-RTA_FLOW	= RtattrTypeT.RTA_FLOW
-RTA_CACHEINFO	= RtattrTypeT.RTA_CACHEINFO
-RTA_SESSION	= RtattrTypeT.RTA_SESSION
-RTA_MP_ALGO	= RtattrTypeT.RTA_MP_ALGO
-RTA_TABLE	= RtattrTypeT.RTA_TABLE
-RTA_MARK	= RtattrTypeT.RTA_MARK
-RTA_MFC_STATS	= RtattrTypeT.RTA_MFC_STATS
-RTA_VIA		= RtattrTypeT.RTA_VIA
-RTA_NEWDST	= RtattrTypeT.RTA_NEWDST
-RTA_PREF	= RtattrTypeT.RTA_PREF
-RTA_ENCAP_TYPE	= RtattrTypeT.RTA_ENCAP_TYPE
-RTA_ENCAP	= RtattrTypeT.RTA_ENCAP
-RTA_EXPIRES	= RtattrTypeT.RTA_EXPIRES
-RTA_MAX		= RtattrTypeT.RTA_MAX
+RTA_UNSPEC		= RtattrTypeT.RTA_UNSPEC
+RTA_DST			= RtattrTypeT.RTA_DST
+RTA_SRC			= RtattrTypeT.RTA_SRC
+RTA_IIF			= RtattrTypeT.RTA_IIF
+RTA_OIF			= RtattrTypeT.RTA_OIF
+RTA_GATEWAY		= RtattrTypeT.RTA_GATEWAY
+RTA_PRIORITY		= RtattrTypeT.RTA_PRIORITY
+RTA_PREFSRC		= RtattrTypeT.RTA_PREFSRC
+RTA_METRICS		= RtattrTypeT.RTA_METRICS
+RTA_MULTIPATH		= RtattrTypeT.RTA_MULTIPATH
+RTA_PROTOINFO		= RtattrTypeT.RTA_PROTOINFO
+RTA_FLOW		= RtattrTypeT.RTA_FLOW
+RTA_CACHEINFO		= RtattrTypeT.RTA_CACHEINFO
+RTA_SESSION		= RtattrTypeT.RTA_SESSION
+RTA_MP_ALGO		= RtattrTypeT.RTA_MP_ALGO
+RTA_TABLE		= RtattrTypeT.RTA_TABLE
+RTA_MARK		= RtattrTypeT.RTA_MARK
+RTA_MFC_STATS		= RtattrTypeT.RTA_MFC_STATS
+RTA_VIA			= RtattrTypeT.RTA_VIA
+RTA_NEWDST		= RtattrTypeT.RTA_NEWDST
+RTA_PREF		= RtattrTypeT.RTA_PREF
+RTA_ENCAP_TYPE		= RtattrTypeT.RTA_ENCAP_TYPE
+RTA_ENCAP		= RtattrTypeT.RTA_ENCAP
+RTA_EXPIRES		= RtattrTypeT.RTA_EXPIRES
+RTA_PAD			= RtattrTypeT.RTA_PAD
+RTA_UID			= RtattrTypeT.RTA_UID
+RTA_TTL_PROPAGATE	= RtattrTypeT.RTA_TTL_PROPAGATE
+RTA_MAX			= RtattrTypeT.RTA_MAX
 
 #define RTM_RTA(r)  ((struct rtattr*)(((char*)(r)) + NLMSG_ALIGN(sizeof(struct rtmsg))))
 def RTM_RTA(r):		return Rtattr.from_pointer(ctypes.addressof(r) + netlink.NLMSG_ALIGN(ctypes.sizeof(Rtmsg)))
@@ -293,7 +302,8 @@ RTNH_F_PERVASIVE	= 2	# Do recursive gateway lookup
 RTNH_F_ONLINK		= 4	# Gateway is forced on link
 RTNH_F_OFFLOAD		= 8	# offloaded route
 RTNH_F_LINKDOWN		= 16	# carrier-down on nexthop
-RTNH_COMPARE_MASK	= (RTNH_F_DEAD | RTNH_F_LINKDOWN)
+RTNH_F_UNRESOLVED	= 32	# The entry is unresolved (ipmr)
+RTNH_COMPARE_MASK	= (RTNH_F_DEAD | RTNH_F_LINKDOWN | RTNH_F_OFFLOAD)
 
 
 # Macros to handle hexthops
@@ -480,17 +490,19 @@ class Tcmsg(ctypes.Structure):
                 ("tcm_info",	ctypes.c_uint32)] # __u32		tcm_info
 
 # enum
-TCA_UNSPEC	= 0
-TCA_KIND	= 1
-TCA_OPTIONS	= 2
-TCA_STATS	= 3
-TCA_XSTATS	= 4
-TCA_RATE	= 5
-TCA_FCNT	= 6
-TCA_STATS2	= 7
-TCA_STAB	= 8
-__TCA_MAX	= 9
-TCA_MAX		= (__TCA_MAX - 1)
+TCA_UNSPEC		= 0
+TCA_KIND		= 1
+TCA_OPTIONS		= 2
+TCA_STATS		= 3
+TCA_XSTATS		= 4
+TCA_RATE		= 5
+TCA_FCNT		= 6
+TCA_STATS2		= 7
+TCA_STAB		= 8
+TCA_PAD			= 9
+TCA_DUMP_INVISIBLE	= 10
+__TCA_MAX		= 11
+TCA_MAX			= (__TCA_MAX - 1)
 
 #define TCA_RTA(r)  ((struct rtattr*)(((char*)(r)) + NLMSG_ALIGN(sizeof(struct tcmsg))))
 def TCA_RTA(r):		return Rtattr.from_pointer(ctypes.addressof(r) + netlink.NLMSG_ALIGN(ctypes.sizeof(Tcmsg)))
@@ -574,7 +586,8 @@ class RtnetlinkGroups(object):
 	RTNLGRP_MDB		= 26
 	RTNLGRP_MPLS_ROUTE	= 27
 	RTNLGRP_NSID		= 28
-	__RTNLGRP_MAX		= 29
+	RTNLGRP_MPLS_NETCONF	= 29
+	__RTNLGRP_MAX		= 30
 	RTNLGRP_MAX		= (__RTNLGRP_MAX - 1)
 RTNLGRP_NONE		= RtnetlinkGroups.RTNLGRP_NONE
 RTNLGRP_LINK		= RtnetlinkGroups.RTNLGRP_LINK
@@ -605,6 +618,7 @@ RTNLGRP_IPV6_NETCONF	= RtnetlinkGroups.RTNLGRP_IPV6_NETCONF
 RTNLGRP_MDB		= RtnetlinkGroups.RTNLGRP_MDB
 RTNLGRP_MPLS_ROUTE	= RtnetlinkGroups.RTNLGRP_MPLS_ROUTE
 RTNLGRP_NSID		= RtnetlinkGroups.RTNLGRP_NSID
+RTNLGRP_MPLS_NETCONF	= RtnetlinkGroups.RTNLGRP_MPLS_NETCONF
 RTNLGRP_MAX		= RtnetlinkGroups.RTNLGRP_MAX
 
 

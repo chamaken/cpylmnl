@@ -23,23 +23,30 @@ class IpConntrackInfo(object):
 
     IP_CT_ESTABLISHED_REPLY	= IP_CT_ESTABLISHED + IP_CT_IS_REPLY
     IP_CT_RELATED_REPLY		= IP_CT_RELATED + IP_CT_IS_REPLY
-    IP_CT_NEW_REPLY		= IP_CT_NEW + IP_CT_IS_REPLY
 
-    # Number of distinct IP_CT types (no NEW in reply dirn).
-    IP_CT_NUMBER		= IP_CT_IS_REPLY * 2 - 1
+    # No NEW in reply direction.
+
+    # Number of distinct IP_CT types.
+    IP_CT_NUMBER		= IP_CT_RELATED_REPLY + 1
+
+    # only for userspace compatibility
+    IP_CT_NEW_REPLY		= IP_CT_NUMBER
+    IP_CT_UNTRACKED		= 7 # ifdef __KERNEL__
+
 IP_CT_ESTABLISHED	= IpConntrackInfo.IP_CT_ESTABLISHED
 IP_CT_RELATED		= IpConntrackInfo.IP_CT_RELATED
 IP_CT_NEW		= IpConntrackInfo.IP_CT_NEW
 IP_CT_IS_REPLY		= IpConntrackInfo.IP_CT_IS_REPLY
 IP_CT_ESTABLISHED_REPLY	= IP_CT_ESTABLISHED + IP_CT_IS_REPLY
 IP_CT_RELATED_REPLY	= IP_CT_RELATED + IP_CT_IS_REPLY
-IP_CT_NEW_REPLY		= IP_CT_NEW + IP_CT_IS_REPLY
-IP_CT_NUMBER		= IP_CT_IS_REPLY * 2 - 1
+IP_CT_NUMBER		= IpConntrackInfo.IP_CT_NUMBER
+IP_CT_NEW_REPLY		= IpConntrackInfo.IP_CT_NEW_REPLY
+IP_CT_UNTRACKED		= IpConntrackInfo.IP_CT_UNTRACKED
 
 
 NF_CT_STATE_INVALID_BIT = (1 << 0)
 def NF_CT_STATE_BIT(ctinfo): return (1 << ((ctinfo) % IP_CT_IS_REPLY + 1))
-NF_CT_STATE_UNTRACKED_BIT = (1 << (IP_CT_NUMBER + 1))
+NF_CT_STATE_UNTRACKED_BIT = (1 << (IP_CT_UNTRACKED + 1))
 
 # Bitset representing status of connection.
 # enum ip_conntrack_status
@@ -97,13 +104,21 @@ class IpConntrackStatus(object):
     IPS_TEMPLATE_BIT		= 11
     IPS_TEMPLATE		= (1 << IPS_TEMPLATE_BIT)
 
-    # Conntrack is a fake untracked entry
+    # Conntrack is a fake untracked entry.  Obsolete and not used anymore
     IPS_UNTRACKED_BIT		= 12
     IPS_UNTRACKED		= (1 << IPS_UNTRACKED_BIT)
 
     # Conntrack got a helper explicitly attached via CT target.
     IPS_HELPER_BIT		= 13
     IPS_HELPER			= (1 << IPS_HELPER_BIT)
+
+    # Be careful here, modifying these bits can make things messy,
+    # so don't let users modify them directly.
+    IPS_UNCHANGEABLE_MASK = (IPS_NAT_DONE_MASK | IPS_NAT_MASK |
+			     IPS_EXPECTED | IPS_CONFIRMED | IPS_DYING |
+			     IPS_SEQ_ADJUST | IPS_TEMPLATE)
+    __IPS_MAX_BIT = 14
+
 IPS_EXPECTED_BIT	= IpConntrackStatus.IPS_EXPECTED_BIT
 IPS_EXPECTED		= IpConntrackStatus.IPS_EXPECTED
 IPS_SEEN_REPLY_BIT	= IpConntrackStatus.IPS_SEEN_REPLY_BIT
@@ -134,6 +149,8 @@ IPS_UNTRACKED_BIT	= IpConntrackStatus.IPS_UNTRACKED_BIT
 IPS_UNTRACKED		= IpConntrackStatus.IPS_UNTRACKED
 IPS_HELPER_BIT		= IpConntrackStatus.IPS_HELPER_BIT
 IPS_HELPER		= IpConntrackStatus.IPS_HELPER
+IPS_UNCHANGEABLE_MASK	= IpConntrackStatus.IPS_UNCHANGEABLE_MASK
+# __IPS_MAX_BIT		= IpConntrackStatus.__IPS_MAX_BIT
 
 # Connection tracking event types
 # enum ip_conntrack_events

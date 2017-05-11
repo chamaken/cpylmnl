@@ -69,3 +69,17 @@ NFNL_SUBSYS_COUNT			= 12
 NFNL_MSG_BATCH_BEGIN			= netlink.NLMSG_MIN_TYPE
 #define NFNL_MSG_BATCH_END		NLMSG_MIN_TYPE+1
 NFNL_MSG_BATCH_END			= netlink.NLMSG_MIN_TYPE + 1
+
+
+# enum nfnl_batch_attributes - nfnetlink batch netlink attributes
+# @NFNL_BATCH_GENID: generation ID for this changeset (NLA_U32)
+class NfnlBatchAttributes(object):
+    """enum nfnl_batch_attributes
+    """
+    NFNL_BATCH_UNSPEC	= 0
+    NFNL_BATCH_GENID	= 1
+    __NFNL_BATCH_MAX	= 2
+    NFNL_BATCH_MAX	= __NFNL_BATCH_MAX - 1
+NFNL_BATCH_UNSPEC	= NfnlBatchAttributes.NFNL_BATCH_UNSPEC
+NFNL_BATCH_GENID	= NfnlBatchAttributes.NFNL_BATCH_GENID
+NFNL_BATCH_MAX		= NfnlBatchAttributes.NFNL_BATCH_MAX

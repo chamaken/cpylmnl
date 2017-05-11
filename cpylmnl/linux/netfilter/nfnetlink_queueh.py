@@ -38,6 +38,20 @@ class NfqnlMsgPacketTimestamp(NLStructure):
     _fields_ = [("sec",         ctypes.c_uint64),
                 ("usec",	ctypes.c_uint64)]
 
+class NfqnlVlanAttr(object):
+    """enum nfqnl_vlan_attr
+    """
+    NFQA_VLAN_UNSPEC	= 0
+    NFQA_VLAN_PROTO	= 1 # __be16 skb vlan_proto
+    NFQA_VLAN_TCI	= 2 # __be16 skb htons(vlan_tci)
+    __NFQA_VLAN_MAX	= 3
+    NFQA_VLAN_MAX	= __NFQA_VLAN_MAX - 1
+NFQA_VLAN_UNSPEC	= NfqnlVlanAttr.NFQA_VLAN_UNSPEC
+NFQA_VLAN_PROTO		= NfqnlVlanAttr.NFQA_VLAN_PROTO
+NFQA_VLAN_TCI		= NfqnlVlanAttr.NFQA_VLAN_TCI
+NFQA_VLAN_MAX		= NfqnlVlanAttr.NFQA_VLAN_MAX
+
+
 # enum nfqnl_attr_type
 class NfqnlAttrType(object):
     NFQA_UNSPEC			= 0  # 
@@ -59,7 +73,9 @@ class NfqnlAttrType(object):
     NFQA_UID			= 16 # __u32 sk uid
     NFQA_GID			= 17 # __u32 sk gid
     NFQA_SECCTX			= 18 # security context string
-    __NFQA_MAX			= 19 # nf_conntrack_netlink.h
+    NFQA_VLAN			= 19 # nested attribute: packet vlan info
+    NFQA_L2HDR			= 20 # full L2 header
+    __NFQA_MAX			= 21 # nf_conntrack_netlink.h
     NFQA_MAX			= (__NFQA_MAX - 1)
 NFQA_UNSPEC		= NfqnlAttrType.NFQA_UNSPEC
 NFQA_PACKET_HDR		= NfqnlAttrType.NFQA_PACKET_HDR
@@ -80,6 +96,8 @@ NFQA_EXP		= NfqnlAttrType.NFQA_EXP
 NFQA_UID		= NfqnlAttrType.NFQA_UID
 NFQA_GID		= NfqnlAttrType.NFQA_GID
 NFQA_SECCTX		= NfqnlAttrType.NFQA_SECCTX
+NFQA_VLAN		= NfqnlAttrType.NFQA_VLAN
+NFQA_L2HDR		= NfqnlAttrType.NFQA_L2HDR
 NFQA_MAX		= NfqnlAttrType.NFQA_MAX
 
 class NfqnlMsgVerdictHdr(NLStructure):

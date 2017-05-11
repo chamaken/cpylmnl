@@ -7,7 +7,7 @@ NF_ACCEPT	= 1
 NF_STOLEN	= 2
 NF_QUEUE	= 3
 NF_REPEAT	= 4
-NF_STOP		= 5
+NF_STOP		= 5	# Deprecated, for userspace nf_queue compatibility.
 NF_MAX_VERDICT	= NF_STOP
 
 # we overload the higher bits for encoding auxiliary data such as the queue

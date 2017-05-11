@@ -8,47 +8,47 @@ counter_sources() {
 cat <<EOF
 # UAPI
 # linux UAPI
-$UAPI_SRCDIR/linux/netlink.h				ORIGINAL_C_SOURCE/linux/netlink.h
-$UAPI_SRCDIR/linux/if_link.h				h/linux/if_link.h
-$UAPI_SRCDIR/linux/rtnetlink.h				h/linux/rtnetlink.h
-$UAPI_SRCDIR/linux/genetlink.h				h/linux/genetlink.h
-$UAPI_SRCDIR/linux/if_addr.h				h/linux/if_addr.h
-$UAPI_SRCDIR/linux/netfilter/nf_conntrack_common.h	h/linux/netfilter/nf_conntrack_common.h
-$UAPI_SRCDIR/linux/netfilter/nf_conntrack_tcp.h		h/linux/netfilter/nf_conntrack_tcp.h
-$UAPI_SRCDIR/linux/netfilter/nfnetlink.h		h/linux/netfilter/nfnetlink.h
-$UAPI_SRCDIR/linux/netfilter/nfnetlink_compat.h		h/linux/netfilter/nfnetlink_compat.h
-$UAPI_SRCDIR/linux/netfilter/nfnetlink_conntrack.h	h/linux/netfilter/nfnetlink_conntrack.h
-$UAPI_SRCDIR/linux/netfilter/nfnetlink_log.h		h/linux/netfilter/nfnetlink_log.h
-$UAPI_SRCDIR/linux/netfilter/nfnetlink_queue.h		h/linux/netfilter/nfnetlink_queue.h
-$UAPI_SRCDIR/linux/if.h					h/linux/if.h
-$UAPI_SRCDIR/linux/netfilter.h				h/linux/netfilter.h
+csrc/linux/netlink.h					$UAPI_SRCDIR/linux/netlink.h
+csrc/linux/if_link.h                                    $UAPI_SRCDIR/linux/if_link.h
+csrc/linux/rtnetlink.h                                  $UAPI_SRCDIR/linux/rtnetlink.h
+csrc/linux/genetlink.h                                  $UAPI_SRCDIR/linux/genetlink.h
+csrc/linux/if_addr.h                                    $UAPI_SRCDIR/linux/if_addr.h
+csrc/linux/netfilter/nf_conntrack_common.h              $UAPI_SRCDIR/linux/netfilter/nf_conntrack_common.h
+csrc/linux/netfilter/nf_conntrack_tcp.h                 $UAPI_SRCDIR/linux/netfilter/nf_conntrack_tcp.h
+csrc/linux/netfilter/nfnetlink.h                        $UAPI_SRCDIR/linux/netfilter/nfnetlink.h
+csrc/linux/netfilter/nfnetlink_compat.h                 $UAPI_SRCDIR/linux/netfilter/nfnetlink_compat.h
+csrc/linux/netfilter/nfnetlink_conntrack.h              $UAPI_SRCDIR/linux/netfilter/nfnetlink_conntrack.h
+csrc/linux/netfilter/nfnetlink_log.h                    $UAPI_SRCDIR/linux/netfilter/nfnetlink_log.h
+csrc/linux/netfilter/nfnetlink_queue.h                  $UAPI_SRCDIR/linux/netfilter/nfnetlink_queue.h
+csrc/linux/if.h                                         $UAPI_SRCDIR/linux/if.h
+csrc/linux/netfilter.h                                  $UAPI_SRCDIR/linux/netfilter.h
 
 # libmnl source
-$LIBMNL_SRCDIR/include/libmnl/libmnl.h			ORIGINAL_C_SOURCE/mnl/libmnl.h
-$LIBMNL_SRCDIR/src/attr.c				ORIGINAL_C_SOURCE/mnl/attr.c
-$LIBMNL_SRCDIR/src/socket.c				ORIGINAL_C_SOURCE/mnl/socket.c
-$LIBMNL_SRCDIR/src/nlmsg.c				ORIGINAL_C_SOURCE/mnl/nlmsg.c
-$LIBMNL_SRCDIR/src/callback.c				ORIGINAL_C_SOURCE/mnl/callback.c
+csrc/mnl/libmnl.h                                       $LIBMNL_SRCDIR/include/libmnl/libmnl.h
+csrc/mnl/attr.c                                         $LIBMNL_SRCDIR/src/attr.c
+csrc/mnl/socket.c                                       $LIBMNL_SRCDIR/src/socket.c
+csrc/mnl/nlmsg.c                                        $LIBMNL_SRCDIR/src/nlmsg.c
+csrc/mnl/callback.c                                     $LIBMNL_SRCDIR/src/callback.c
 
 # libmnl examples
-$LIBMNL_SRCDIR/examples/netfilter/nfct-dump.c		ORIGINAL_C_SOURCE/mnl/examples/netfilter/nfct-dump.c
-$LIBMNL_SRCDIR/examples/netfilter/nfct-event.c		ORIGINAL_C_SOURCE/mnl/examples/netfilter/nfct-event.c
-$LIBMNL_SRCDIR/examples/netfilter/nf-queue.c		ORIGINAL_C_SOURCE/mnl/examples/netfilter/nf-queue.c
-$LIBMNL_SRCDIR/examples/netfilter/nf-log.c		ORIGINAL_C_SOURCE/mnl/examples/netfilter/nf-log.c
-$LIBMNL_SRCDIR/examples/netfilter/nfct-daemon.c		ORIGINAL_C_SOURCE/mnl/examples/netfilter/nfct-daemon.c
-$LIBMNL_SRCDIR/examples/netfilter/nfct-create-batch.c	ORIGINAL_C_SOURCE/mnl/examples/netfilter/nfct-create-batch.c
-$LIBMNL_SRCDIR/examples/rtnl/rtnl-link-event.c		ORIGINAL_C_SOURCE/mnl/examples/rtnl/rtnl-link-event.c
-$LIBMNL_SRCDIR/examples/rtnl/rtnl-addr-dump.c		ORIGINAL_C_SOURCE/mnl/examples/rtnl/rtnl-addr-dump.c
-$LIBMNL_SRCDIR/examples/rtnl/rtnl-link-dump.c		ORIGINAL_C_SOURCE/mnl/examples/rtnl/rtnl-link-dump.c
-$LIBMNL_SRCDIR/examples/rtnl/rtnl-route-add.c		ORIGINAL_C_SOURCE/mnl/examples/rtnl/rtnl-route-add.c
-$LIBMNL_SRCDIR/examples/rtnl/rtnl-route-event.c		ORIGINAL_C_SOURCE/mnl/examples/rtnl/rtnl-route-event.c
-$LIBMNL_SRCDIR/examples/rtnl/rtnl-link-dump2.c		ORIGINAL_C_SOURCE/mnl/examples/rtnl/rtnl-link-dump2.c
-$LIBMNL_SRCDIR/examples/rtnl/rtnl-route-dump.c		ORIGINAL_C_SOURCE/mnl/examples/rtnl/rtnl-route-dump.c
-$LIBMNL_SRCDIR/examples/rtnl/rtnl-link-set.c		ORIGINAL_C_SOURCE/mnl/examples/rtnl/rtnl-link-set.c
-$LIBMNL_SRCDIR/examples/rtnl/rtnl-link-dump3.c		ORIGINAL_C_SOURCE/mnl/examples/rtnl/rtnl-link-dump3.c
-$LIBMNL_SRCDIR/examples/kobject/kobject-event.c		ORIGINAL_C_SOURCE/mnl/examples/kobject/kobject-event.c
-$LIBMNL_SRCDIR/examples/genl/genl-family-get.c		ORIGINAL_C_SOURCE/mnl/examples/genl/genl-family-get.c
-$LIBMNL_SRCDIR/examples/genl/genl-group-events.c	ORIGINAL_C_SOURCE/mnl/examples/genl/genl-group-events.c
+csrc/mnl/examples/netfilter/nfct-dump.c                 $LIBMNL_SRCDIR/examples/netfilter/nfct-dump.c
+csrc/mnl/examples/netfilter/nfct-event.c                $LIBMNL_SRCDIR/examples/netfilter/nfct-event.c
+csrc/mnl/examples/netfilter/nf-queue.c                  $LIBMNL_SRCDIR/examples/netfilter/nf-queue.c
+csrc/mnl/examples/netfilter/nf-log.c                    $LIBMNL_SRCDIR/examples/netfilter/nf-log.c
+csrc/mnl/examples/netfilter/nfct-daemon.c               $LIBMNL_SRCDIR/examples/netfilter/nfct-daemon.c
+csrc/mnl/examples/netfilter/nfct-create-batch.c         $LIBMNL_SRCDIR/examples/netfilter/nfct-create-batch.c
+csrc/mnl/examples/rtnl/rtnl-link-event.c                $LIBMNL_SRCDIR/examples/rtnl/rtnl-link-event.c
+csrc/mnl/examples/rtnl/rtnl-addr-dump.c                 $LIBMNL_SRCDIR/examples/rtnl/rtnl-addr-dump.c
+csrc/mnl/examples/rtnl/rtnl-link-dump.c                 $LIBMNL_SRCDIR/examples/rtnl/rtnl-link-dump.c
+csrc/mnl/examples/rtnl/rtnl-route-add.c                 $LIBMNL_SRCDIR/examples/rtnl/rtnl-route-add.c
+csrc/mnl/examples/rtnl/rtnl-route-event.c               $LIBMNL_SRCDIR/examples/rtnl/rtnl-route-event.c
+csrc/mnl/examples/rtnl/rtnl-link-dump2.c                $LIBMNL_SRCDIR/examples/rtnl/rtnl-link-dump2.c
+csrc/mnl/examples/rtnl/rtnl-route-dump.c                $LIBMNL_SRCDIR/examples/rtnl/rtnl-route-dump.c
+csrc/mnl/examples/rtnl/rtnl-link-set.c                  $LIBMNL_SRCDIR/examples/rtnl/rtnl-link-set.c
+csrc/mnl/examples/rtnl/rtnl-link-dump3.c                $LIBMNL_SRCDIR/examples/rtnl/rtnl-link-dump3.c
+csrc/mnl/examples/kobject/kobject-event.c               $LIBMNL_SRCDIR/examples/kobject/kobject-event.c
+csrc/mnl/examples/genl/genl-family-get.c                $LIBMNL_SRCDIR/examples/genl/genl-family-get.c
+csrc/mnl/examples/genl/genl-group-events.c              $LIBMNL_SRCDIR/examples/genl/genl-group-events.c
 EOF
 }
 
@@ -70,7 +70,7 @@ while read line; do
     ncsrc=$((ncsrc + 1))
 done < $t
 
-# cleanup tempfile 
+# cleanup tempfile
 rm -f -- "$t"
 trap - EXIT
 
